@@ -40,6 +40,7 @@ void fsm_init() {
     memset(&fsm_out, 0, sizeof(fsm_out));
 
     memset(timestamp_state, 0, _NUM_FSM_STATES * sizeof(*timestamp_state));
+    timestamp_state[FSM_OISIF] = timestamp_now();
 
     current_state = FSM_OISIF;
 }
