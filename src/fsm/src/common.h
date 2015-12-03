@@ -27,5 +27,12 @@
 #ifndef _COMMON_H_
 #define _COMMON_H_
 
+// Return the current timestamp in milliseconds. Timestamps are monotonic, and not
+// wall clock time.
+uint64_t timestamp_now(void);
+
+// Return either 0 or 1, somewhat randomly
+int random_bool(void);
+
 #endif // _COMMON_H_
 
