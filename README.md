@@ -12,22 +12,22 @@ On va utiliser un stm32f4-discovery.
 L'essence de la glutt-o-matique
 -------------------------------
 
-Notre but
-est que la glutte
+Notre but  
+est que la glutte  
 fasse des tût-tûts.
 
-Pour faire écho
-des beaux QSO
+Pour faire écho  
+des beaux QSO  
 depuis là haut.
 
-Donner comme retour
-entre chaque tour
+Donner comme retour  
+entre chaque tour  
 une lettre nuit et jour
 
-Économiser l'energie
-pour la longue vie
+Économiser l'energie  
+pour la longue vie  
 de la batterie.
 
-Tout en annoncant
-le beau temps
+Tout en annoncant  
+le beau temps  
 régulièrement.
