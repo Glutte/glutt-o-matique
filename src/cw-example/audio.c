@@ -176,7 +176,7 @@ void PlayAudioWithCallback(AudioCallbackFunction *callback, void *context) {
     StopAudioDMA();
 
     NVIC_EnableIRQ(DMA1_Stream7_IRQn);
-    NVIC_SetPriority(DMA1_Stream7_IRQn, 4);
+    NVIC_SetPriority(DMA1_Stream7_IRQn, 5);
 
     SPI3 ->CR2 |= SPI_CR2_TXDMAEN; // Enable I2S TX DMA request.
 

@@ -97,49 +97,54 @@ static void detect_button_press(void *pvParameters)
             while (GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_0) == 0) {
                 vTaskDelay(100 / portTICK_RATE_MS); /* Button Debounce Delay */
             }
-
         }
+        taskYIELD();
     }
 }
 
 #define AUDIO_BUF_LEN 4096
-static int16_t audio_buffer0[AUDIO_BUF_LEN];
-static int16_t audio_buffer1[AUDIO_BUF_LEN];
+static void audio_callback(void* context, int select_buffer)
+{
+    static int16_t audio_buffer0[AUDIO_BUF_LEN];
+    static int16_t audio_buffer1[AUDIO_BUF_LEN];
+    int16_t *samples;
+
+    if (select_buffer == 0) {
+        samples = audio_buffer0;
+        GPIO_SetBits(GPIOD, GPIO_Pin_13);
+        GPIO_ResetBits(GPIOD, GPIO_Pin_14);
+        select_buffer = 1;
+    } else {
+        samples = audio_buffer1;
+        GPIO_SetBits(GPIOD, GPIO_Pin_14);
+        GPIO_ResetBits(GPIOD, GPIO_Pin_13);
+        select_buffer = 0;
+    }
+
+    size_t samples_len = cw_fill_buffer(samples, AUDIO_BUF_LEN);
+
+    if (samples_len == 0) {
+        for (int i = 0; i < AUDIO_BUF_LEN; i++) {
+            samples[i] = 0;
+        }
+
+        samples_len = AUDIO_BUF_LEN;
+    }
+
+    ProvideAudioBufferWithoutBlocking(samples, samples_len);
+}
+
 static void audio_task(void *pvParameters)
 {
-
     int select_buffer = 0;
 
+    PlayAudioWithCallback(audio_callback, NULL);
+
     while (1) {
-        int16_t *samples;
-
-        if (select_buffer == 0) {
-            samples = audio_buffer0;
-            GPIO_SetBits(GPIOD, GPIO_Pin_13);
-            GPIO_ResetBits(GPIOD, GPIO_Pin_14);
-            select_buffer = 1;
-        } else {
-            samples = audio_buffer1;
-            GPIO_SetBits(GPIOD, GPIO_Pin_14);
-            GPIO_ResetBits(GPIOD, GPIO_Pin_13);
-            select_buffer = 0;
-        }
-
-        size_t samples_len = cw_fill_buffer(samples, AUDIO_BUF_LEN);
-
-        if (samples_len == 0) {
-            for (int i = 0; i < AUDIO_BUF_LEN; i++) {
-                samples[i] = 0;
-            }
-
-            samples_len = AUDIO_BUF_LEN;
-        }
-
-        ProvideAudioBufferWithoutBlocking(samples, samples_len);
-
         taskYIELD();
     }
 }
+
 
 void init() {
     GPIO_InitTypeDef  GPIO_InitStructure;

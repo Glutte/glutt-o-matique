@@ -199,11 +199,11 @@ void cw_push_message(const char* text, int dit_duration, int frequency)
     xQueueSendToBack(cw_queue, &msg, 0); /* Send Message */
 }
 
-
 size_t cw_fill_buffer(int16_t *buf, size_t bufsize)
 {
     if (cw_fill_msg_status == 0) {
-        if (xQueueReceiveFromISR(cw_queue, &cw_fill_msg_current, NULL)) {
+        if (uxQueueMessagesWaitingFromISR(cw_queue) > 0 &&
+            xQueueReceiveFromISR(cw_queue, &cw_fill_msg_current, NULL)) {
             // Convert msg to audio samples and transmit
             cw_fill_msg_status = 1;
             cw_fill_audio_sent = 0;
@@ -213,36 +213,40 @@ size_t cw_fill_buffer(int16_t *buf, size_t bufsize)
         }
     }
 
+#if 0
     const int samples_per_dit = (cw_samplerate * 1000) /
         cw_fill_msg_current.dit_duration;
 
     // Angular frequency of NCO
-    const float omega = 2 * FLOAT_PI * cw_fill_msg_current.freq /
+    const float omega = 2.0f * FLOAT_PI * cw_fill_msg_current.freq /
         (float)cw_samplerate;
 
     // Define start point
     int start_i = cw_fill_audio_sent / samples_per_dit;
     int start_t = cw_fill_audio_sent % samples_per_dit;
 
+    int pos = 0;
+
     for (int i = start_i; i < cw_fill_msg_current.on_buffer_end; i++) {
 
         for (int t = start_t; t < samples_per_dit; t++) {
             int16_t s = 0;
+    int16_t dat[] = {0,  3000,  6000,  12000,  16000,  12000,  6000,  3000,
+                     0, -3000, -6000, -12000, -16000, -12000, -6000, -3000};
+
 
             if (cw_fill_msg_current.on_buffer[i]) {
-                s = 32768.0f * arm_sin_f32(omega * t);
+                //s = 32768.0f * arm_sin_f32(omega * t);
+                s = dat[t % 16];
             }
 
-            if (i + 2 >= bufsize) {
+            if (pos + 2 >= bufsize) {
                 goto cw_fill_buf_full;
             }
 
             // Stereo
-            buf[i++] = s;
-            buf[i++] = s;
-
-            OutputAudioSample(s);
-            OutputAudioSample(s);
+            buf[pos++] = s;
+            buf[pos++] = s;
 
             cw_fill_audio_sent += 2;
         }
@@ -254,6 +258,19 @@ size_t cw_fill_buffer(int16_t *buf, size_t bufsize)
     cw_fill_msg_status = 0;
 
 cw_fill_buf_full:
+#else
+    const float omega = 2.0f * FLOAT_PI * 300.0f /
+                        (float)cw_samplerate;
+
+    for (int t = 0; t < bufsize; t++) {
+        int16_t s = 0;
+
+        // TODO preserve oscillator phase
+        s = 32768.0f * arm_sin_f32(omega * t);
+
+        buf[t] = s;
+    }
+#endif
     return bufsize;
 }
 
