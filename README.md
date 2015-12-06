@@ -7,8 +7,6 @@ On va utiliser un stm32f4-discovery.
 
 [La Glutte](http://www.glutte.ch)
 
-![La machine d'états](doc/20151118-machine-etats.png)
-
 L'essence de la glutt-o-matique
 -------------------------------
 
@@ -31,3 +29,9 @@ de la batterie.
 Tout en annoncant  
 le beau temps  
 régulièrement.
+
+Structure
+---------
+
+![La machine d'états](doc/20151118-machine-etats.png)
+
