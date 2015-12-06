@@ -92,6 +92,8 @@ void fsm_update() {
     fsm_out.tx_on = 0;
     fsm_out.modulation = 0;
     fsm_out.cw_trigger = 0;
+    fsm_out.cw_speed = 23;
+    fsm_out.cw_frequency = 300;
     // other output signals keep their value
 
     switch (current_state) {
