@@ -22,3 +22,20 @@
  * SOFTWARE.
 */
 
+#include <stdint.h>
+#include <stddef.h>
+
+#define FLOAT_PI 3.1415926535897932384f
+
+// Setup the CW generator to create audio samples at the given
+// samplerate.
+void cw_init(unsigned int samplerate);
+
+// Append new CW text to transmit
+// dit_duration in ms
+// frequency in Hz
+void cw_push_message(const char* text, int dit_duration, int frequency);
+
+// Write the waveform into the buffer (stereo)
+size_t cw_fill_buffer(int16_t *buf, size_t bufsize);
+
