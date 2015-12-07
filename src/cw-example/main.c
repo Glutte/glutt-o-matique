@@ -29,6 +29,12 @@ struct cw_msg_s {
     int dit_duration;
 };
 
+void vApplicationStackOverflowHook( TaskHandle_t xTask,
+                                    signed char *pcTaskName )
+{
+    while (1) {};
+}
+
 int main(void) {
     init();
 
@@ -40,7 +46,7 @@ int main(void) {
     xTaskCreate(
             detect_button_press,
             "TaskButton",
-            configMINIMAL_STACK_SIZE,
+            4*configMINIMAL_STACK_SIZE,
             (void*) NULL,
             tskIDLE_PRIORITY + 2UL,
             NULL);
