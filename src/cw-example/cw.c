@@ -251,18 +251,27 @@ static void cw_task(void *pvParameters)
             const float omega = 2.0f * FLOAT_PI * cw_fill_msg_current.freq /
                 (float)cw_samplerate;
 
+            float ampl = 0.0f;
+
             for (int i = 0; i < cw_fill_msg_current.on_buffer_end; i++) {
                 for (int t = 0; t < samples_per_dit; t++) {
                     int16_t s = 0;
 
+                    // Remove clicks from CW
                     if (cw_fill_msg_current.on_buffer[i]) {
-                        nco_phase += omega;
-                        if (nco_phase > FLOAT_PI) {
-                            nco_phase -= 2.0f * FLOAT_PI;
-                        }
-
-                        s = 32768.0f * arm_sin_f32(nco_phase);
+                        const float remaining = 32768.0f - ampl;
+                        ampl += remaining / 16.0f;
                     }
+                    else {
+                        ampl *= 0.8f;
+                    }
+
+                    nco_phase += omega;
+                    if (nco_phase > FLOAT_PI) {
+                        nco_phase -= 2.0f * FLOAT_PI;
+                    }
+
+                    s = ampl * arm_sin_f32(nco_phase);
 
                     if (buf_pos == AUDIO_BUF_LEN) {
                         xQueueSendToBack(cw_audio_queue, &cw_audio_buf, portMAX_DELAY);
