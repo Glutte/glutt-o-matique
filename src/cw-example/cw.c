@@ -22,6 +22,17 @@
  * SOFTWARE.
 */
 
+/* CW generator
+ *
+ * Concept:
+ *
+ * +-------------------+                    +-----------+
+ * | cw_push_message() | -> cw_msg_queue -> | cw_task() | -> cw_audio_queue
+ * +-------------------+                    +-----------+
+ *
+ * The cw_fill_buffer() function can be called to fetch audio from the audio_queue
+ */
+
 #include "cw.h"
 #include "arm_math.h"
 #include "audio.h"
@@ -29,6 +40,7 @@
 
 /* Kernel includes. */
 #include "FreeRTOS.h"
+#include "task.h"
 #include "queue.h"
 #include "semphr.h"
 
@@ -45,30 +57,35 @@ struct cw_out_message_s {
 };
 
 // The queue contains above structs
-QueueHandle_t cw_queue;
+QueueHandle_t cw_msg_queue;
+
+// Queue that contains audio data
+QueueHandle_t cw_audio_queue;
 static int    cw_samplerate;
 
-// The message being currently handled by cw_fill_buffer
-static struct cw_out_message_s cw_fill_msg_current;
-// Set to 1 if the cw_fill_buffer function is currently handling
-// msg_current. 0 if it has to wait for a new message.
-static int    cw_fill_msg_status;
-
-// Keep track of number of audio samples that were already
-// generated from the current message
-static int    cw_fill_audio_sent;
-
+static void cw_task(void *pvParameters);
 
 void cw_init(unsigned int samplerate)
 {
     cw_samplerate = samplerate;
 
-    cw_fill_msg_status = 0;
-
-    cw_queue = xQueueCreate(15, sizeof(struct cw_out_message_s));
-    if (cw_queue == 0) {
+    cw_msg_queue = xQueueCreate(15, sizeof(struct cw_out_message_s));
+    if (cw_msg_queue == 0) {
         while(1); /* fatal error */
     }
+
+    cw_audio_queue = xQueueCreate(2, AUDIO_BUF_LEN * sizeof(int16_t));
+    if (cw_audio_queue == 0) {
+        while(1); /* fatal error */
+    }
+
+    xTaskCreate(
+            cw_task,
+            "TaskCW",
+            8*configMINIMAL_STACK_SIZE,
+            (void*) NULL,
+            tskIDLE_PRIORITY + 2UL,
+            NULL);
 }
 
 const uint8_t cw_mapping[60] = { // {{{
@@ -165,9 +182,9 @@ void cw_symbol(uint8_t sym, struct cw_out_message_s *msg)
         p++;
     }
 
-    // silence(4)
-    if (msg->on_buffer_end + 4 < ON_BUFFER_SIZE) {
-        for (int i = 0; i < 4; i++) {
+    // silence(2)
+    if (msg->on_buffer_end + 2 < ON_BUFFER_SIZE) {
+        for (int i = 0; i < 2; i++) {
             msg->on_buffer[msg->on_buffer_end++] = 0;
         }
     }
@@ -189,8 +206,8 @@ void cw_push_message(const char* text, int dit_duration, int frequency)
     const char* sym = text;
     do {
         if (*sym < '+' || *sym > '\\') {
-            if (msg.on_buffer_end + 4 < ON_BUFFER_SIZE) {
-                for (int i = 0; i < 4; i++) {
+            if (msg.on_buffer_end + 3 < ON_BUFFER_SIZE) {
+                for (int i = 0; i < 3; i++) {
                     msg.on_buffer[msg.on_buffer_end++] = 0;
                 }
             }
@@ -201,95 +218,69 @@ void cw_push_message(const char* text, int dit_duration, int frequency)
         sym++;
     } while (*sym != '\0');
 
-    xQueueSendToBack(cw_queue, &msg, 0); /* Send Message */
+    xQueueSendToBack(cw_msg_queue, &msg, portMAX_DELAY); /* Send Message */
 }
 
 size_t cw_fill_buffer(int16_t *buf, size_t bufsize)
 {
-    static float nco_phase = 0.0f;
-
-
-    if (cw_fill_msg_status == 0) {
-        int waiting = uxQueueMessagesWaitingFromISR(cw_queue);
-#if 1
-        if (waiting > 0 &&
-            xQueueReceiveFromISR(cw_queue, &cw_fill_msg_current, NULL)) {
-            // Convert msg to audio samples and transmit
-            cw_fill_msg_status = 1;
-            cw_fill_audio_sent = 0;
-        }
-        else {
-            return 0;
-        }
-#else
+    if (xQueueReceiveFromISR(cw_audio_queue, buf, NULL)) {
+        return bufsize;
+    }
+    else {
         return 0;
-#endif
     }
+}
 
-#if 1
-    const int samples_per_dit = (cw_samplerate * 10) /
-        cw_fill_msg_current.dit_duration;
+static int16_t cw_audio_buf[AUDIO_BUF_LEN];
+static void cw_task(void *pvParameters)
+{
+    struct cw_out_message_s cw_fill_msg_current;
 
-    // Angular frequency of NCO
-    const float omega = 2.0f * FLOAT_PI * cw_fill_msg_current.freq /
-        (float)cw_samplerate;
+    float nco_phase = 0.0f;
 
-    // Define start point
-    int start_i = cw_fill_audio_sent / samples_per_dit;
-    int start_t = cw_fill_audio_sent % samples_per_dit;
+    int     buf_pos = 0;
 
-    int pos = 0;
+    while (1) {
+        int status = xQueueReceive(cw_msg_queue, &cw_fill_msg_current, portMAX_DELAY);
+        if (status == pdTRUE) {
 
-    for (int i = start_i; i < cw_fill_msg_current.on_buffer_end; i++) {
+            const int samples_per_dit = (cw_samplerate * 10) /
+                cw_fill_msg_current.dit_duration;
 
-        for (int t = start_t; t < samples_per_dit; t++) {
-            int16_t s = 0;
+            // Angular frequency of NCO
+            const float omega = 2.0f * FLOAT_PI * cw_fill_msg_current.freq /
+                (float)cw_samplerate;
 
-            if (cw_fill_msg_current.on_buffer[i]) {
-                nco_phase += omega;
-                if (nco_phase > FLOAT_PI) {
-                    nco_phase -= 2.0f * FLOAT_PI;
+            for (int i = 0; i < cw_fill_msg_current.on_buffer_end; i++) {
+                for (int t = 0; t < samples_per_dit; t++) {
+                    int16_t s = 0;
+
+                    if (cw_fill_msg_current.on_buffer[i]) {
+                        nco_phase += omega;
+                        if (nco_phase > FLOAT_PI) {
+                            nco_phase -= 2.0f * FLOAT_PI;
+                        }
+
+                        s = 32768.0f * arm_sin_f32(nco_phase);
+                    }
+
+                    if (buf_pos == AUDIO_BUF_LEN) {
+                        xQueueSendToBack(cw_audio_queue, &cw_audio_buf, portMAX_DELAY);
+                        buf_pos = 0;
+                    }
+                    cw_audio_buf[buf_pos++] = s;
+
+                    // Stereo
+                    if (buf_pos == AUDIO_BUF_LEN) {
+                        xQueueSendToBack(cw_audio_queue, &cw_audio_buf, portMAX_DELAY);
+                        buf_pos = 0;
+                    }
+                    cw_audio_buf[buf_pos++] = s;
                 }
-
-                s = 32768.0f * arm_sin_f32(nco_phase);
             }
 
-            if (pos + 2 >= bufsize) {
-                goto cw_fill_buf_full;
-            }
-
-            // Stereo
-            buf[pos++] = s;
-            buf[pos++] = s;
-
-            cw_fill_audio_sent += 2;
+            // We have completed this message
         }
-
-        start_t = 0;
     }
-
-    // We have completed this message
-    cw_fill_msg_status = 0;
-
-cw_fill_buf_full:
-#else
-    const float omega = 2.0f * FLOAT_PI * 300.0f /
-                        (float)cw_samplerate;
-
-    for (int t = 0; t < bufsize; t++) {
-        int16_t s = 0;
-
-        nco_phase += omega;
-        if (nco_phase > FLOAT_PI) {
-            nco_phase -= 2.0f * FLOAT_PI;
-        }
-
-        // TODO preserve oscillator phase
-        s = 32768.0f * arm_sin_f32(nco_phase);
-
-        buf[t] = s;
-    }
-#endif
-    return bufsize;
 }
 

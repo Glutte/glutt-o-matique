@@ -108,7 +108,6 @@ static void detect_button_press(void *pvParameters)
     }
 }
 
-#define AUDIO_BUF_LEN 4096
 static void audio_callback(void* context, int select_buffer)
 {
     static int16_t audio_buffer0[AUDIO_BUF_LEN];
