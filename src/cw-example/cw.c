@@ -25,6 +25,7 @@
 #include "cw.h"
 #include "arm_math.h"
 #include "audio.h"
+#include "debug.h"
 
 /* Kernel includes. */
 #include "FreeRTOS.h"
@@ -178,6 +179,10 @@ void cw_symbol(uint8_t sym, struct cw_out_message_s *msg)
 void cw_push_message(const char* text, int dit_duration, int frequency)
 {
     struct cw_out_message_s msg;
+    for (int i = 0; i < ON_BUFFER_SIZE; i++) {
+        msg.on_buffer[i] = 0;
+    }
+    msg.on_buffer_end = 0;
     msg.freq = frequency;
     msg.dit_duration = dit_duration;
 
@@ -201,7 +206,16 @@ void cw_push_message(const char* text, int dit_duration, int frequency)
 
 size_t cw_fill_buffer(int16_t *buf, size_t bufsize)
 {
+    static float nco_phase = 0.0f;
+
+    char msg[40];
+
     if (cw_fill_msg_status == 0) {
+        int waiting = uxQueueMessagesWaitingFromISR(cw_queue);
+        if (waiting > 0) {
+            sprintf(msg, "we have %d\n", waiting);
+            debug_print(msg);
+        }
         if (uxQueueMessagesWaitingFromISR(cw_queue) > 0 &&
             xQueueReceiveFromISR(cw_queue, &cw_fill_msg_current, NULL)) {
             // Convert msg to audio samples and transmit
@@ -231,13 +245,14 @@ size_t cw_fill_buffer(int16_t *buf, size_t bufsize)
 
         for (int t = start_t; t < samples_per_dit; t++) {
             int16_t s = 0;
-    int16_t dat[] = {0,  3000,  6000,  12000,  16000,  12000,  6000,  3000,
-                     0, -3000, -6000, -12000, -16000, -12000, -6000, -3000};
-
 
             if (cw_fill_msg_current.on_buffer[i]) {
-                //s = 32768.0f * arm_sin_f32(omega * t);
-                s = dat[t % 16];
+                nco_phase += omega;
+                if (nco_phase > FLOAT_PI) {
+                    nco_phase -= 2.0f * FLOAT_PI;
+                }
+
+                s = 32768.0f * arm_sin_f32(nco_phase);
             }
 
             if (pos + 2 >= bufsize) {
@@ -265,8 +280,13 @@ cw_fill_buf_full:
     for (int t = 0; t < bufsize; t++) {
         int16_t s = 0;
 
+        nco_phase += omega;
+        if (nco_phase > FLOAT_PI) {
+            nco_phase -= 2.0f * FLOAT_PI;
+        }
+
         // TODO preserve oscillator phase
-        s = 32768.0f * arm_sin_f32(omega * t);
+        s = 32768.0f * arm_sin_f32(nco_phase);
 
         buf[t] = s;
     }
