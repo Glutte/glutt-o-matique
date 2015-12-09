@@ -111,9 +111,9 @@ clean:
 	rm -f $(OBJECTS) $(BINDIR)/$(BINELF) $(BINDIR)/$(BINHEX)
 
 # Connect to openocd's gdb server on port 3333
-deploy:
+deploy: $(BINDIR)/$(BINELF)
 ifeq ($(wildcard /opt/openocd/bin/openocd),)
-	/usr/bin/openocd -f /usr/share/openocd/scripts/board/stm32f4discovery.cfg -c "program bin/"$(BINELF)" verify reset" -c "init" -c "reset halt"
+	/usr/bin/openocd -f /usr/share/openocd/scripts/board/stm32f4discovery.cfg -c "program bin/"$(BINELF)" verify reset" -c "init" -c "reset" -c "exit"
 else
-	/opt/openocd/bin/openocd -f /opt/openocd/share/openocd/scripts/board/stm32f4discovery.cfg -c "program bin/"$(BINELF)" verify reset" -c "init" -c "reset halt"
+	/opt/openocd/bin/openocd -f /opt/openocd/share/openocd/scripts/board/stm32f4discovery.cfg -c "program bin/"$(BINELF)" verify reset" -c "init" -c "reset" -c "exit"
 endif
