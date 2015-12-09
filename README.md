@@ -3,7 +3,10 @@ Glutt-o-matique
 
 La nouvelle logique de la Glutte voit le jour ici.
 
-On va utiliser un stm32f4-discovery.
+On va utiliser un stm32f4-discovery. La collaboration
+est gérée à l'aide d'un
+[Trello](https://trello.com/b/NSvh8v81),
+qui sert aussi d'aide-mémoire.
 
 [La Glutte](http://www.glutte.ch)
 
@@ -16,7 +19,7 @@ fasse des tût-tûts.
 
 Pour faire écho  
 des beaux QSO  
-depuis là haut.
+depuis là-haut.
 
 Donner comme retour  
 entre chaque tour  
