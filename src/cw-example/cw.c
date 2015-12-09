@@ -237,6 +237,7 @@ static void cw_task(void *pvParameters)
     struct cw_out_message_s cw_fill_msg_current;
 
     float nco_phase = 0.0f;
+    float ampl = 0.0f;
 
     int     buf_pos = 0;
 
@@ -251,8 +252,6 @@ static void cw_task(void *pvParameters)
             const float omega = 2.0f * FLOAT_PI * cw_fill_msg_current.freq /
                 (float)cw_samplerate;
 
-            float ampl = 0.0f;
-
             for (int i = 0; i < cw_fill_msg_current.on_buffer_end; i++) {
                 for (int t = 0; t < samples_per_dit; t++) {
                     int16_t s = 0;
@@ -260,10 +259,10 @@ static void cw_task(void *pvParameters)
                     // Remove clicks from CW
                     if (cw_fill_msg_current.on_buffer[i]) {
                         const float remaining = 32768.0f - ampl;
-                        ampl += remaining / 16.0f;
+                        ampl += remaining / 64.0f;
                     }
                     else {
-                        ampl *= 0.8f;
+                        ampl -= ampl / 64.0f;
                     }
 
                     nco_phase += omega;
