@@ -22,23 +22,53 @@
  * SOFTWARE.
 */
 
-/* A set of common routines for internal timekeeping and a LFSR to generate
- * a random number
- */
+#include "common.h"
+#include "FreeRTOS.h"
+#include "timers.h"
 
-#include <stdint.h>
+static uint64_t common_timestamp = 0; // milliseconds since startup
+static TimerHandle_t common_timer;
 
-#ifndef _COMMON_H_
-#define _COMMON_H_
+// The LFSR is used as random number generator
+static const uint16_t lfsr_start_state = 0x12ABu;
+static uint16_t lfsr;
 
-void common_init(void);
+static void common_increase_timestamp(TimerHandle_t t);
 
-// Return the current timestamp in milliseconds. Timestamps are monotonic, and not
-// wall clock time.
-uint64_t timestamp_now(void);
+void common_init(void)
+{
+    common_timer = xTimerCreate("Timer",
+            portTICK_PERIOD_MS,
+            pdTRUE, // Auto-reload
+            NULL,   // No unique id
+            common_increase_timestamp
+            );
+
+    xTimerStart(common_timer, 0);
+
+    lfsr = lfsr_start_state;
+}
+
+static void common_increase_timestamp(TimerHandle_t t)
+{
+    common_timestamp++;
+}
+
+uint64_t timestamp_now(void)
+{
+    return common_timestamp;
+}
 
 // Return either 0 or 1, somewhat randomly
-int random_bool(void);
+int random_bool(void)
+{
+    uint16_t bit;
 
-#endif // _COMMON_H_
+    /* taps: 16 14 13 11; feedback polynomial: x^16 + x^14 + x^13 + x^11 + 1 */
+    bit  = ((lfsr >> 0) ^ (lfsr >> 2) ^ (lfsr >> 3) ^ (lfsr >> 5) ) & 1;
+    lfsr =  (lfsr >> 1) | (bit << 15);
+
+    return bit;
+}
+
 

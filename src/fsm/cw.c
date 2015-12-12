@@ -63,11 +63,14 @@ QueueHandle_t cw_msg_queue;
 QueueHandle_t cw_audio_queue;
 static int    cw_samplerate;
 
+static int    cw_transmit_ongoing;
+
 static void cw_task(void *pvParameters);
 
 void cw_init(unsigned int samplerate)
 {
     cw_samplerate = samplerate;
+    cw_transmit_ongoing = 0;
 
     cw_msg_queue = xQueueCreate(15, sizeof(struct cw_out_message_s));
     if (cw_msg_queue == 0) {
@@ -245,6 +248,8 @@ static void cw_task(void *pvParameters)
         int status = xQueueReceive(cw_msg_queue, &cw_fill_msg_current, portMAX_DELAY);
         if (status == pdTRUE) {
 
+            cw_transmit_ongoing = 1;
+
             const int samples_per_dit = (cw_samplerate * 10) /
                 cw_fill_msg_current.dit_duration;
 
@@ -288,7 +293,14 @@ static void cw_task(void *pvParameters)
             }
 
             // We have completed this message
+
+            cw_transmit_ongoing = 0;
         }
     }
+}
+
+int cw_busy(void)
+{
+    return cw_transmit_ongoing;
 }
 

@@ -10,17 +10,23 @@
 #include "task.h"
 #include "timers.h"
 #include "semphr.h"
-
 #include "cw.h"
+#include "pio.h"
+#include "fsm.h"
+#include "common.h"
 
 // Private variables
 volatile uint32_t time_var1, time_var2;
+
+static int tm_trigger = 0;
+
 
 // Private function prototypes
 void init();
 
 // Tasks
 static void detect_button_press(void *pvParameters);
+static void exercise_fsm(void *pvParameters);
 static void audio_task(void *pvParameters);
 
 struct cw_msg_s {
@@ -40,12 +46,24 @@ int main(void) {
 
     cw_init(16000);
 
+    pio_init();
+
+    common_init();
+
     InitializeAudio(Audio16000HzSettings);
-    SetAudioVolume(128);
+    SetAudioVolume(164);
 
     xTaskCreate(
             detect_button_press,
             "TaskButton",
+            4*configMINIMAL_STACK_SIZE,
+            (void*) NULL,
+            tskIDLE_PRIORITY + 2UL,
+            NULL);
+
+    xTaskCreate(
+            exercise_fsm,
+            "TaskFSM",
             4*configMINIMAL_STACK_SIZE,
             (void*) NULL,
             tskIDLE_PRIORITY + 2UL,
@@ -66,14 +84,9 @@ int main(void) {
     while(1);
 }
 
-
+// disabled
 static void detect_button_press(void *pvParameters)
 {
-    int message_select = 0;
-    struct cw_msg_s msg1 = { "HB9G 1628M",     400, 100 };
-    struct cw_msg_s msg2 = { "HB9G JN36BK",    500, 100 };
-    struct cw_msg_s msg3 = { "HB9G U 12.5 73", 400, 130 };
-
     GPIO_SetBits(GPIOD, GPIO_Pin_12);
 
     while (1) {
@@ -83,26 +96,15 @@ static void detect_button_press(void *pvParameters)
                 vTaskDelay(100 / portTICK_RATE_MS); /* Button Debounce Delay */
             }
 
-            if (message_select == 0) {
-                GPIO_ResetBits(GPIOD, GPIO_Pin_12);
-                GPIO_SetBits(GPIOD, GPIO_Pin_15);
-                cw_push_message(msg1.msg, msg1.dit_duration, msg1.freq);
-                message_select++;
-            }
-            else if (message_select == 1) {
-                GPIO_SetBits(GPIOD, GPIO_Pin_12);
-                cw_push_message(msg2.msg, msg2.dit_duration, msg2.freq);
-                message_select++;
-            }
-            else if (message_select == 2) {
-                GPIO_ResetBits(GPIOD, GPIO_Pin_15);
-                cw_push_message(msg3.msg, msg3.dit_duration, msg3.freq);
-                message_select = 0;
-            }
+            tm_trigger = 1;
+            GPIO_SetBits(GPIOD, GPIO_Pin_12);
 
             while (GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_0) == 0) {
                 vTaskDelay(100 / portTICK_RATE_MS); /* Button Debounce Delay */
             }
+
+            tm_trigger = 0;
+            GPIO_ResetBits(GPIOD, GPIO_Pin_12);
         }
         taskYIELD();
     }
@@ -116,13 +118,11 @@ static void audio_callback(void* context, int select_buffer)
 
     if (select_buffer == 0) {
         samples = audio_buffer0;
-        GPIO_SetBits(GPIOD, GPIO_Pin_13);
         GPIO_ResetBits(GPIOD, GPIO_Pin_14);
         select_buffer = 1;
     } else {
         samples = audio_buffer1;
         GPIO_SetBits(GPIOD, GPIO_Pin_14);
-        GPIO_ResetBits(GPIOD, GPIO_Pin_13);
         select_buffer = 0;
     }
 
@@ -141,12 +141,58 @@ static void audio_callback(void* context, int select_buffer)
 
 static void audio_task(void *pvParameters)
 {
-    int select_buffer = 0;
-
     PlayAudioWithCallback(audio_callback, NULL);
 
     while (1) {
         taskYIELD();
+    }
+}
+
+static struct fsm_input_signals_t fsm_input;
+static void exercise_fsm(void *pvParameters)
+{
+    int cw_last_trigger = 0;
+
+    fsm_input.humidity = 0;
+    fsm_input.temp = 15;
+    fsm_input.swr_high = 0;
+    fsm_input.sstv_mode = 0;
+    fsm_input.wind_generator_ok = 1;
+    while (1) {
+        pio_set_fsm_signals(&fsm_input);
+        fsm_input.start_tm = tm_trigger; // user button
+        if (fsm_input.start_tm) {
+            GPIO_SetBits(GPIOD, GPIO_Pin_15);
+        }
+        else {
+            GPIO_ResetBits(GPIOD, GPIO_Pin_15);
+        }
+        fsm_input.sq = fsm_input.carrier; // TODO clarify
+        fsm_input.cw_done = !cw_busy();
+
+        if (fsm_input.cw_done) {
+            GPIO_ResetBits(GPIOD, GPIO_Pin_13);
+        }
+        else {
+            GPIO_SetBits(GPIOD, GPIO_Pin_13);
+        }
+
+        fsm_update_inputs(&fsm_input);
+        fsm_update();
+
+        struct fsm_output_signals_t fsm_out;
+        fsm_get_outputs(&fsm_out);
+
+        pio_set_led_red(fsm_out.tx_on);
+        pio_set_led_yel(fsm_out.modulation);
+        pio_set_led_grn(fsm_input.carrier);
+
+        // Add message to CW generator only on rising edge of trigger
+        if (fsm_out.cw_trigger && !cw_last_trigger) {
+            cw_push_message(fsm_out.cw_msg, 140 /*fsm_out.cw_speed*/, fsm_out.cw_frequency);
+        }
+
+        cw_last_trigger = fsm_out.cw_trigger;
     }
 }
 

@@ -39,3 +39,6 @@ void cw_push_message(const char* text, int dit_duration, int frequency);
 // Write the waveform into the buffer (stereo)
 size_t cw_fill_buffer(int16_t *buf, size_t bufsize);
 
+// Return 1 if the CW generator has completed transmission
+int cw_busy(void);
+

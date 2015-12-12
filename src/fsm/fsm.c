@@ -57,12 +57,12 @@ uint64_t fsm_current_state_time_s(void) {
 // Between turns in a QSO, the repeater sends a letter in CW,
 // different messages are possible. They are sorted here from
 // low to high priority.
-const char* letter_all_ok    = "k";
-const char* letter_sstv      = "s";
-const char* letter_qrp       = "g";
-const char* letter_freq_high = "u";
-const char* letter_freq_low  = "d";
-const char* letter_swr_high  = "r";
+const char* letter_all_ok    = "K";
+const char* letter_sstv      = "S";
+const char* letter_qrp       = "G";
+const char* letter_freq_high = "U";
+const char* letter_freq_low  = "D";
+const char* letter_swr_high  = "R";
 
 const char* fsm_select_letter(void) {
     if (fsm_in.swr_high) {
@@ -93,7 +93,7 @@ void fsm_update() {
     fsm_out.modulation = 0;
     fsm_out.cw_trigger = 0;
     fsm_out.cw_speed = 23;
-    fsm_out.cw_frequency = 300;
+    fsm_out.cw_frequency = 500;
     // other output signals keep their value
 
     switch (current_state) {
@@ -200,7 +200,7 @@ void fsm_update() {
         case FSM_ANTI_BAVARD:
             fsm_out.tx_on = 1;
             // No modulation!
-            fsm_out.cw_msg = "hi hi";
+            fsm_out.cw_msg = "HI HI";
             fsm_out.cw_trigger = 1;
 
             if (fsm_in.cw_done) {
@@ -231,7 +231,7 @@ void fsm_update() {
         case FSM_TEXTE_HB9G:
             fsm_out.tx_on = 1;
             fsm_out.modulation = 1;
-            fsm_out.cw_msg = "hb9g";
+            fsm_out.cw_msg = "HB9G";
             fsm_out.cw_trigger = 1;
 
             if (fsm_in.sq) {
@@ -247,10 +247,10 @@ void fsm_update() {
             fsm_out.modulation = 1;
 
             if (random_bool()) {
-                fsm_out.cw_msg = "hb9g 1628m";
+                fsm_out.cw_msg = "HB9G 1628M";
             }
             else {
-                fsm_out.cw_msg = "hb9g jn36bk";
+                fsm_out.cw_msg = "HB9G JN36BK";
             }
             fsm_out.cw_trigger = 1;
 
@@ -268,13 +268,13 @@ void fsm_update() {
             // TODO transmit humidity
             // TODO read voltage
             if (fsm_in.wind_generator_ok) {
-                fsm_out.cw_msg = "hb9g jn36bk 1628m u 10v5 =  T 11  73";
+                fsm_out.cw_msg = "HB9G JN36BK 1628M U 10V5 =  T 11  73";
                 // = means same voltage as previous
                 // + means higher
                 // - means lower
             }
             else {
-                fsm_out.cw_msg = "hb9g jn36bk 1628m u 10v5 =  T 11  #";
+                fsm_out.cw_msg = "HB9G JN36BK 1628M U 10V5 =  T 11  #";
                 // The # is the SK digraph
             }
             fsm_out.cw_trigger = 1;
@@ -291,10 +291,10 @@ void fsm_update() {
             fsm_out.tx_on = 1;
             // TODO read voltage
             if (fsm_in.wind_generator_ok) {
-                fsm_out.cw_msg = "hb9g u 10v5 73";
+                fsm_out.cw_msg = "HB9G U 10V5 73";
             }
             else {
-                fsm_out.cw_msg = "hb9g u 10v5 #"; // The # is the SK digraph
+                fsm_out.cw_msg = "HB9G U 10V5 #"; // The # is the SK digraph
             }
             fsm_out.cw_trigger = 1;
 
@@ -313,16 +313,16 @@ void fsm_update() {
                 int rand = random_bool() * 2 + random_bool();
 
                 if (rand == 0) {
-                    fsm_out.cw_msg = "hb9g";
+                    fsm_out.cw_msg = "HB9G";
                 }
                 else if (rand == 1) {
-                    fsm_out.cw_msg = "hb9g jn36bk";
+                    fsm_out.cw_msg = "HB9G JN36BK";
                 }
                 else if (rand == 2) {
-                    fsm_out.cw_msg = "hb9g 1628m";
+                    fsm_out.cw_msg = "HB9G 1628M";
                 }
                 else {
-                    fsm_out.cw_msg = "hb9g jn36bk 1628m";
+                    fsm_out.cw_msg = "HB9G JN36BK 1628M";
                 }
             }
             fsm_out.cw_trigger = 1;
@@ -340,7 +340,20 @@ void fsm_update() {
             break;
     }
 
+    if (next_state != current_state) {
+        timestamp_state[next_state] = timestamp_now();
+    }
     current_state = next_state;
-    timestamp_state[next_state] = timestamp_now();
 }
+
+void fsm_update_inputs(struct fsm_input_signals_t* inputs)
+{
+    fsm_in = *inputs;
+}
+
+void fsm_get_outputs(struct fsm_output_signals_t* out)
+{
+    *out = fsm_out;
+}
+
 

@@ -22,23 +22,50 @@
  * SOFTWARE.
 */
 
-/* A set of common routines for internal timekeeping and a LFSR to generate
- * a random number
- */
+#ifndef _PIO_H_
+#define _PIO_H_
 
+#include <stddef.h>
 #include <stdint.h>
+#include "fsm.h"
+#include "stm32f4xx_rcc.h"
+#include "stm32f4xx_gpio.h"
 
-#ifndef _COMMON_H_
-#define _COMMON_H_
+/*
+Blue    in  QRP_n   PC1
+Violet  out LED red PC2
+Grey    in  1750    PC4
+White   out LED yel PC5
+Black   -   GND     GND
+Brown   in  RX_n    PC6
+Red     in  U_n     PC8
+Orange  out LED grn PC9
+Green   in  D_n     PC11
+*/
 
-void common_init(void);
+#define GPIO_PIN_QRP_n   GPIO_Pin_1
+#define GPIO_PIN_LED_red GPIO_Pin_2
+#define GPIO_PIN_1750    GPIO_Pin_4
+#define GPIO_PIN_LED_yel GPIO_Pin_5
+#define GPIO_PIN_RX_n    GPIO_Pin_6
+#define GPIO_PIN_U_n     GPIO_Pin_8
+#define GPIO_PIN_LED_grn GPIO_Pin_9
+#define GPIO_PIN_D_n     GPIO_Pin_11
 
-// Return the current timestamp in milliseconds. Timestamps are monotonic, and not
-// wall clock time.
-uint64_t timestamp_now(void);
 
-// Return either 0 or 1, somewhat randomly
-int random_bool(void);
+#define PIO_OUTPUT_PINS GPIO_Pin_2 | GPIO_Pin_5 | GPIO_Pin_9
 
-#endif // _COMMON_H_
+#define PIO_INPUT_PINS GPIO_Pin_1 | GPIO_Pin_4 | \
+                       GPIO_Pin_6 | GPIO_Pin_8 | \
+                       GPIO_Pin_11
+
+void pio_init(void);
+
+void pio_set_led_red(int on);
+void pio_set_led_yel(int on);
+void pio_set_led_grn(int on);
+
+void pio_set_fsm_signals(struct fsm_input_signals_t* sig);
+
+#endif // _PIO_H_
 

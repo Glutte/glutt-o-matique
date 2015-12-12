@@ -87,5 +87,14 @@ struct fsm_output_signals_t {
 // Initialise local structures
 void fsm_init();
 
+// Call the FSM once and update the internal state
+void fsm_update();
+
+// Setter for inputs
+void fsm_update_inputs(struct fsm_input_signals_t* inputs);
+
+// Getter for outputs
+void fsm_get_outputs(struct fsm_output_signals_t* out);
+
 #endif // _FSM_H_
 
