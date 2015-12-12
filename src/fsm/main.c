@@ -16,10 +16,7 @@
 #include "common.h"
 
 // Private variables
-volatile uint32_t time_var1, time_var2;
-
 static int tm_trigger = 0;
-
 
 // Private function prototypes
 void init();
@@ -152,6 +149,7 @@ static struct fsm_input_signals_t fsm_input;
 static void exercise_fsm(void *pvParameters)
 {
     int cw_last_trigger = 0;
+    int last_tm_trigger = 0;
 
     fsm_input.humidity = 0;
     fsm_input.temp = 15;
@@ -160,7 +158,9 @@ static void exercise_fsm(void *pvParameters)
     fsm_input.wind_generator_ok = 1;
     while (1) {
         pio_set_fsm_signals(&fsm_input);
-        fsm_input.start_tm = tm_trigger; // user button
+        fsm_input.start_tm = (tm_trigger == 1 && last_tm_trigger == 0) ? 1 : 0;
+        last_tm_trigger = tm_trigger;
+
         if (fsm_input.start_tm) {
             GPIO_SetBits(GPIOD, GPIO_Pin_15);
         }
