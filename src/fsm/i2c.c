@@ -23,18 +23,54 @@
 */
 
 #include "i2c.h"
+#include "common.h"
 #include "stm32f4xx_conf.h"
 #include "stm32f4xx_i2c.h"
 #include "stm32f4xx.h"
+#include "FreeRTOS.h"
+#include "FreeRTOSConfig.h"
+#include "task.h"
+#include "semphr.h"
 
 static int i2c_init_done = 0;
+static int i2c_error = 0;
 
 static I2C_TypeDef* const I2Cx = I2C1;
+
+static SemaphoreHandle_t i2c_semaphore;
+
+static void i2c_device_init(void)
+{
+    // configure I2C1
+    I2C_InitTypeDef I2C_InitStruct;
+    I2C_InitStruct.I2C_ClockSpeed = 100000; //Hz
+    I2C_InitStruct.I2C_Mode = I2C_Mode_I2C;
+    I2C_InitStruct.I2C_DutyCycle = I2C_DutyCycle_2; // 50% duty cycle
+    I2C_InitStruct.I2C_OwnAddress1 = 0x00;          // not relevant in master mode
+
+    // disable acknowledge when reading (can be changed later on)
+    I2C_InitStruct.I2C_Ack = I2C_Ack_Disable;
+
+    I2C_InitStruct.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
+    I2C_Init(I2C1, &I2C_InitStruct);
+
+    // enable I2C1
+    I2C_Cmd(I2C1, ENABLE);
+}
 
 void i2c_init()
 {
     if (i2c_init_done == 1) {
         return;
+    }
+
+    i2c_semaphore = xSemaphoreCreateBinary();
+
+    if ( i2c_semaphore == NULL ) {
+        trigger_fault(FAULT_SOURCE_I2C);
+    }
+    else {
+        xSemaphoreGive(i2c_semaphore);
     }
 
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1, ENABLE);
@@ -56,32 +92,17 @@ void i2c_init()
     RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C1, ENABLE);
     RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C1, DISABLE);
 
-    // configure I2C1
-    I2C_InitTypeDef I2C_InitStruct;
-    I2C_InitStruct.I2C_ClockSpeed = 100000; //Hz
-    I2C_InitStruct.I2C_Mode = I2C_Mode_I2C;
-    I2C_InitStruct.I2C_DutyCycle = I2C_DutyCycle_2; // 50% duty cycle
-    I2C_InitStruct.I2C_OwnAddress1 = 0x00;          // not relevant in master mode
-
-    // disable acknowledge when reading (can be changed later on)
-    I2C_InitStruct.I2C_Ack = I2C_Ack_Disable;
-
-    I2C_InitStruct.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
-    I2C_Init(I2C1, &I2C_InitStruct);
-
-    // enable I2C1
-    I2C_Cmd(I2C1, ENABLE);
-
+    i2c_device_init();
     i2c_init_done = 1;
 }
 
 
-static void i2c_start(uint8_t device, uint8_t direction)
+static int i2c_start(uint8_t device, uint8_t direction)
 {
-    while(I2C_GetFlagStatus(I2Cx, I2C_FLAG_BUSY));
     I2C_GenerateSTART(I2Cx, ENABLE);
+
     // wait for I2C1 EV5 --> Slave has acknowledged start condition
-    while(!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_MODE_SELECT));
+    while (!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_MODE_SELECT));
 
     // Send slave Address for write
     I2C_Send7bitAddress(I2Cx, device << 1, direction);
@@ -91,47 +112,137 @@ static void i2c_start(uint8_t device, uint8_t direction)
      * Master receiver mode, depending on the transmission
      * direction
      */
-    if(direction == I2C_Direction_Transmitter) {
-        while(!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
+    uint32_t event = 0;
+    if (direction == I2C_Direction_Transmitter) {
+        event = I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED;
     }
-    else if(direction == I2C_Direction_Receiver) {
-        while(!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED));
+    else if (direction == I2C_Direction_Receiver) {
+        event = I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED;
     }
+    else {
+        trigger_fault(FAULT_SOURCE_I2C);
+    }
+
+    while (!I2C_CheckEvent(I2Cx, event));
+
+    return 1;
 }
 
-static void i2c_send(uint8_t data) {
+static int i2c_send(uint8_t data)
+{
     I2C_SendData(I2Cx, data);
+
     // wait for I2C1 EV8_2 --> byte has been transmitted
-    while(!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
+    while (!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
+
+    return 1;
 }
 
-void i2c_write(uint8_t device, const uint8_t *txbuf, int len) {
-    i2c_start(device, I2C_Direction_Transmitter);
-    for (int i = 0; i < len; i++) {
-        i2c_send(txbuf[i]);
+int i2c_write(uint8_t device, const uint8_t *txbuf, int len)
+{
+    if (i2c_init_done == 0) {
+        trigger_fault(FAULT_SOURCE_I2C);
+    }
+
+    while (I2C_GetFlagStatus(I2Cx, I2C_FLAG_BUSY));
+
+    int success = 0;
+
+    if (i2c_start(device, I2C_Direction_Transmitter)) {
+        for (int i = 0; i < len; i++) {
+            success = i2c_send(txbuf[i]);
+            if (!success) {
+                break;
+            }
+        }
     }
     I2C_GenerateSTOP(I2Cx, ENABLE);
+    while(!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
+
+    return success;
+}
+
+static int i2c_read_nobuscheck(uint8_t device, uint8_t *rxbuf, int len)
+{
+    if (i2c_init_done == 0) {
+        trigger_fault(FAULT_SOURCE_I2C);
+    }
+
+    i2c_start(device, I2C_Direction_Receiver);
+    for (int i = 0; i < len; i++) {
+        if (i == len-1) {
+            I2C_AcknowledgeConfig(I2Cx, DISABLE);
+        }
+        else {
+            I2C_AcknowledgeConfig(I2Cx, ENABLE);
+        }
+
+        // wait until one byte has been received
+        while( !I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_BYTE_RECEIVED) );
+
+        if (i == len-1) {
+            I2C_GenerateSTOP(I2Cx, ENABLE);
+        }
+
+        rxbuf[i] = I2C_ReceiveData(I2Cx);
+    }
+
+    return len;
 }
 
 int i2c_read(uint8_t device, uint8_t *rxbuf, int len)
 {
-    i2c_start(device, I2C_Direction_Receiver);
-    for (int i = 0; i < len; i++) {
-        if (i < len-1) {
-            I2C_AcknowledgeConfig(I2Cx, ENABLE);
-            // wait until one byte has been received
-            while( !I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_BYTE_RECEIVED) );
-            rxbuf[i] = I2C_ReceiveData(I2Cx);
-        }
-        else {
-            I2C_AcknowledgeConfig(I2Cx, DISABLE);
-            I2C_GenerateSTOP(I2Cx, ENABLE);
-            // wait until one byte has been received
-            while( !I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_BYTE_RECEIVED) );
-            rxbuf[i] = I2C_ReceiveData(I2Cx);
-        }
+    while (I2C_GetFlagStatus(I2Cx, I2C_FLAG_BUSY));
+
+    return i2c_read_nobuscheck(device, rxbuf, len);
+}
+
+int i2c_read_from(uint8_t device, uint8_t address, uint8_t *rxbuf, int len)
+{
+    if (i2c_init_done == 0) {
+        trigger_fault(FAULT_SOURCE_I2C);
     }
 
-    return len;
+    while (I2C_GetFlagStatus(I2Cx, I2C_FLAG_BUSY));
+
+    int success = i2c_start(device, I2C_Direction_Transmitter);
+    if (success) {
+        success = i2c_send(address);
+    }
+    // Don't do a STOP
+
+    if (success) {
+        success = i2c_read_nobuscheck(device, rxbuf, len);
+    }
+
+    return success;
+}
+
+
+
+void i2c_transaction_start()
+{
+    if (i2c_init_done == 0) {
+        trigger_fault(FAULT_SOURCE_I2C);
+    }
+    xSemaphoreTake(i2c_semaphore, portMAX_DELAY);
+}
+
+void i2c_transaction_end()
+{
+    if (i2c_init_done == 0) {
+        trigger_fault(FAULT_SOURCE_I2C);
+    }
+
+    if ( i2c_error ) {
+        I2C_SoftwareResetCmd(I2Cx, ENABLE);
+        I2C_SoftwareResetCmd(I2Cx, DISABLE);
+
+        i2c_device_init();
+
+        i2c_error = 0;
+    }
+
+    xSemaphoreGive(i2c_semaphore);
 }
 

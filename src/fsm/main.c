@@ -36,6 +36,8 @@
 #include "semphr.h"
 #include "cw.h"
 #include "pio.h"
+#include "i2c.h"
+#include "gps.h"
 #include "fsm.h"
 #include "common.h"
 
@@ -48,7 +50,11 @@ void init();
 // Tasks
 static void detect_button_press(void *pvParameters);
 static void exercise_fsm(void *pvParameters);
-static void audio_task(void *pvParameters);
+static void gps_monit_task(void *pvParameters);
+static void launcher_task(void *pvParameters);
+
+// Audio callback function
+static void audio_callback(void* context, int select_buffer);
 
 struct cw_msg_s {
     const char* msg;
@@ -65,38 +71,18 @@ void vApplicationStackOverflowHook( TaskHandle_t xTask,
 int main(void) {
     init();
 
-    cw_init(16000);
-
-    pio_init();
-
-    common_init();
-
-    InitializeAudio(Audio16000HzSettings);
-    SetAudioVolume(164);
-
+    TaskHandle_t task_handle;
     xTaskCreate(
-            detect_button_press,
-            "TaskButton",
-            4*configMINIMAL_STACK_SIZE,
-            (void*) NULL,
-            tskIDLE_PRIORITY + 2UL,
-            NULL);
-
-    xTaskCreate(
-            exercise_fsm,
-            "TaskFSM",
-            4*configMINIMAL_STACK_SIZE,
-            (void*) NULL,
-            tskIDLE_PRIORITY + 2UL,
-            NULL);
-
-    xTaskCreate(
-            audio_task,
-            "TaskAudio",
+            launcher_task,
+            "TaskLauncher",
             configMINIMAL_STACK_SIZE,
             (void*) NULL,
             tskIDLE_PRIORITY + 2UL,
-            NULL);
+            &task_handle);
+
+    if (!task_handle) {
+        trigger_fault(FAULT_SOURCE_MAIN);
+    }
 
     /* Start the RTOS Scheduler */
     vTaskStartScheduler();
@@ -105,7 +91,69 @@ int main(void) {
     while(1);
 }
 
-// disabled
+// Launcher task is here to make sure the scheduler is
+// already running when calling the init functions.
+static void launcher_task(void *pvParameters)
+{
+    cw_init(16000);
+    pio_init();
+    i2c_init();
+    common_init();
+    gps_init();
+
+    TaskHandle_t task_handle;
+    xTaskCreate(
+            detect_button_press,
+            "TaskButton",
+            4*configMINIMAL_STACK_SIZE,
+            (void*) NULL,
+            tskIDLE_PRIORITY + 2UL,
+            &task_handle);
+
+    if (!task_handle) {
+        trigger_fault(FAULT_SOURCE_MAIN);
+    }
+
+    xTaskCreate(
+            exercise_fsm,
+            "TaskFSM",
+            4*configMINIMAL_STACK_SIZE,
+            (void*) NULL,
+            tskIDLE_PRIORITY + 2UL,
+            &task_handle);
+
+    if (!task_handle) {
+        trigger_fault(FAULT_SOURCE_MAIN);
+    }
+
+    xTaskCreate(
+            gps_monit_task,
+            "TaskGPSMonit",
+            configMINIMAL_STACK_SIZE,
+            (void*) NULL,
+            tskIDLE_PRIORITY + 2UL,
+            &task_handle);
+
+    if (!task_handle) {
+        trigger_fault(FAULT_SOURCE_MAIN);
+    }
+
+    InitializeAudio(Audio16000HzSettings);
+    SetAudioVolume(164);
+
+    PlayAudioWithCallback(audio_callback, NULL);
+
+
+    /* We are done now, suspend this task
+     * With FreeDOS' heap_1.c, we cannot delete it.
+     * See freertos.org -> More Advanced... -> Memory Management
+     * for more info.
+     */
+    while (1) {
+        vTaskSuspend(NULL);
+    }
+}
+
 static void detect_button_press(void *pvParameters)
 {
     GPIO_SetBits(GPIOD, GPIO_Pin_12);
@@ -160,11 +208,24 @@ static void audio_callback(void* context, int select_buffer)
     ProvideAudioBufferWithoutBlocking(samples, samples_len);
 }
 
-static void audio_task(void *pvParameters)
+
+static struct gps_time_s gps_time;
+static void gps_monit_task(void *pvParameters)
 {
-    PlayAudioWithCallback(audio_callback, NULL);
+    GPIO_SetBits(GPIOD, GPIO_Pin_15);
 
     while (1) {
+        if (gps_locked()) {
+
+            gps_utctime(&gps_time);
+
+            if (gps_time.sec % 10 > 5) {
+                GPIO_SetBits(GPIOD, GPIO_Pin_15);
+            }
+            else {
+                GPIO_ResetBits(GPIOD, GPIO_Pin_15);
+            }
+        }
         taskYIELD();
     }
 }
@@ -185,12 +246,6 @@ static void exercise_fsm(void *pvParameters)
         fsm_input.start_tm = (tm_trigger == 1 && last_tm_trigger == 0) ? 1 : 0;
         last_tm_trigger = tm_trigger;
 
-        if (fsm_input.start_tm) {
-            GPIO_SetBits(GPIOD, GPIO_Pin_15);
-        }
-        else {
-            GPIO_ResetBits(GPIOD, GPIO_Pin_15);
-        }
         fsm_input.sq = fsm_input.carrier; // TODO clarify
         fsm_input.cw_done = !cw_busy();
 
@@ -234,6 +289,9 @@ void init() {
     //SCB->CPACR |= ((3UL << 10*2)|(3UL << 11*2));  // set CP10 and CP11 Full Access
 
     // GPIOD Periph clock enable
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
 
     // Configure PD12, PD13, PD14 and PD15 in output pushpull mode
@@ -257,7 +315,6 @@ void init() {
 
     // Clock
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
 
     // IO
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5 | GPIO_Pin_6;

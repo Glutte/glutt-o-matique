@@ -22,6 +22,8 @@
  * SOFTWARE.
 */
 
+#include <stdint.h>
+
 #ifndef __GPS_H_
 #define __GPS_H_
 
@@ -34,7 +36,15 @@
 
 #define GPS_I2C_ADDR 0x42 // I2C address of GPS receiver
 
-#include "ubx.h"
+struct gps_time_s {
+    uint16_t  year;   // Year, range 1999..2099 (UTC)
+    uint8_t   month;  // Month, range 1..12 (UTC)
+    uint8_t   day;    // Day of Month, range 1..31 (UTC)
+    uint8_t   hour;   // Hour of Day, range 0..23 (UTC)
+    uint8_t   min;    // Minute of Hour, range 0..59 (UTC)
+    uint8_t   sec;    // Seconds of Minute, range 0..59 (UTC)
+    uint8_t   valid;  // validity flag
+};
 
 // Setup communication and GPS receiver
 void gps_init();
@@ -43,7 +53,7 @@ void gps_init();
 int gps_locked();
 
 // Get current time from GPS
-ubx_nav_timeutc_t* gps_utctime();
+void gps_utctime(struct gps_time_s *timeutc);
 
 #endif // __GPS_H_
 

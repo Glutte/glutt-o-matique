@@ -25,6 +25,7 @@
 #include "common.h"
 #include "FreeRTOS.h"
 #include "timers.h"
+#include <stm32f4xx.h>
 
 static uint64_t common_timestamp = 0; // milliseconds since startup
 static TimerHandle_t common_timer;
@@ -69,6 +70,17 @@ int random_bool(void)
     lfsr =  (lfsr >> 1) | (bit << 15);
 
     return bit;
+}
+
+// For the debugger
+static int faultsource = 0;
+void trigger_fault(int source)
+{
+    __disable_irq();
+
+    faultsource = source;
+
+    while (1) {}
 }
 
 

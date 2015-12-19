@@ -22,25 +22,59 @@
  * SOFTWARE.
 */
 
-#include "gps.h"
-#include "i2c.h"
-#include "string.h"
 #include "stm32f4xx_conf.h"
 #include "stm32f4xx.h"
 #include "FreeRTOS.h"
+#include "FreeRTOSConfig.h"
 #include "task.h"
+#include "semphr.h"
+#include "common.h"
+#include "gps.h"
+#include "i2c.h"
+#include "ubx.h"
 
-static ubx_nav_timeutc_t gps_timeutc;
+
+static struct gps_time_s gps_timeutc;
+static int gps_fix_3d;
 
 static void gps_task(void *pvParameters);
 
 // Callback functions for UBX parser
-static void gps_nav_sol(ubx_nav_sol_t *sol) {}
+static void gps_nav_sol(ubx_nav_sol_t *sol)
+{
+    gps_fix_3d = (sol->GPSfix == GPSFIX_3D) ? 1 : 0;
+}
+
 static void gps_tim_tm2(ubx_tim_tm2_t *posllh) {}
+
+SemaphoreHandle_t timeutc_semaphore;
 static void gps_nav_timeutc(ubx_nav_timeutc_t *timeutc)
 {
-    memcpy(&gps_timeutc, timeutc, sizeof(ubx_nav_timeutc_t));
+    xSemaphoreTake(timeutc_semaphore, portMAX_DELAY);
+    gps_timeutc.year  = timeutc->year;
+    gps_timeutc.month = timeutc->month;
+    gps_timeutc.day   = timeutc->day;
+    gps_timeutc.hour  = timeutc->hour;
+    gps_timeutc.min   = timeutc->min;
+    gps_timeutc.sec   = timeutc->sec;
+    gps_timeutc.valid = timeutc->valid;
+    xSemaphoreGive(timeutc_semaphore);
 }
+
+// Get current time from GPS
+void gps_utctime(struct gps_time_s *timeutc)
+{
+    xSemaphoreTake(timeutc_semaphore, portMAX_DELAY);
+    timeutc->year  = gps_timeutc.year;
+    timeutc->month = gps_timeutc.month;
+    timeutc->day   = gps_timeutc.day;
+    timeutc->hour  = gps_timeutc.hour;
+    timeutc->min   = gps_timeutc.min;
+    timeutc->sec   = gps_timeutc.sec;
+    timeutc->valid = gps_timeutc.valid;
+    xSemaphoreGive(timeutc_semaphore);
+}
+
 
 const ubx_callbacks_t gps_ubx_cb = {
     gps_nav_sol,
@@ -49,25 +83,73 @@ const ubx_callbacks_t gps_ubx_cb = {
 };
 
 
-#define RXBUF_LEN 32
+#define RXBUF_LEN 128
 static uint8_t rxbuf[RXBUF_LEN];
+static uint8_t gps_init_messages[] = {
+    UBX_ENABLE_NAV_SOL,
+    UBX_ENABLE_NAV_TIMEUTC,
+    UBX_ENABLE_TIM_TM2 };
 
 static void gps_task(void *pvParameters)
 {
-    while (1) {
-        const uint8_t address = 0xFF;
-        int bytes_read = i2c_read(GPS_I2C_ADDR, address, rxbuf, RXBUF_LEN);
+    const uint8_t address = 0xFD;
+    int must_init_gps = 1;
 
-        for (int i = 0; i < bytes_read; i++) {
-            ubx_parse(rxbuf[i]);
+    while (1) {
+        taskYIELD();
+
+        i2c_transaction_start();
+
+        if (must_init_gps) {
+            i2c_write(GPS_I2C_ADDR,
+                    gps_init_messages,
+                    sizeof(gps_init_messages));
+
+            must_init_gps = 0;
+        }
+
+        int bytes_read = i2c_read_from(GPS_I2C_ADDR, address, rxbuf, 2);
+
+        if (bytes_read != 2) {
+            i2c_transaction_end();
+            continue;
+        }
+
+        uint16_t bytes_available = (rxbuf[0] << 8) | rxbuf[1];
+
+        if (bytes_available) {
+            if (bytes_available > RXBUF_LEN) {
+                bytes_available = RXBUF_LEN;
+            }
+
+            bytes_read = i2c_read(GPS_I2C_ADDR, rxbuf, bytes_available);
+            i2c_transaction_end();
+
+            for (int i = 0; i < bytes_read; i++) {
+                ubx_parse(rxbuf[i]);
+            }
+        }
+        else {
+            i2c_transaction_end();
         }
     }
 }
 
 void gps_init()
 {
-    i2c_init();
+    gps_fix_3d = 0;
+    gps_timeutc.valid = 0;
+
     ubx_register(&gps_ubx_cb);
+
+    timeutc_semaphore = xSemaphoreCreateBinary();
+
+    if( timeutc_semaphore == NULL ) {
+        trigger_fault(FAULT_SOURCE_GPS);
+    }
+    else {
+        xSemaphoreGive(timeutc_semaphore);
+    }
 
     xTaskCreate(
             gps_task,
@@ -81,13 +163,6 @@ void gps_init()
 // Return 1 of the GPS is receiving time
 int gps_locked()
 {
-    return 0;
-}
-
-// Get current time from GPS
-ubx_nav_timeutc_t* gps_utctime()
-{
-
-    return &gps_timeutc;
+    return gps_fix_3d;
 }
 

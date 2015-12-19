@@ -30,11 +30,24 @@
 /* Initialise I2C on the board for both the audio codec and the GPS receiver */
 void i2c_init();
 
-/* Do an I2C write */
-void i2c_write(uint8_t device, const uint8_t *txbuf, int len);
+/* Do an I2C write, return 1 on success, 0 on failure */
+int i2c_write(uint8_t device, const uint8_t *txbuf, int len);
 
-/* Do an I2C write into rxbuf. Returns number of bytes received */
+/* Do an I2C read into rxbuf.
+ * Returns number of bytes received, or 0 in case of failure
+ */
 int i2c_read(uint8_t device, uint8_t *rxbuf, int len);
+
+/* Do an I2C write for the address, and then a read into rxbuf.
+ * Returns number of bytes received, or 0 in case of failure
+ */
+int i2c_read_from(uint8_t device, uint8_t address, uint8_t *rxbuf, int len);
+
+/* Start an I2C transaction, keeping exclusive access to I2C */
+void i2c_transaction_start(void);
+
+/* End an I2C transaction, unlocking the exclusive access to I2C */
+void i2c_transaction_end(void);
 
 #endif // __I2C_H_
 

@@ -40,5 +40,11 @@ uint64_t timestamp_now(void);
 // Return either 0 or 1, somewhat randomly
 int random_bool(void);
 
+// Fault handling mechanism
+#define FAULT_SOURCE_MAIN 1
+#define FAULT_SOURCE_GPS  2
+#define FAULT_SOURCE_I2C  3
+void trigger_fault(int source);
+
 #endif // _COMMON_H_
 

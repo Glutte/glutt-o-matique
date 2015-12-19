@@ -28,14 +28,11 @@ void InitializeAudio(int plln, int pllr, int i2sdiv, int i2sodd) {
     DMARunning = false;
 
     // Turn on peripherals.
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
+    // Assume GPIOA,B,C,D already on
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA1, ENABLE);
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI3, ENABLE);
 
-    i2c_init();
+    // Assume I2C is set up
 
     // Configure reset pin.
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4;;
@@ -229,9 +226,13 @@ void DMA1_Stream7_IRQHandler() {
     }
 }
 
+// Warning: don't i2c_write call from IRQ handler !
 static void WriteRegister(uint8_t address, uint8_t value)
 {
     const uint8_t device = 0x4a;
     const uint8_t data[2] = {address, value};
+    i2c_transaction_start();
     i2c_write(device, data, 2);
+    i2c_transaction_end();
 }
+
