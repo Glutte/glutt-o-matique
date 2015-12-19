@@ -1,4 +1,5 @@
 #include "audio.h"
+#include "i2c.h"
 #include "stm32f4xx_conf.h"
 #include "stm32f4xx.h"
 
@@ -32,9 +33,9 @@ void InitializeAudio(int plln, int pllr, int i2sdiv, int i2sodd) {
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA1, ENABLE);
-
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1, ENABLE);
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI3, ENABLE);
+
+    i2c_init();
 
     // Configure reset pin.
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4;;
@@ -43,17 +44,6 @@ void InitializeAudio(int plln, int pllr, int i2sdiv, int i2sodd) {
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
     GPIO_Init(GPIOD, &GPIO_InitStructure);
-
-    // Configure I2C SCL and SDA pins.
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_9;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
-    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-    GPIO_Init(GPIOB, &GPIO_InitStructure);
-
-    GPIO_PinAFConfig(GPIOB, GPIO_PinSource6, GPIO_AF_I2C1);
-    GPIO_PinAFConfig(GPIOB, GPIO_PinSource9, GPIO_AF_I2C1);
 
     // Configure I2S MCK, SCK, SD pins.
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7 | GPIO_Pin_10 | GPIO_Pin_12;
@@ -83,27 +73,6 @@ void InitializeAudio(int plln, int pllr, int i2sdiv, int i2sodd) {
         __asm__ volatile("nop");
     }
     GPIOD ->BSRRL = 1 << 4;
-
-    // Reset I2C.
-    RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C1, ENABLE);
-    RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C1, DISABLE);
-
-    // Configure I2C.
-    uint32_t pclk1 = 42000000;
-
-    I2C1 ->CR2 = pclk1 / 1000000; // Configure frequency and disable interrupts and DMA.
-    I2C1 ->OAR1 = I2C_OAR1_ADDMODE | 0x33;
-
-    // Configure I2C speed in standard mode.
-    const uint32_t i2c_speed = 100000;
-    int ccrspeed = pclk1 / (i2c_speed * 2);
-    if (ccrspeed < 4) {
-        ccrspeed = 4;
-    }
-    I2C1 ->CCR = ccrspeed;
-    I2C1 ->TRISE = pclk1 / 1000000 + 1;
-
-    I2C1 ->CR1 = I2C_CR1_ACK | I2C_CR1_PE; // Enable and configure the I2C peripheral.
 
     // Configure codec.
     WriteRegister(0x02, 0x01); // Keep codec powered off.
@@ -217,30 +186,6 @@ bool ProvideAudioBufferWithoutBlocking(void *samples, int numsamples) {
     return true;
 }
 
-static void WriteRegister(uint8_t address, uint8_t value) {
-    while (I2C1 ->SR2 & I2C_SR2_BUSY )
-        ;
-
-    I2C1 ->CR1 |= I2C_CR1_START; // Start the transfer sequence.
-    while (!(I2C1 ->SR1 & I2C_SR1_SB ))
-        ; // Wait for start bit.
-
-    I2C1 ->DR = 0x94;
-    while (!(I2C1 ->SR1 & I2C_SR1_ADDR ))
-        ; // Wait for master transmitter mode.
-    I2C1 ->SR2;
-
-    I2C1 ->DR = address; // Transmit the address to write to.
-    while (!(I2C1 ->SR1 & I2C_SR1_TXE ))
-        ; // Wait for byte to move to shift register.
-
-    I2C1 ->DR = value; // Transmit the value.
-
-    while (!(I2C1 ->SR1 & I2C_SR1_BTF ))
-        ; // Wait for all bytes to finish.
-    I2C1 ->CR1 |= I2C_CR1_STOP; // End the transfer sequence.
-}
-
 static void StartAudioDMAAndRequestBuffers() {
     // Configure DMA stream.
     DMA1_Stream7 ->CR = (0 * DMA_SxCR_CHSEL_0 ) | // Channel 0
@@ -282,4 +227,11 @@ void DMA1_Stream7_IRQHandler() {
     } else {
         DMARunning = false;
     }
+}
+
+static void WriteRegister(uint8_t address, uint8_t value)
+{
+    const uint8_t device = 0x4a;
+    const uint8_t data[2] = {address, value};
+    i2c_write(device, data, 2);
 }

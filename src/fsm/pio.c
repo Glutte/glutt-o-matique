@@ -54,7 +54,6 @@ void pio_init()
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
     GPIO_Init(GPIOC, &GPIO_InitStructure);
 
-
     xTaskCreate(
             read_fsm_input_task,
             "TaskPIO",
@@ -66,15 +65,24 @@ void pio_init()
 
 void pio_set_fsm_signals(struct fsm_input_signals_t* sig)
 {
-    *sig = pio_signals;
+    // We do not want to copy the data, we want to
+    // set the fields in sig only to 1, never to
+    // zero.
+    // The FSM sets the input fields back to 0.
+    uint8_t *in_signals = (uint8_t*)&pio_signals;
+    uint8_t *out_signals = (uint8_t*)sig;
+
+    for (int i = 0; i < sizeof(struct fsm_input_signals_t); i++) {
+        out_signals[i] |= in_signals[i];
+    }
 }
 
 void read_fsm_input_task(void *pvParameters)
 {
     while (1) {
-        pio_signals.qrp = GPIO_ReadInputDataBit(GPIOC, GPIO_PIN_QRP_n) ? 0 : 1;
+        pio_signals.qrp       = GPIO_ReadInputDataBit(GPIOC, GPIO_PIN_QRP_n) ? 0 : 1;
         pio_signals.tone_1750 = GPIO_ReadInputDataBit(GPIOC, GPIO_PIN_1750) ? 1 : 0;
-        pio_signals.carrier = GPIO_ReadInputDataBit(GPIOC, GPIO_PIN_RX_n) ? 0 : 1;
+        pio_signals.carrier   = GPIO_ReadInputDataBit(GPIOC, GPIO_PIN_RX_n) ? 0 : 1;
         pio_signals.discrim_u = GPIO_ReadInputDataBit(GPIOC, GPIO_PIN_U_n) ? 0 : 1;
         pio_signals.discrim_d = GPIO_ReadInputDataBit(GPIOC, GPIO_PIN_D_n) ? 0 : 1;
 

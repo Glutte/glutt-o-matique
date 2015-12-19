@@ -340,6 +340,8 @@ void fsm_update() {
             break;
     }
 
+
+
     if (next_state != current_state) {
         timestamp_state[next_state] = timestamp_now();
     }
