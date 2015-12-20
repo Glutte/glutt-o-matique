@@ -41,6 +41,11 @@
 #include "fsm.h"
 #include "common.h"
 
+#define GPIOD_BOARD_LED_GREEN  GPIO_Pin_12
+#define GPIOD_BOARD_LED_ORANGE GPIO_Pin_13
+#define GPIOD_BOARD_LED_RED    GPIO_Pin_14
+#define GPIOD_BOARD_LED_BLUE   GPIO_Pin_15
+
 // Private variables
 static int tm_trigger = 0;
 
@@ -156,7 +161,7 @@ static void launcher_task(void *pvParameters)
 
 static void detect_button_press(void *pvParameters)
 {
-    GPIO_SetBits(GPIOD, GPIO_Pin_12);
+    GPIO_SetBits(GPIOD, GPIOD_BOARD_LED_GREEN);
 
     while (1) {
         if (GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_0)>0) {
@@ -166,14 +171,14 @@ static void detect_button_press(void *pvParameters)
             }
 
             tm_trigger = 1;
-            GPIO_SetBits(GPIOD, GPIO_Pin_12);
+            GPIO_SetBits(GPIOD, GPIOD_BOARD_LED_GREEN);
 
             while (GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_0) == 0) {
                 vTaskDelay(100 / portTICK_RATE_MS); /* Button Debounce Delay */
             }
 
             tm_trigger = 0;
-            GPIO_ResetBits(GPIOD, GPIO_Pin_12);
+            GPIO_ResetBits(GPIOD, GPIOD_BOARD_LED_GREEN);
         }
         taskYIELD();
     }
@@ -187,11 +192,11 @@ static void audio_callback(void* context, int select_buffer)
 
     if (select_buffer == 0) {
         samples = audio_buffer0;
-        GPIO_ResetBits(GPIOD, GPIO_Pin_14);
+        GPIO_ResetBits(GPIOD, GPIOD_BOARD_LED_RED);
         select_buffer = 1;
     } else {
         samples = audio_buffer1;
-        GPIO_SetBits(GPIOD, GPIO_Pin_14);
+        GPIO_SetBits(GPIOD, GPIOD_BOARD_LED_RED);
         select_buffer = 0;
     }
 
@@ -212,7 +217,7 @@ static void audio_callback(void* context, int select_buffer)
 static struct gps_time_s gps_time;
 static void gps_monit_task(void *pvParameters)
 {
-    GPIO_SetBits(GPIOD, GPIO_Pin_15);
+    GPIO_SetBits(GPIOD, GPIOD_BOARD_LED_BLUE);
 
     while (1) {
         if (gps_locked()) {
@@ -220,10 +225,10 @@ static void gps_monit_task(void *pvParameters)
             gps_utctime(&gps_time);
 
             if (gps_time.sec % 10 > 5) {
-                GPIO_SetBits(GPIOD, GPIO_Pin_15);
+                GPIO_SetBits(GPIOD, GPIOD_BOARD_LED_BLUE);
             }
             else {
-                GPIO_ResetBits(GPIOD, GPIO_Pin_15);
+                GPIO_ResetBits(GPIOD, GPIOD_BOARD_LED_BLUE);
             }
         }
         taskYIELD();
@@ -250,10 +255,10 @@ static void exercise_fsm(void *pvParameters)
         fsm_input.cw_done = !cw_busy();
 
         if (fsm_input.cw_done) {
-            GPIO_ResetBits(GPIOD, GPIO_Pin_13);
+            GPIO_ResetBits(GPIOD, GPIOD_BOARD_LED_ORANGE);
         }
         else {
-            GPIO_SetBits(GPIOD, GPIO_Pin_13);
+            GPIO_SetBits(GPIOD, GPIOD_BOARD_LED_ORANGE);
         }
 
         fsm_update_inputs(&fsm_input);
@@ -295,7 +300,12 @@ void init() {
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
 
     // Configure PD12, PD13, PD14 and PD15 in output pushpull mode
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12 | GPIO_Pin_13| GPIO_Pin_14| GPIO_Pin_15;
+    GPIO_InitStructure.GPIO_Pin =
+        GPIOD_BOARD_LED_GREEN |
+        GPIOD_BOARD_LED_ORANGE |
+        GPIOD_BOARD_LED_RED |
+        GPIOD_BOARD_LED_BLUE;
+
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
