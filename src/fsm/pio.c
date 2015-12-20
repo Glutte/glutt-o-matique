@@ -65,16 +65,7 @@ void pio_init()
 
 void pio_set_fsm_signals(struct fsm_input_signals_t* sig)
 {
-    // We do not want to copy the data, we want to
-    // set the fields in sig only to 1, never to
-    // zero.
-    // The FSM sets the input fields back to 0.
-    uint8_t *in_signals = (uint8_t*)&pio_signals;
-    uint8_t *out_signals = (uint8_t*)sig;
-
-    for (int i = 0; i < sizeof(struct fsm_input_signals_t); i++) {
-        out_signals[i] |= in_signals[i];
-    }
+    *sig = pio_signals;
 }
 
 void read_fsm_input_task(void *pvParameters)
