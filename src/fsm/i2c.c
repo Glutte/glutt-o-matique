@@ -32,6 +32,10 @@
 #include "task.h"
 #include "semphr.h"
 
+const uint16_t GPIOB_PIN_SDA = GPIO_Pin_9;
+const uint16_t GPIOB_PIN_SCL = GPIO_Pin_6;
+
+
 static int i2c_init_done = 0;
 static int i2c_error = 0;
 
@@ -60,27 +64,24 @@ static void i2c_recover_from_lockup(void)
 
     // Configure I2C SCL and SDA pins.
     GPIO_InitTypeDef  GPIO_InitStructure;
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_9;
+    GPIO_InitStructure.GPIO_Pin = GPIOB_PIN_SCL | GPIOB_PIN_SDA;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
     GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
     GPIO_Init(GPIOB, &GPIO_InitStructure);
 
-    const uint16_t pin_sda = GPIO_Pin_9;
-    const uint16_t pin_scl = GPIO_Pin_6;
-
     const TickType_t delay = 5 / portTICK_PERIOD_MS;
 
-    GPIO_SetBits(GPIOB, pin_sda | pin_scl);
+    GPIO_SetBits(GPIOB, GPIOB_PIN_SDA | GPIOB_PIN_SCL);
     vTaskDelay(delay);
 
     I2C_SoftwareResetCmd(I2Cx, ENABLE);
 
     for (int i = 0; i < 10; i++) {
-        GPIO_ResetBits(GPIOB, pin_scl);
+        GPIO_ResetBits(GPIOB, GPIOB_PIN_SCL);
         vTaskDelay(delay);
-        GPIO_SetBits(GPIOB, pin_scl);
+        GPIO_SetBits(GPIOB, GPIOB_PIN_SCL);
         vTaskDelay(delay);
     }
 
@@ -91,11 +92,11 @@ static void i2c_device_init(void)
 {
     // Configure I2C SCL and SDA pins.
     GPIO_InitTypeDef  GPIO_InitStructure;
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_9;
+    GPIO_InitStructure.GPIO_Pin = GPIOB_PIN_SCL | GPIOB_PIN_SDA;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
-    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
     GPIO_Init(GPIOB, &GPIO_InitStructure);
 
     GPIO_PinAFConfig(GPIOB, GPIO_PinSource6, GPIO_AF_I2C1);

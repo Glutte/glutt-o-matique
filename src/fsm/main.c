@@ -224,7 +224,7 @@ static void gps_monit_task(void *pvParameters)
 
             gps_utctime(&gps_time);
 
-            if (gps_time.sec % 10 > 5) {
+            if (gps_time.sec % 4 >= 2) {
                 GPIO_SetBits(GPIOD, GPIOD_BOARD_LED_BLUE);
             }
             else {
