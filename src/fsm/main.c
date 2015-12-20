@@ -134,7 +134,7 @@ static void launcher_task(void *pvParameters)
     xTaskCreate(
             gps_monit_task,
             "TaskGPSMonit",
-            configMINIMAL_STACK_SIZE,
+            4*configMINIMAL_STACK_SIZE,
             (void*) NULL,
             tskIDLE_PRIORITY + 2UL,
             &task_handle);
