@@ -34,15 +34,21 @@
 #include "ubx.h"
 
 
+TickType_t gps_timeutc_last_updated = 0;
 static struct gps_time_s gps_timeutc;
-static int gps_fix_3d;
+
+const TickType_t gps_data_validity_timeout = 10000ul / portTICK_PERIOD_MS;
+
+TickType_t gps_fix_last_updated = 0;
+static int gps_fix = 0;
 
 static void gps_task(void *pvParameters);
 
 // Callback functions for UBX parser
 static void gps_nav_sol(ubx_nav_sol_t *sol)
 {
-    gps_fix_3d = (sol->GPSfix == GPSFIX_3D) ? 1 : 0;
+    gps_fix_last_updated = xTaskGetTickCount();
+    gps_fix = sol->GPSfix == GPSFIX_3D;
 }
 
 static void gps_tim_tm2(ubx_tim_tm2_t *posllh) {}
@@ -51,6 +57,7 @@ SemaphoreHandle_t timeutc_semaphore;
 static void gps_nav_timeutc(ubx_nav_timeutc_t *timeutc)
 {
     xSemaphoreTake(timeutc_semaphore, portMAX_DELAY);
+    gps_timeutc_last_updated = xTaskGetTickCount();
     gps_timeutc.year  = timeutc->year;
     gps_timeutc.month = timeutc->month;
     gps_timeutc.day   = timeutc->day;
@@ -65,13 +72,18 @@ static void gps_nav_timeutc(ubx_nav_timeutc_t *timeutc)
 void gps_utctime(struct gps_time_s *timeutc)
 {
     xSemaphoreTake(timeutc_semaphore, portMAX_DELAY);
-    timeutc->year  = gps_timeutc.year;
-    timeutc->month = gps_timeutc.month;
-    timeutc->day   = gps_timeutc.day;
-    timeutc->hour  = gps_timeutc.hour;
-    timeutc->min   = gps_timeutc.min;
-    timeutc->sec   = gps_timeutc.sec;
-    timeutc->valid = gps_timeutc.valid;
+    if (gps_timeutc_last_updated + gps_data_validity_timeout < xTaskGetTickCount()) {
+        timeutc->year  = gps_timeutc.year;
+        timeutc->month = gps_timeutc.month;
+        timeutc->day   = gps_timeutc.day;
+        timeutc->hour  = gps_timeutc.hour;
+        timeutc->min   = gps_timeutc.min;
+        timeutc->sec   = gps_timeutc.sec;
+        timeutc->valid = gps_timeutc.valid;
+    }
+    else {
+        timeutc->valid = 0;
+    }
     xSemaphoreGive(timeutc_semaphore);
 }
 
@@ -92,11 +104,20 @@ static uint8_t gps_init_messages[] = {
 
 static void gps_task(void *pvParameters)
 {
+    // Periodically reinit the GPS
+    const TickType_t init_timeout = 10000ul / portTICK_PERIOD_MS;
+
     const uint8_t address = 0xFD;
     int must_init_gps = 1;
 
+    TickType_t time_last_init = xTaskGetTickCount();
+
     while (1) {
         taskYIELD();
+
+        if (time_last_init + init_timeout >= xTaskGetTickCount()) {
+            must_init_gps = 1;
+        }
 
         i2c_transaction_start();
 
@@ -137,7 +158,6 @@ static void gps_task(void *pvParameters)
 
 void gps_init()
 {
-    gps_fix_3d = 0;
     gps_timeutc.valid = 0;
 
     ubx_register(&gps_ubx_cb);
@@ -163,6 +183,11 @@ void gps_init()
 // Return 1 of the GPS is receiving time
 int gps_locked()
 {
-    return gps_fix_3d;
+    if (gps_fix_last_updated + gps_data_validity_timeout < xTaskGetTickCount()) {
+        return (gps_fix == GPSFIX_3D) ? 1 : 0;
+    }
+    else {
+        return 0;
+    }
 }
 
