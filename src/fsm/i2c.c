@@ -76,14 +76,14 @@ static void i2c_recover_from_lockup(void)
     GPIO_SetBits(GPIOB, GPIOB_PIN_SDA | GPIOB_PIN_SCL);
     vTaskDelay(delay);
 
-    I2C_SoftwareResetCmd(I2Cx, ENABLE);
-
     for (int i = 0; i < 10; i++) {
         GPIO_ResetBits(GPIOB, GPIOB_PIN_SCL);
         vTaskDelay(delay);
         GPIO_SetBits(GPIOB, GPIOB_PIN_SCL);
         vTaskDelay(delay);
     }
+
+    I2C_SoftwareResetCmd(I2Cx, DISABLE);
 
     i2c_device_init();
 }
