@@ -39,8 +39,72 @@ static I2C_TypeDef* const I2Cx = I2C1;
 
 static SemaphoreHandle_t i2c_semaphore;
 
+static void i2c_device_init(void);
+
+/* According to I2C spec UM10204:
+ * 3.1.16 Bus clear
+ * In the unlikely event where the clock (SCL) is stuck LOW, the preferential
+ * procedure is to reset the bus using the HW reset signal if your I2C devices
+ * have HW reset inputs. If the I2C devices do not have HW reset inputs, cycle
+ * power to the devices to activate the mandatory internal Power-On Reset (POR)
+ * circuit.
+ *
+ * If the data line (SDA) is stuck LOW, the master should send nine clock
+ * pulses. The device that held the bus LOW should release it sometime within
+ * those nine clocks. If not, then use the HW reset or cycle power to clear the
+ * bus.
+ */
+static void i2c_recover_from_lockup(void)
+{
+    I2C_SoftwareResetCmd(I2Cx, ENABLE);
+
+    // Configure I2C SCL and SDA pins.
+    GPIO_InitTypeDef  GPIO_InitStructure;
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_9;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
+    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+    GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+    const uint16_t pin_sda = GPIO_Pin_9;
+    const uint16_t pin_scl = GPIO_Pin_6;
+
+    const TickType_t delay = 5 / portTICK_PERIOD_MS;
+
+    GPIO_SetBits(GPIOB, pin_sda | pin_scl);
+    vTaskDelay(delay);
+
+    I2C_SoftwareResetCmd(I2Cx, ENABLE);
+
+    for (int i = 0; i < 10; i++) {
+        GPIO_ResetBits(GPIOB, pin_scl);
+        vTaskDelay(delay);
+        GPIO_SetBits(GPIOB, pin_scl);
+        vTaskDelay(delay);
+    }
+
+    i2c_device_init();
+}
+
 static void i2c_device_init(void)
 {
+    // Configure I2C SCL and SDA pins.
+    GPIO_InitTypeDef  GPIO_InitStructure;
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_9;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
+    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+    GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+    GPIO_PinAFConfig(GPIOB, GPIO_PinSource6, GPIO_AF_I2C1);
+    GPIO_PinAFConfig(GPIOB, GPIO_PinSource9, GPIO_AF_I2C1);
+
+    // Reset I2C.
+    RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C1, ENABLE);
+    RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C1, DISABLE);
+
     // configure I2C1
     I2C_InitTypeDef I2C_InitStruct;
     I2C_InitStruct.I2C_ClockSpeed = 100000; //Hz
@@ -76,24 +140,25 @@ void i2c_init()
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1, ENABLE);
     RCC_APB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
 
-    // Configure I2C SCL and SDA pins.
-    GPIO_InitTypeDef  GPIO_InitStructure;
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_9;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
-    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-    GPIO_Init(GPIOB, &GPIO_InitStructure);
-
-    GPIO_PinAFConfig(GPIOB, GPIO_PinSource6, GPIO_AF_I2C1);
-    GPIO_PinAFConfig(GPIOB, GPIO_PinSource9, GPIO_AF_I2C1);
-
-    // Reset I2C.
-    RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C1, ENABLE);
-    RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C1, DISABLE);
-
     i2c_device_init();
     i2c_init_done = 1;
+}
+
+static int i2c_check_busy_flag(void)
+{
+    const TickType_t i2c_timeout = 1000ul / portTICK_PERIOD_MS;
+    const TickType_t time_start = xTaskGetTickCount();
+
+    while (I2C_GetFlagStatus(I2Cx, I2C_FLAG_BUSY)) {
+        const TickType_t time_now = xTaskGetTickCount();
+
+        if (time_now - time_start > i2c_timeout) {
+            i2c_error = 1;
+            return 0;
+        }
+    }
+
+    return 1;
 }
 
 static int i2c_check_event(uint32_t event)
@@ -105,6 +170,7 @@ static int i2c_check_event(uint32_t event)
         const TickType_t time_now = xTaskGetTickCount();
 
         if (time_now - time_start > i2c_timeout) {
+            i2c_error = 1;
             return 0;
         }
     }
@@ -161,11 +227,13 @@ int i2c_write(uint8_t device, const uint8_t *txbuf, int len)
         trigger_fault(FAULT_SOURCE_I2C);
     }
 
-    while (I2C_GetFlagStatus(I2Cx, I2C_FLAG_BUSY));
+    int success = i2c_check_busy_flag();
 
-    int success = 0;
+    if (success) {
+        success = i2c_start(device, I2C_Direction_Transmitter);
+    }
 
-    if (i2c_start(device, I2C_Direction_Transmitter)) {
+    if (success) {
         for (int i = 0; i < len; i++) {
             success = i2c_send(txbuf[i]);
             if (!success) {
@@ -215,9 +283,13 @@ static int i2c_read_nobuscheck(uint8_t device, uint8_t *rxbuf, int len)
 
 int i2c_read(uint8_t device, uint8_t *rxbuf, int len)
 {
-    while (I2C_GetFlagStatus(I2Cx, I2C_FLAG_BUSY));
+    int success = i2c_check_busy_flag();
 
-    return i2c_read_nobuscheck(device, rxbuf, len);
+    if (success) {
+        success = i2c_read_nobuscheck(device, rxbuf, len);
+    }
+
+    return success;
 }
 
 int i2c_read_from(uint8_t device, uint8_t address, uint8_t *rxbuf, int len)
@@ -226,9 +298,12 @@ int i2c_read_from(uint8_t device, uint8_t address, uint8_t *rxbuf, int len)
         trigger_fault(FAULT_SOURCE_I2C);
     }
 
-    while (I2C_GetFlagStatus(I2Cx, I2C_FLAG_BUSY));
+    int success = i2c_check_busy_flag();
 
-    int success = i2c_start(device, I2C_Direction_Transmitter);
+    if (success) {
+        success = i2c_start(device, I2C_Direction_Transmitter);
+    }
+
     if (success) {
         success = i2c_send(address);
     }
@@ -258,10 +333,7 @@ void i2c_transaction_end()
     }
 
     if ( i2c_error ) {
-        I2C_SoftwareResetCmd(I2Cx, ENABLE);
-        I2C_SoftwareResetCmd(I2Cx, DISABLE);
-
-        i2c_device_init();
+        i2c_recover_from_lockup();
 
         i2c_error = 0;
     }
