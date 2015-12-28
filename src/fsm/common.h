@@ -37,6 +37,15 @@ void common_init(void);
 // wall clock time.
 uint64_t timestamp_now(void);
 
+/* Convert date to day of week.
+ * day:   1-31
+ * month: 1-12
+ * year:  1900 to 3000
+ *
+ * Returns 1=Monday, ... 6=Saturday, 7=Sunday
+ */
+int dayofweek(uint8_t day, uint8_t month, uint16_t year);
+
 // Return either 0 or 1, somewhat randomly
 int random_bool(void);
 

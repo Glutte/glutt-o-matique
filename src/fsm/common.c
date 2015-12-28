@@ -26,6 +26,7 @@
 #include "FreeRTOS.h"
 #include "timers.h"
 #include <stm32f4xx.h>
+#include <time.h>
 
 static uint64_t common_timestamp = 0; // milliseconds since startup
 static TimerHandle_t common_timer;
@@ -59,6 +60,22 @@ uint64_t timestamp_now(void)
 {
     return common_timestamp;
 }
+
+int dayofweek(uint8_t day, uint8_t month, uint16_t year)
+{
+   /* Zeller's congruence for the Gregorian calendar.
+    * With 0=Monday, ... 5=Saturday, 6=Sunday
+    */
+   if (month < 3) {
+      month += 12;
+      year--;
+   }
+   int k = year % 100;
+   int j = year / 100;
+   int h = day + 13*(month+1)/5 + k + k/4 + j/4 + 5*j;
+   return (h + 5) % 7 + 1;
+}
+
 
 // Return either 0 or 1, somewhat randomly
 int random_bool(void)
