@@ -25,8 +25,6 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#define FLOAT_PI 3.1415926535897932384f
-
 // Setup the CW generator to create audio samples at the given
 // samplerate.
 void cw_init(unsigned int samplerate);

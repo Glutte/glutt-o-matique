@@ -31,6 +31,9 @@
 #ifndef _COMMON_H_
 #define _COMMON_H_
 
+#define FLOAT_PI 3.1415926535897932384f
+
+
 void common_init(void);
 
 // Return the current timestamp in milliseconds. Timestamps are monotonic, and not

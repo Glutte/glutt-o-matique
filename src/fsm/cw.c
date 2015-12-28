@@ -34,6 +34,7 @@
  */
 
 #include "cw.h"
+#include "common.h"
 #include "arm_math.h"
 #include "audio.h"
 #include "debug.h"
