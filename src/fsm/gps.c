@@ -30,8 +30,8 @@
 #include "semphr.h"
 #include "common.h"
 #include "gps.h"
-#include "i2c.h"
-#include "ubx.h"
+#include "usart.h"
+#include "minmea.h"
 
 
 TickType_t gps_timeutc_last_updated = 0;
@@ -44,29 +44,7 @@ static int gps_fix = 0;
 
 static void gps_task(void *pvParameters);
 
-// Callback functions for UBX parser
-static void gps_nav_sol(ubx_nav_sol_t *sol)
-{
-    gps_fix_last_updated = xTaskGetTickCount();
-    gps_fix = sol->GPSfix == GPSFIX_3D;
-}
-
-static void gps_tim_tm2(ubx_tim_tm2_t *posllh) {}
-
 SemaphoreHandle_t timeutc_semaphore;
-static void gps_nav_timeutc(ubx_nav_timeutc_t *timeutc)
-{
-    xSemaphoreTake(timeutc_semaphore, portMAX_DELAY);
-    gps_timeutc_last_updated = xTaskGetTickCount();
-    gps_timeutc.year  = timeutc->year;
-    gps_timeutc.month = timeutc->month;
-    gps_timeutc.day   = timeutc->day;
-    gps_timeutc.hour  = timeutc->hour;
-    gps_timeutc.min   = timeutc->min;
-    gps_timeutc.sec   = timeutc->sec;
-    gps_timeutc.valid = timeutc->valid;
-    xSemaphoreGive(timeutc_semaphore);
-}
 
 // Get current time from GPS
 void gps_utctime(struct gps_time_s *timeutc)
@@ -87,71 +65,41 @@ void gps_utctime(struct gps_time_s *timeutc)
     xSemaphoreGive(timeutc_semaphore);
 }
 
-
-const ubx_callbacks_t gps_ubx_cb = {
-    gps_nav_sol,
-    gps_nav_timeutc,
-    gps_tim_tm2
-};
-
-
-#define RXBUF_LEN 128
-static uint8_t rxbuf[RXBUF_LEN];
-static uint8_t gps_init_messages[] = {
-    UBX_ENABLE_NAV_SOL,
-    UBX_ENABLE_NAV_TIMEUTC,
-    UBX_ENABLE_TIM_TM2 };
+#define RXBUF_LEN MAX_NMEA_SENTENCE_LEN
+static char rxbuf[RXBUF_LEN];
 
 static void gps_task(void *pvParameters)
 {
     // Periodically reinit the GPS
-    const TickType_t init_timeout = 10000ul / portTICK_PERIOD_MS;
-
-    const uint8_t address = 0xFD;
-    int must_init_gps = 1;
-
-    TickType_t time_last_init = xTaskGetTickCount();
-
     while (1) {
         taskYIELD();
 
-        if (time_last_init + init_timeout >= xTaskGetTickCount()) {
-            must_init_gps = 1;
-        }
+        int success = usart_get_nmea_sentence(rxbuf);
 
-        i2c_transaction_start();
-
-        if (must_init_gps) {
-            i2c_write(GPS_I2C_ADDR,
-                    gps_init_messages,
-                    sizeof(gps_init_messages));
-
-            must_init_gps = 0;
-        }
-
-        int bytes_read = i2c_read_from(GPS_I2C_ADDR, address, rxbuf, 2);
-
-        if (bytes_read != 2) {
-            i2c_transaction_end();
-            continue;
-        }
-
-        uint16_t bytes_available = (rxbuf[0] << 8) | rxbuf[1];
-
-        if (bytes_available) {
-            if (bytes_available > RXBUF_LEN) {
-                bytes_available = RXBUF_LEN;
+        if (success) {
+            const int strict = 1;
+            switch (minmea_sentence_id(rxbuf, strict)) {
+                case MINMEA_SENTENCE_RMC:
+                    {
+                        struct minmea_sentence_rmc frame;
+                        if (minmea_parse_rmc(&frame, rxbuf)) {
+                            xSemaphoreTake(timeutc_semaphore, portMAX_DELAY);
+                            gps_timeutc_last_updated = xTaskGetTickCount();
+                            gps_timeutc.year  = frame.date.year;
+                            gps_timeutc.month = frame.date.month;
+                            gps_timeutc.day   = frame.date.day;
+                            gps_timeutc.hour  = frame.time.hours;
+                            gps_timeutc.min   = frame.time.minutes;
+                            gps_timeutc.sec   = frame.time.seconds;
+                            gps_timeutc.valid = frame.valid;
+                            gps_fix = frame.valid;
+                            gps_fix_last_updated = xTaskGetTickCount();
+                            xSemaphoreGive(timeutc_semaphore);
+                        }
+                    } break;
+                default:
+                    break;
             }
-
-            bytes_read = i2c_read(GPS_I2C_ADDR, rxbuf, bytes_available);
-            i2c_transaction_end();
-
-            for (int i = 0; i < bytes_read; i++) {
-                ubx_parse(rxbuf[i]);
-            }
-        }
-        else {
-            i2c_transaction_end();
         }
     }
 }
@@ -160,7 +108,7 @@ void gps_init()
 {
     gps_timeutc.valid = 0;
 
-    ubx_register(&gps_ubx_cb);
+    usart_init();
 
     timeutc_semaphore = xSemaphoreCreateBinary();
 
@@ -184,7 +132,7 @@ void gps_init()
 int gps_locked()
 {
     if (gps_fix_last_updated + gps_data_validity_timeout < xTaskGetTickCount()) {
-        return (gps_fix == GPSFIX_3D) ? 1 : 0;
+        return gps_fix;
     }
     else {
         return 0;

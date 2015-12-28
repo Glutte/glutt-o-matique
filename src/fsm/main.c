@@ -144,7 +144,7 @@ static void launcher_task(void *pvParameters)
     }
 
     InitializeAudio(Audio16000HzSettings);
-    SetAudioVolume(164);
+    SetAudioVolume(210);
 
     PlayAudioWithCallback(audio_callback, NULL);
 

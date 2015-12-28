@@ -22,30 +22,21 @@
  * SOFTWARE.
 */
 
-/* A set of common routines for internal timekeeping and a LFSR to generate
- * a random number
+/* This handles the USART to the GPS receiver, and fills a queue of
+ * NMEA messages.
  */
 
-#include <stdint.h>
+#ifndef __USART_H_
+#define __USART_H_
 
-#ifndef _COMMON_H_
-#define _COMMON_H_
+#define MAX_NMEA_SENTENCE_LEN 256
 
-void common_init(void);
+void usart_init(void);
 
-// Return the current timestamp in milliseconds. Timestamps are monotonic, and not
-// wall clock time.
-uint64_t timestamp_now(void);
+void usart_puts(const char* str);
 
-// Return either 0 or 1, somewhat randomly
-int random_bool(void);
+// Get a MAX_NMEA_SENTENCE_LEN sized NMEA sentence
+int usart_get_nmea_sentence(char* nmea);
 
-// Fault handling mechanism
-#define FAULT_SOURCE_MAIN  1
-#define FAULT_SOURCE_GPS   2
-#define FAULT_SOURCE_I2C   3
-#define FAULT_SOURCE_USART 4
-void trigger_fault(int source);
-
-#endif // _COMMON_H_
+#endif //__USART_H_
 
