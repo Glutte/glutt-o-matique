@@ -39,9 +39,6 @@ static struct gps_time_s gps_timeutc;
 
 const TickType_t gps_data_validity_timeout = 10000ul / portTICK_PERIOD_MS;
 
-TickType_t gps_fix_last_updated = 0;
-static int gps_fix = 0;
-
 static void gps_task(void *pvParameters);
 
 SemaphoreHandle_t timeutc_semaphore;
@@ -50,7 +47,7 @@ SemaphoreHandle_t timeutc_semaphore;
 void gps_utctime(struct gps_time_s *timeutc)
 {
     xSemaphoreTake(timeutc_semaphore, portMAX_DELAY);
-    if (gps_timeutc_last_updated + gps_data_validity_timeout < xTaskGetTickCount()) {
+    if (xTaskGetTickCount() - gps_timeutc_last_updated < gps_data_validity_timeout) {
         timeutc->year  = gps_timeutc.year;
         timeutc->month = gps_timeutc.month;
         timeutc->day   = gps_timeutc.day;
@@ -92,8 +89,6 @@ static void gps_task(void *pvParameters)
                             gps_timeutc.min   = frame.time.minutes;
                             gps_timeutc.sec   = frame.time.seconds;
                             gps_timeutc.valid = frame.valid;
-                            gps_fix = frame.valid;
-                            gps_fix_last_updated = xTaskGetTickCount();
                             xSemaphoreGive(timeutc_semaphore);
                         }
                     } break;
@@ -131,8 +126,8 @@ void gps_init()
 // Return 1 of the GPS is receiving time
 int gps_locked()
 {
-    if (gps_fix_last_updated + gps_data_validity_timeout < xTaskGetTickCount()) {
-        return gps_fix;
+    if (xTaskGetTickCount() - gps_timeutc_last_updated < gps_data_validity_timeout) {
+        return gps_timeutc.valid;
     }
     else {
         return 0;
