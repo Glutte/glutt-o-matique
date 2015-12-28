@@ -36,13 +36,15 @@ DEFS=-DUSE_STDPERIPH_DRIVER -DSTM32F4XX -DARM_MATH_CM4 -D__FPU_PRESENT=1
 CFLAGS  =-Wall -ggdb -std=c99 -c $(MCFLAGS) $(DEFS) $(INCLUDES)
 # LINKER FLAGS
 LDSCRIPT= bsp/stm32_flash.ld
-LDFLAGS =-T $(LDSCRIPT) --specs=nosys.specs $(MCFLAGS)
+LDFLAGS =-T $(LDSCRIPT) --specs=nosys.specs $(MCFLAGS) -Wl,-Map=$(BINDIR)/outp.map
 
 ###
 # Optimizations
-OPT?='O1 O2 O3 O4 O6 O7' # O5 disabled by default, because it breaks code
+OPT?='O2 O3 O6'
+# O1 and O4 are irrelevant
+# O5 breaks FreeRTOS somehow
+# I'm not trusting O7
 
-ifneq ($(findstring release-memopt,$(MAKECMDGOALS)),)
 ifneq ($(filter O1,$(OPT)),)
 CXXFLAGS+=-fno-exceptions # Uncomment to disable exception handling
 DEFS+=-DNO_EXCEPTIONS # The source code has to comply with this rule
@@ -78,17 +80,14 @@ endif
 ifneq ($(findstring O7,$(OPT)),)
 LDFLAGS+=--specs=nano.specs # Use size optimized newlib
 endif
-endif
 
 ###
 # Build Rules
-.PHONY: all release release-memopt debug clean
+.PHONY: all release debug clean
 
 all: release
 
 release: $(BINDIR)/$(BINHEX)
-
-release-memopt: release
 
 debug: CFLAGS+=-g
 debug: LDFLAGS+=-g
