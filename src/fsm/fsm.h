@@ -80,7 +80,7 @@ struct fsm_output_signals_t {
     /* Signals to the CW generator */
     const char* cw_msg; // The message to transmit
     int cw_frequency;   // What audio frequency for the CW message
-    int cw_speed;       // CW speed
+    int cw_dit_duration;// CW speed, dit duration in ms
     int cw_trigger;     // Set to true to trigger a transmission
 };
 

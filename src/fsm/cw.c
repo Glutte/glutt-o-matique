@@ -250,8 +250,8 @@ static void cw_task(void *pvParameters)
 
             cw_transmit_ongoing = 1;
 
-            const int samples_per_dit = (cw_samplerate * 10) /
-                cw_fill_msg_current.dit_duration;
+            const int samples_per_dit =
+                (cw_samplerate * cw_fill_msg_current.dit_duration) / 1000;
 
             // Angular frequency of NCO
             const float omega = 2.0f * FLOAT_PI * cw_fill_msg_current.freq /

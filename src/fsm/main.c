@@ -273,7 +273,7 @@ static void exercise_fsm(void *pvParameters)
 
         // Add message to CW generator only on rising edge of trigger
         if (fsm_out.cw_trigger && !cw_last_trigger) {
-            cw_push_message(fsm_out.cw_msg, 140 /*fsm_out.cw_speed*/, fsm_out.cw_frequency);
+            cw_push_message(fsm_out.cw_msg, fsm_out.cw_dit_duration, fsm_out.cw_frequency);
         }
 
         cw_last_trigger = fsm_out.cw_trigger;

@@ -92,8 +92,8 @@ void fsm_update() {
     fsm_out.tx_on = 0;
     fsm_out.modulation = 0;
     fsm_out.cw_trigger = 0;
-    fsm_out.cw_speed = 23;
-    fsm_out.cw_frequency = 500;
+    fsm_out.cw_dit_duration = 50;
+    fsm_out.cw_frequency = 960;
     // other output signals keep their value
 
     switch (current_state) {
@@ -135,6 +135,11 @@ void fsm_update() {
             fsm_out.tx_on = 1;
             fsm_out.modulation = 1;
             fsm_out.cw_msg = fsm_select_letter();
+            if (fsm_out.cw_msg[0] == 'G') {
+                // The letter 'G' is a bit different
+                fsm_out.cw_frequency    = 696;
+                fsm_out.cw_dit_duration = 70;
+            }
             fsm_out.cw_trigger = 1;
 
             if (fsm_in.cw_done) {
@@ -217,6 +222,8 @@ void fsm_update() {
         case FSM_TEXTE_73:
             fsm_out.tx_on = 1;
             fsm_out.modulation = 1;
+            fsm_out.cw_frequency    = 696;
+            fsm_out.cw_dit_duration = 70;
             fsm_out.cw_msg = "73";
             fsm_out.cw_trigger = 1;
 
@@ -231,6 +238,8 @@ void fsm_update() {
         case FSM_TEXTE_HB9G:
             fsm_out.tx_on = 1;
             fsm_out.modulation = 1;
+            fsm_out.cw_frequency    = 696;
+            fsm_out.cw_dit_duration = 70;
             fsm_out.cw_msg = "HB9G";
             fsm_out.cw_trigger = 1;
 
@@ -245,6 +254,9 @@ void fsm_update() {
         case FSM_TEXTE_LONG:
             fsm_out.tx_on = 1;
             fsm_out.modulation = 1;
+
+            fsm_out.cw_frequency    = 696;
+            fsm_out.cw_dit_duration = 70;
 
             if (random_bool()) {
                 fsm_out.cw_msg = "HB9G 1628M";
@@ -264,6 +276,9 @@ void fsm_update() {
 
         case FSM_BALISE_LONGUE:
             fsm_out.tx_on = 1;
+
+            fsm_out.cw_frequency    = 588;
+            fsm_out.cw_dit_duration = 110;
 
             // TODO transmit humidity
             // TODO read voltage
@@ -289,6 +304,9 @@ void fsm_update() {
 
         case FSM_BALISE_SPECIALE:
             fsm_out.tx_on = 1;
+            fsm_out.cw_frequency    = 696;
+            fsm_out.cw_dit_duration = 70;
+
             // TODO read voltage
             if (fsm_in.wind_generator_ok) {
                 fsm_out.cw_msg = "HB9G U 10V5 73";
@@ -308,6 +326,9 @@ void fsm_update() {
 
         case FSM_BALISE_COURTE:
             fsm_out.tx_on = 1;
+
+            fsm_out.cw_frequency    = 696;
+            fsm_out.cw_dit_duration = 70;
 
             {
                 int rand = random_bool() * 2 + random_bool();
@@ -339,7 +360,6 @@ void fsm_update() {
         next_state = FSM_OISIF;
             break;
     }
-
 
 
     if (next_state != current_state) {
