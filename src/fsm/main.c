@@ -35,6 +35,7 @@
 #include "timers.h"
 #include "semphr.h"
 #include "cw.h"
+#include "psk31.h"
 #include "pio.h"
 #include "i2c.h"
 #include "gps.h"
@@ -101,6 +102,7 @@ int main(void) {
 static void launcher_task(void *pvParameters)
 {
     cw_init(16000);
+    psk31_init(16000);
     pio_init();
     i2c_init();
     common_init();
@@ -134,7 +136,7 @@ static void launcher_task(void *pvParameters)
     xTaskCreate(
             gps_monit_task,
             "TaskGPSMonit",
-            4*configMINIMAL_STACK_SIZE,
+            6*configMINIMAL_STACK_SIZE,
             (void*) NULL,
             tskIDLE_PRIORITY + 2UL,
             &task_handle);
@@ -161,8 +163,6 @@ static void launcher_task(void *pvParameters)
 
 static void detect_button_press(void *pvParameters)
 {
-    GPIO_SetBits(GPIOD, GPIOD_BOARD_LED_GREEN);
-
     while (1) {
         if (GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_0)>0) {
 
@@ -171,14 +171,12 @@ static void detect_button_press(void *pvParameters)
             }
 
             tm_trigger = 1;
-            GPIO_SetBits(GPIOD, GPIOD_BOARD_LED_GREEN);
 
             while (GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_0) == 0) {
                 vTaskDelay(100 / portTICK_RATE_MS); /* Button Debounce Delay */
             }
 
             tm_trigger = 0;
-            GPIO_ResetBits(GPIOD, GPIOD_BOARD_LED_GREEN);
         }
         taskYIELD();
     }
@@ -200,7 +198,11 @@ static void audio_callback(void* context, int select_buffer)
         select_buffer = 0;
     }
 
-    size_t samples_len = cw_fill_buffer(samples, AUDIO_BUF_LEN);
+    size_t samples_len = psk31_fill_buffer(samples, AUDIO_BUF_LEN);
+
+    if (samples_len == 0) {
+        samples_len = cw_fill_buffer(samples, AUDIO_BUF_LEN);
+    }
 
     if (samples_len == 0) {
         for (int i = 0; i < AUDIO_BUF_LEN; i++) {
@@ -214,10 +216,14 @@ static void audio_callback(void* context, int select_buffer)
 }
 
 
+static char psk31_msg[256];
 static struct gps_time_s gps_time;
 static void gps_monit_task(void *pvParameters)
 {
     GPIO_SetBits(GPIOD, GPIOD_BOARD_LED_BLUE);
+
+    int trigger_psk31 = 0;
+    int last_trigger_psk31 = 0;
 
     while (1) {
         if (gps_locked()) {
@@ -230,7 +236,32 @@ static void gps_monit_task(void *pvParameters)
             else {
                 GPIO_ResetBits(GPIOD, GPIOD_BOARD_LED_BLUE);
             }
+
+            if (gps_time.sec == 0  || gps_time.sec == 20 || gps_time.sec == 40) {
+                trigger_psk31 = 1;
+            }
+            else {
+                trigger_psk31 = 0;
+            }
+
         }
+
+        if (trigger_psk31 && !last_trigger_psk31) {
+            snprintf(psk31_msg, 255, "Hello PSK31\nDate: %4d-%02d-%02d %02d:%02d:%02d\n73!",
+                    gps_time.year, gps_time.month, gps_time.day,
+                    gps_time.hour, gps_time.min, gps_time.sec);
+
+            psk31_push_message(psk31_msg, 400);
+        }
+        last_trigger_psk31 = trigger_psk31;
+
+        if (psk31_busy()) {
+            GPIO_SetBits(GPIOD, GPIOD_BOARD_LED_GREEN);
+        }
+        else {
+            GPIO_ResetBits(GPIOD, GPIOD_BOARD_LED_GREEN);
+        }
+
         taskYIELD();
     }
 }

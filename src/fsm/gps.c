@@ -82,7 +82,7 @@ static void gps_task(void *pvParameters)
                         if (minmea_parse_rmc(&frame, rxbuf)) {
                             xSemaphoreTake(timeutc_semaphore, portMAX_DELAY);
                             gps_timeutc_last_updated = xTaskGetTickCount();
-                            gps_timeutc.year  = frame.date.year;
+                            gps_timeutc.year  = 2000 + frame.date.year;
                             gps_timeutc.month = frame.date.month;
                             gps_timeutc.day   = frame.date.day;
                             gps_timeutc.hour  = frame.time.hours;
