@@ -274,12 +274,12 @@ void cw_psk31_init(unsigned int samplerate)
     cw_psk31_samplerate = samplerate;
     cw_transmit_ongoing = 0;
 
-    cw_msg_queue = xQueueCreate(15, sizeof(struct cw_message_s));
+    cw_msg_queue = xQueueCreate(10, sizeof(struct cw_message_s));
     if (cw_msg_queue == 0) {
         while(1); /* fatal error */
     }
 
-    cw_audio_queue = xQueueCreate(2, AUDIO_BUF_LEN * sizeof(int16_t));
+    cw_audio_queue = xQueueCreate(1, AUDIO_BUF_LEN * sizeof(int16_t));
     if (cw_audio_queue == 0) {
         while(1); /* fatal error */
     }
@@ -289,7 +289,7 @@ void cw_psk31_init(unsigned int samplerate)
             "CWPSKTask",
             8*configMINIMAL_STACK_SIZE,
             (void*) NULL,
-            tskIDLE_PRIORITY + 2UL,
+            tskIDLE_PRIORITY + 3UL,
             NULL);
 }
 
@@ -408,7 +408,7 @@ static size_t psk31_text_to_phase_buffer(const char* instr, uint8_t* outbits)
 
     /* Header of 0s */
     for (j=0; j < 20; j++) {
-        outbits[i++] = '0';
+        outbits[i++] = 0;
     }
 
     /* Encode the message, with 00 between letters */

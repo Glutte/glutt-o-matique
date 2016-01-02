@@ -61,12 +61,6 @@ static void launcher_task(void *pvParameters);
 // Audio callback function
 static void audio_callback(void* context, int select_buffer);
 
-struct cw_msg_s {
-    const char* msg;
-    int freq;
-    int dit_duration;
-};
-
 void vApplicationStackOverflowHook( TaskHandle_t xTask,
                                     signed char *pcTaskName )
 {
@@ -242,7 +236,6 @@ static struct fsm_input_signals_t fsm_input;
 static void exercise_fsm(void *pvParameters)
 {
     int cw_last_trigger = 0;
-    int psk31_last_trigger = 0;
     int last_tm_trigger = 0;
 
     fsm_input.humidity = 0;
@@ -259,9 +252,9 @@ static void exercise_fsm(void *pvParameters)
 
         fsm_input.sq = fsm_input.carrier; // TODO clarify
 
-        fsm_input.cw_done = !cw_psk31_busy();
+        fsm_input.cw_psk31_done = !cw_psk31_busy();
 
-        if (fsm_input.cw_done) {
+        if (fsm_input.cw_psk31_done) {
             GPIO_ResetBits(GPIOD, GPIOD_BOARD_LED_ORANGE);
         }
         else {
@@ -279,16 +272,10 @@ static void exercise_fsm(void *pvParameters)
         pio_set_led_grn(fsm_input.carrier);
 
         // Add message to CW generator only on rising edge of trigger
-        if (fsm_out.cw_trigger && !cw_last_trigger) {
+        if (fsm_out.cw_psk31_trigger && !cw_last_trigger) {
             cw_psk31_push_message(fsm_out.msg, fsm_out.cw_dit_duration, fsm_out.msg_frequency);
         }
-        cw_last_trigger = fsm_out.cw_trigger;
-
-        // Same for PSK31
-        if (fsm_out.psk_trigger && !psk31_last_trigger) {
-            cw_psk31_push_message(fsm_out.msg, 0, fsm_out.msg_frequency);
-        }
-        psk31_last_trigger = fsm_out.psk_trigger;
+        cw_last_trigger = fsm_out.cw_psk31_trigger;
     }
 }
 

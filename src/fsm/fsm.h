@@ -63,8 +63,7 @@ struct fsm_input_signals_t {
     int sstv_mode;         // The 1750Hz filter is disabled, permitting SSTV usage
 
     /* Signals coming from CW and PSK generator */
-    int cw_done;           // The CW generator has finished transmitting the message
-    int psk_done;          // The PSK generator has finished transmitting the message
+    int cw_psk31_done;     // The CW and PSK generator has finished transmitting the message
 
     /* Signal coming from the standing wave ratio meter */
     int swr_high;          // We see a lot of return power
@@ -74,16 +73,16 @@ struct fsm_input_signals_t {
 // All signals the FSM has to control
 struct fsm_output_signals_t {
     /* Signals to the repeater electronics */
-    int qrp;            // Place the repeater in QRP mode
-    int tx_on;          // Enable TX circuitry
-    int modulation;     // Enable repeater RX to TX modulation
+    int qrp;               // Place the repeater in QRP mode
+    int tx_on;             // Enable TX circuitry
+    int modulation;        // Enable repeater RX to TX modulation
 
     /* Signals to the CW and PSK generator */
-    const char* msg;    // The message to transmit
-    int msg_frequency;  // What audio frequency for the CW or PSK message
-    int cw_dit_duration;// CW speed, dit duration in ms
-    int cw_trigger;     // Set to true to trigger a CW transmission
-    int psk_trigger;    // Set to true to trigger a PSK transmission
+    const char* msg;       // The message to transmit
+    int msg_frequency;     // What audio frequency for the CW or PSK message
+    int cw_dit_duration;   // CW speed, dit duration in ms
+    int cw_psk31_trigger;  // Set to true to trigger a CW or PSK31 transmission.
+                           // PSK31 is sent if cw_dit_duration is 0
 };
 
 // Initialise local structures

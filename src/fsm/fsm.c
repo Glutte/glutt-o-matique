@@ -91,8 +91,7 @@ void fsm_update() {
     // Some defaults for the outgoing signals
     fsm_out.tx_on = 0;
     fsm_out.modulation = 0;
-    fsm_out.cw_trigger = 0;
-    fsm_out.psk_trigger = 0;
+    fsm_out.cw_psk31_trigger = 0;
     fsm_out.cw_dit_duration = 50;
     fsm_out.msg_frequency = 960;
     // other output signals keep their value
@@ -141,9 +140,9 @@ void fsm_update() {
                 fsm_out.msg_frequency    = 696;
                 fsm_out.cw_dit_duration = 70;
             }
-            fsm_out.cw_trigger = 1;
+            fsm_out.cw_psk31_trigger = 1;
 
-            if (fsm_in.cw_done) {
+            if (fsm_in.cw_psk31_done) {
                 next_state = FSM_ECOUTE;
             }
             break;
@@ -207,9 +206,9 @@ void fsm_update() {
             fsm_out.tx_on = 1;
             // No modulation!
             fsm_out.msg = "HI HI";
-            fsm_out.cw_trigger = 1;
+            fsm_out.cw_psk31_trigger = 1;
 
-            if (fsm_in.cw_done) {
+            if (fsm_in.cw_psk31_done) {
                 next_state = FSM_BLOQUE;
             }
             break;
@@ -226,12 +225,12 @@ void fsm_update() {
             fsm_out.msg_frequency    = 696;
             fsm_out.cw_dit_duration = 70;
             fsm_out.msg = "73";
-            fsm_out.cw_trigger = 1;
+            fsm_out.cw_psk31_trigger = 1;
 
             if (fsm_in.sq) {
                 next_state = FSM_QSO;
             }
-            else if (fsm_in.cw_done) {
+            else if (fsm_in.cw_psk31_done) {
                 next_state = FSM_OISIF;
             }
             break;
@@ -242,12 +241,12 @@ void fsm_update() {
             fsm_out.msg_frequency   = 696;
             fsm_out.cw_dit_duration = 70;
             fsm_out.msg = "HB9G";
-            fsm_out.cw_trigger = 1;
+            fsm_out.cw_psk31_trigger = 1;
 
             if (fsm_in.sq) {
                 next_state = FSM_QSO;
             }
-            else if (fsm_in.cw_done) {
+            else if (fsm_in.cw_psk31_done) {
                 next_state = FSM_OISIF;
             }
             break;
@@ -265,19 +264,18 @@ void fsm_update() {
             else {
                 fsm_out.msg = "HB9G JN36BK";
             }
-            fsm_out.cw_trigger = 1;
+            fsm_out.cw_psk31_trigger = 1;
 
             if (fsm_in.sq) {
                 next_state = FSM_QSO;
             }
-            else if (fsm_in.cw_done) {
+            else if (fsm_in.cw_psk31_done) {
                 next_state = FSM_OISIF;
             }
             break;
 
         case FSM_BALISE_LONGUE:
             fsm_out.tx_on = 1;
-
             fsm_out.msg_frequency   = 588;
             fsm_out.cw_dit_duration = 110;
 
@@ -293,12 +291,12 @@ void fsm_update() {
                 fsm_out.msg = "HB9G JN36BK 1628M U 10V5 =  T 11  #";
                 // The # is the SK digraph
             }
-            fsm_out.psk_trigger = 1;
+            fsm_out.cw_psk31_trigger = 1;
 
-            if (fsm_in.sq) {
+            if (fsm_in.cw_psk31_done && fsm_in.sq) {
                 next_state = FSM_OPEN2;
             }
-            else if (fsm_in.psk_done) {
+            else if (fsm_in.cw_psk31_done) {
                 next_state = FSM_OISIF;
             }
             break;
@@ -315,12 +313,12 @@ void fsm_update() {
             else {
                 fsm_out.msg = "HB9G U 10V5 #"; // The # is the SK digraph
             }
-            fsm_out.cw_trigger = 1;
+            fsm_out.cw_psk31_trigger = 1;
 
-            if (fsm_in.sq) {
+            if (fsm_in.cw_psk31_done && fsm_in.sq) {
                 next_state = FSM_OPEN2;
             }
-            else if (fsm_in.cw_done) {
+            else if (fsm_in.cw_psk31_done) {
                 next_state = FSM_OISIF;
             }
             break;
@@ -347,12 +345,12 @@ void fsm_update() {
                     fsm_out.msg = "HB9G JN36BK 1628M";
                 }
             }
-            fsm_out.cw_trigger = 1;
+            fsm_out.cw_psk31_trigger = 1;
 
             if (fsm_in.sq) {
                 next_state = FSM_OPEN2;
             }
-            else if (fsm_in.cw_done) {
+            else if (fsm_in.cw_psk31_done) {
                 next_state = FSM_OISIF;
             }
             break;
