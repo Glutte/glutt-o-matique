@@ -30,18 +30,20 @@
 
 // Setup the CW generator to create audio samples at the given
 // samplerate.
-void cw_init(unsigned int samplerate);
+void cw_psk31_init(unsigned int samplerate);
 
-// Append new CW text to transmit
-// dit_duration in ms
-// frequency in Hz
-void cw_push_message(const char* text, int dit_duration, int frequency);
+// Append new CW or PSK31 text to transmit
+// CW/PSK31 audio centre frequency in Hz
+// if dit_duration == 0, message is sent in PSK31
+// otherwise it is sent in CW, with dit_duration in ms
+// returns 0 on failure, 1 on success
+int cw_psk31_push_message(const char* text, int frequency, int dit_duration);
 
-// Write the waveform into the buffer (stereo)
-size_t cw_fill_buffer(int16_t *buf, size_t bufsize);
+// Write the waveform into the buffer (stereo), both for cw and psk31
+size_t cw_psk31_fill_buffer(int16_t *buf, size_t bufsize);
 
-// Return 1 if the CW generator is running
-int cw_busy(void);
+// Return 1 if the CW or PSK31 generator is running
+int cw_psk31_busy(void);
 
 #endif // __CW_H_
 

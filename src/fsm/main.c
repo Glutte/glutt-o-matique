@@ -35,7 +35,6 @@
 #include "timers.h"
 #include "semphr.h"
 #include "cw.h"
-#include "psk31.h"
 #include "pio.h"
 #include "i2c.h"
 #include "gps.h"
@@ -101,8 +100,7 @@ int main(void) {
 // already running when calling the init functions.
 static void launcher_task(void *pvParameters)
 {
-    cw_init(16000);
-    psk31_init(16000);
+    cw_psk31_init(16000);
     pio_init();
     i2c_init();
     common_init();
@@ -204,11 +202,7 @@ static void audio_callback(void* context, int select_buffer)
         select_buffer = 0;
     }
 
-    size_t samples_len = psk31_fill_buffer(samples, AUDIO_BUF_LEN);
-
-    if (samples_len == 0) {
-        samples_len = cw_fill_buffer(samples, AUDIO_BUF_LEN);
-    }
+    size_t samples_len = cw_psk31_fill_buffer(samples, AUDIO_BUF_LEN);
 
     if (samples_len == 0) {
         for (int i = 0; i < AUDIO_BUF_LEN; i++) {
@@ -265,7 +259,7 @@ static void exercise_fsm(void *pvParameters)
 
         fsm_input.sq = fsm_input.carrier; // TODO clarify
 
-        fsm_input.cw_done = !cw_busy();
+        fsm_input.cw_done = !cw_psk31_busy();
 
         if (fsm_input.cw_done) {
             GPIO_ResetBits(GPIOD, GPIOD_BOARD_LED_ORANGE);
@@ -273,16 +267,6 @@ static void exercise_fsm(void *pvParameters)
         else {
             GPIO_SetBits(GPIOD, GPIOD_BOARD_LED_ORANGE);
         }
-
-        fsm_input.psk_done = !psk31_busy();
-
-        if (fsm_input.psk_done) {
-            GPIO_SetBits(GPIOD, GPIOD_BOARD_LED_GREEN);
-        }
-        else {
-            GPIO_ResetBits(GPIOD, GPIOD_BOARD_LED_GREEN);
-        }
-
 
         fsm_update_inputs(&fsm_input);
         fsm_update();
@@ -296,13 +280,13 @@ static void exercise_fsm(void *pvParameters)
 
         // Add message to CW generator only on rising edge of trigger
         if (fsm_out.cw_trigger && !cw_last_trigger) {
-            cw_push_message(fsm_out.msg, fsm_out.cw_dit_duration, fsm_out.msg_frequency);
+            cw_psk31_push_message(fsm_out.msg, fsm_out.cw_dit_duration, fsm_out.msg_frequency);
         }
         cw_last_trigger = fsm_out.cw_trigger;
 
         // Same for PSK31
         if (fsm_out.psk_trigger && !psk31_last_trigger) {
-            psk31_push_message(fsm_out.msg, fsm_out.msg_frequency);
+            cw_psk31_push_message(fsm_out.msg, 0, fsm_out.msg_frequency);
         }
         psk31_last_trigger = fsm_out.psk_trigger;
     }
