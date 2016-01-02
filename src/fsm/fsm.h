@@ -62,8 +62,9 @@ struct fsm_input_signals_t {
     int tone_1750;         // Detect 1750Hz tone
     int sstv_mode;         // The 1750Hz filter is disabled, permitting SSTV usage
 
-    /* Signals coming from CW generator */
+    /* Signals coming from CW and PSK generator */
     int cw_done;           // The CW generator has finished transmitting the message
+    int psk_done;          // The PSK generator has finished transmitting the message
 
     /* Signal coming from the standing wave ratio meter */
     int swr_high;          // We see a lot of return power
@@ -77,11 +78,12 @@ struct fsm_output_signals_t {
     int tx_on;          // Enable TX circuitry
     int modulation;     // Enable repeater RX to TX modulation
 
-    /* Signals to the CW generator */
-    const char* cw_msg; // The message to transmit
-    int cw_frequency;   // What audio frequency for the CW message
+    /* Signals to the CW and PSK generator */
+    const char* msg;    // The message to transmit
+    int msg_frequency;  // What audio frequency for the CW or PSK message
     int cw_dit_duration;// CW speed, dit duration in ms
-    int cw_trigger;     // Set to true to trigger a transmission
+    int cw_trigger;     // Set to true to trigger a CW transmission
+    int psk_trigger;    // Set to true to trigger a PSK transmission
 };
 
 // Initialise local structures

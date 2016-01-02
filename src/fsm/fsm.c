@@ -92,8 +92,9 @@ void fsm_update() {
     fsm_out.tx_on = 0;
     fsm_out.modulation = 0;
     fsm_out.cw_trigger = 0;
+    fsm_out.psk_trigger = 0;
     fsm_out.cw_dit_duration = 50;
-    fsm_out.cw_frequency = 960;
+    fsm_out.msg_frequency = 960;
     // other output signals keep their value
 
     switch (current_state) {
@@ -134,10 +135,10 @@ void fsm_update() {
         case FSM_LETTRE:
             fsm_out.tx_on = 1;
             fsm_out.modulation = 1;
-            fsm_out.cw_msg = fsm_select_letter();
-            if (fsm_out.cw_msg[0] == 'G') {
+            fsm_out.msg = fsm_select_letter();
+            if (fsm_out.msg[0] == 'G') {
                 // The letter 'G' is a bit different
-                fsm_out.cw_frequency    = 696;
+                fsm_out.msg_frequency    = 696;
                 fsm_out.cw_dit_duration = 70;
             }
             fsm_out.cw_trigger = 1;
@@ -205,7 +206,7 @@ void fsm_update() {
         case FSM_ANTI_BAVARD:
             fsm_out.tx_on = 1;
             // No modulation!
-            fsm_out.cw_msg = "HI HI";
+            fsm_out.msg = "HI HI";
             fsm_out.cw_trigger = 1;
 
             if (fsm_in.cw_done) {
@@ -222,9 +223,9 @@ void fsm_update() {
         case FSM_TEXTE_73:
             fsm_out.tx_on = 1;
             fsm_out.modulation = 1;
-            fsm_out.cw_frequency    = 696;
+            fsm_out.msg_frequency    = 696;
             fsm_out.cw_dit_duration = 70;
-            fsm_out.cw_msg = "73";
+            fsm_out.msg = "73";
             fsm_out.cw_trigger = 1;
 
             if (fsm_in.sq) {
@@ -238,9 +239,9 @@ void fsm_update() {
         case FSM_TEXTE_HB9G:
             fsm_out.tx_on = 1;
             fsm_out.modulation = 1;
-            fsm_out.cw_frequency    = 696;
+            fsm_out.msg_frequency   = 696;
             fsm_out.cw_dit_duration = 70;
-            fsm_out.cw_msg = "HB9G";
+            fsm_out.msg = "HB9G";
             fsm_out.cw_trigger = 1;
 
             if (fsm_in.sq) {
@@ -255,14 +256,14 @@ void fsm_update() {
             fsm_out.tx_on = 1;
             fsm_out.modulation = 1;
 
-            fsm_out.cw_frequency    = 696;
+            fsm_out.msg_frequency   = 696;
             fsm_out.cw_dit_duration = 70;
 
             if (random_bool()) {
-                fsm_out.cw_msg = "HB9G 1628M";
+                fsm_out.msg = "HB9G 1628M";
             }
             else {
-                fsm_out.cw_msg = "HB9G JN36BK";
+                fsm_out.msg = "HB9G JN36BK";
             }
             fsm_out.cw_trigger = 1;
 
@@ -277,42 +278,42 @@ void fsm_update() {
         case FSM_BALISE_LONGUE:
             fsm_out.tx_on = 1;
 
-            fsm_out.cw_frequency    = 588;
+            fsm_out.msg_frequency   = 588;
             fsm_out.cw_dit_duration = 110;
 
             // TODO transmit humidity
             // TODO read voltage
             if (fsm_in.wind_generator_ok) {
-                fsm_out.cw_msg = "HB9G JN36BK 1628M U 10V5 =  T 11  73";
+                fsm_out.msg = "HB9G JN36BK 1628M U 10V5 =  T 11  73";
                 // = means same voltage as previous
                 // + means higher
                 // - means lower
             }
             else {
-                fsm_out.cw_msg = "HB9G JN36BK 1628M U 10V5 =  T 11  #";
+                fsm_out.msg = "HB9G JN36BK 1628M U 10V5 =  T 11  #";
                 // The # is the SK digraph
             }
-            fsm_out.cw_trigger = 1;
+            fsm_out.psk_trigger = 1;
 
             if (fsm_in.sq) {
                 next_state = FSM_OPEN2;
             }
-            else if (fsm_in.cw_done) {
+            else if (fsm_in.psk_done) {
                 next_state = FSM_OISIF;
             }
             break;
 
         case FSM_BALISE_SPECIALE:
             fsm_out.tx_on = 1;
-            fsm_out.cw_frequency    = 696;
+            fsm_out.msg_frequency   = 696;
             fsm_out.cw_dit_duration = 70;
 
             // TODO read voltage
             if (fsm_in.wind_generator_ok) {
-                fsm_out.cw_msg = "HB9G U 10V5 73";
+                fsm_out.msg = "HB9G U 10V5 73";
             }
             else {
-                fsm_out.cw_msg = "HB9G U 10V5 #"; // The # is the SK digraph
+                fsm_out.msg = "HB9G U 10V5 #"; // The # is the SK digraph
             }
             fsm_out.cw_trigger = 1;
 
@@ -327,23 +328,23 @@ void fsm_update() {
         case FSM_BALISE_COURTE:
             fsm_out.tx_on = 1;
 
-            fsm_out.cw_frequency    = 696;
+            fsm_out.msg_frequency   = 696;
             fsm_out.cw_dit_duration = 70;
 
             {
                 int rand = random_bool() * 2 + random_bool();
 
                 if (rand == 0) {
-                    fsm_out.cw_msg = "HB9G";
+                    fsm_out.msg = "HB9G";
                 }
                 else if (rand == 1) {
-                    fsm_out.cw_msg = "HB9G JN36BK";
+                    fsm_out.msg = "HB9G JN36BK";
                 }
                 else if (rand == 2) {
-                    fsm_out.cw_msg = "HB9G 1628M";
+                    fsm_out.msg = "HB9G 1628M";
                 }
                 else {
-                    fsm_out.cw_msg = "HB9G JN36BK 1628M";
+                    fsm_out.msg = "HB9G JN36BK 1628M";
                 }
             }
             fsm_out.cw_trigger = 1;

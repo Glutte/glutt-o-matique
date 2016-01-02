@@ -136,7 +136,7 @@ static void launcher_task(void *pvParameters)
     xTaskCreate(
             gps_monit_task,
             "TaskGPSMonit",
-            6*configMINIMAL_STACK_SIZE,
+            4*configMINIMAL_STACK_SIZE,
             (void*) NULL,
             tskIDLE_PRIORITY + 2UL,
             &task_handle);
@@ -163,22 +163,28 @@ static void launcher_task(void *pvParameters)
 
 static void detect_button_press(void *pvParameters)
 {
+    int pin_high_count = 0;
+    const int pin_high_thresh = 10;
     while (1) {
-        if (GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_0)>0) {
-
-            while (GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_0) > 0) {
-                vTaskDelay(100 / portTICK_RATE_MS); /* Button Debounce Delay */
+        if (GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_0) == Bit_SET) {
+            if (pin_high_count < pin_high_thresh) {
+                pin_high_count++;
             }
+        }
+        else {
+            if (pin_high_count > 0) {
+                pin_high_count--;
+            }
+        }
 
+        vTaskDelay(10 / portTICK_RATE_MS); /* Debounce Delay */
+
+        if (pin_high_count == pin_high_thresh) {
             tm_trigger = 1;
-
-            while (GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_0) == 0) {
-                vTaskDelay(100 / portTICK_RATE_MS); /* Button Debounce Delay */
-            }
-
+        }
+        else if (pin_high_count == 0) {
             tm_trigger = 0;
         }
-        taskYIELD();
     }
 }
 
@@ -216,14 +222,10 @@ static void audio_callback(void* context, int select_buffer)
 }
 
 
-static char psk31_msg[256];
 static struct gps_time_s gps_time;
 static void gps_monit_task(void *pvParameters)
 {
     GPIO_SetBits(GPIOD, GPIOD_BOARD_LED_BLUE);
-
-    int trigger_psk31 = 0;
-    int last_trigger_psk31 = 0;
 
     while (1) {
         if (gps_locked()) {
@@ -236,33 +238,9 @@ static void gps_monit_task(void *pvParameters)
             else {
                 GPIO_ResetBits(GPIOD, GPIOD_BOARD_LED_BLUE);
             }
-
-            if (gps_time.sec == 0  || gps_time.sec == 20 || gps_time.sec == 40) {
-                trigger_psk31 = 1;
-            }
-            else {
-                trigger_psk31 = 0;
-            }
-
         }
 
-        if (trigger_psk31 && !last_trigger_psk31) {
-            snprintf(psk31_msg, 255, "Hello PSK31\nDate: %4d-%02d-%02d %02d:%02d:%02d\n73!",
-                    gps_time.year, gps_time.month, gps_time.day,
-                    gps_time.hour, gps_time.min, gps_time.sec);
-
-            psk31_push_message(psk31_msg, 400);
-        }
-        last_trigger_psk31 = trigger_psk31;
-
-        if (psk31_busy()) {
-            GPIO_SetBits(GPIOD, GPIOD_BOARD_LED_GREEN);
-        }
-        else {
-            GPIO_ResetBits(GPIOD, GPIOD_BOARD_LED_GREEN);
-        }
-
-        taskYIELD();
+        vTaskDelay(100 / portTICK_RATE_MS);
     }
 }
 
@@ -270,6 +248,7 @@ static struct fsm_input_signals_t fsm_input;
 static void exercise_fsm(void *pvParameters)
 {
     int cw_last_trigger = 0;
+    int psk31_last_trigger = 0;
     int last_tm_trigger = 0;
 
     fsm_input.humidity = 0;
@@ -278,11 +257,14 @@ static void exercise_fsm(void *pvParameters)
     fsm_input.sstv_mode = 0;
     fsm_input.wind_generator_ok = 1;
     while (1) {
+        vTaskDelay(10 / portTICK_RATE_MS);
+
         pio_set_fsm_signals(&fsm_input);
         fsm_input.start_tm = (tm_trigger == 1 && last_tm_trigger == 0) ? 1 : 0;
         last_tm_trigger = tm_trigger;
 
         fsm_input.sq = fsm_input.carrier; // TODO clarify
+
         fsm_input.cw_done = !cw_busy();
 
         if (fsm_input.cw_done) {
@@ -291,6 +273,16 @@ static void exercise_fsm(void *pvParameters)
         else {
             GPIO_SetBits(GPIOD, GPIOD_BOARD_LED_ORANGE);
         }
+
+        fsm_input.psk_done = !psk31_busy();
+
+        if (fsm_input.psk_done) {
+            GPIO_SetBits(GPIOD, GPIOD_BOARD_LED_GREEN);
+        }
+        else {
+            GPIO_ResetBits(GPIOD, GPIOD_BOARD_LED_GREEN);
+        }
+
 
         fsm_update_inputs(&fsm_input);
         fsm_update();
@@ -304,10 +296,15 @@ static void exercise_fsm(void *pvParameters)
 
         // Add message to CW generator only on rising edge of trigger
         if (fsm_out.cw_trigger && !cw_last_trigger) {
-            cw_push_message(fsm_out.cw_msg, fsm_out.cw_dit_duration, fsm_out.cw_frequency);
+            cw_push_message(fsm_out.msg, fsm_out.cw_dit_duration, fsm_out.msg_frequency);
         }
-
         cw_last_trigger = fsm_out.cw_trigger;
+
+        // Same for PSK31
+        if (fsm_out.psk_trigger && !psk31_last_trigger) {
+            psk31_push_message(fsm_out.msg, fsm_out.msg_frequency);
+        }
+        psk31_last_trigger = fsm_out.psk_trigger;
     }
 }
 

@@ -45,7 +45,8 @@
 #include "queue.h"
 #include "semphr.h"
 
-#define ON_BUFFER_SIZE 1024
+#define MAX_MESSAGE_LEN 1024
+#define MAX_ON_BUFFER_LEN 8192
 
 const uint8_t cw_mapping[60] = { // {{{
     // Read bits from right to left
@@ -110,11 +111,9 @@ const uint8_t cw_mapping[60] = { // {{{
     0b1010111, // SK , ASCII '\'
 }; //}}}
 
-struct cw_out_message_s {
-    // Contains a sequence of ones and zeros corresponding to
-    // TX on/TX off CW data to be sent
-    uint8_t on_buffer[ON_BUFFER_SIZE];
-    size_t  on_buffer_end;
+struct cw_message_s {
+    char    message[MAX_MESSAGE_LEN];
+    size_t  message_len;
 
     int     freq;
     int     dit_duration;
@@ -136,7 +135,7 @@ void cw_init(unsigned int samplerate)
     cw_samplerate = samplerate;
     cw_transmit_ongoing = 0;
 
-    cw_msg_queue = xQueueCreate(15, sizeof(struct cw_out_message_s));
+    cw_msg_queue = xQueueCreate(15, sizeof(struct cw_message_s));
     if (cw_msg_queue == 0) {
         while(1); /* fatal error */
     }
@@ -155,31 +154,35 @@ void cw_init(unsigned int samplerate)
             NULL);
 }
 
-void cw_symbol(uint8_t sym, struct cw_out_message_s *msg)
+/* Parse one CW letter/symbol, and fill in the on_buffer.
+ * Returns number of uint8_t written.
+ */
+size_t cw_symbol(uint8_t sym, uint8_t *on_buffer, size_t on_buffer_size)
 {
     uint8_t p = 0;
     uint8_t val = cw_mapping[sym];
+    size_t pos = 0;
 
     while((val >> p) != 0b1) {
 
         if (((val >> p) & 0b1) == 0b1) {
-            if (msg->on_buffer_end + 2 < ON_BUFFER_SIZE) {
+            if (pos + 2 < on_buffer_size) {
                 // tone(1)
-                msg->on_buffer[msg->on_buffer_end++] = 1;
+                on_buffer[pos++] = 1;
 
                 // silence(1)
-                msg->on_buffer[msg->on_buffer_end++] = 0;
+                on_buffer[pos++] = 0;
             }
         }
         else {
-            if (msg->on_buffer_end + 4 < ON_BUFFER_SIZE) {
+            if (pos + 4 < on_buffer_size) {
                 // tone(3)
-                msg->on_buffer[msg->on_buffer_end++] = 1;
-                msg->on_buffer[msg->on_buffer_end++] = 1;
-                msg->on_buffer[msg->on_buffer_end++] = 1;
+                on_buffer[pos++] = 1;
+                on_buffer[pos++] = 1;
+                on_buffer[pos++] = 1;
 
                 // silence(1)
-                msg->on_buffer[msg->on_buffer_end++] = 0;
+                on_buffer[pos++] = 0;
             }
         }
 
@@ -187,11 +190,13 @@ void cw_symbol(uint8_t sym, struct cw_out_message_s *msg)
     }
 
     // silence(2)
-    if (msg->on_buffer_end + 2 < ON_BUFFER_SIZE) {
+    if (pos + 2 < on_buffer_size) {
         for (int i = 0; i < 2; i++) {
-            msg->on_buffer[msg->on_buffer_end++] = 0;
+            on_buffer[pos++] = 0;
         }
     }
+
+    return pos;
 }
 
 // Transmit a string in morse code. Supported range:
@@ -199,30 +204,46 @@ void cw_symbol(uint8_t sym, struct cw_out_message_s *msg)
 // numerals and capital letters.
 void cw_push_message(const char* text, int dit_duration, int frequency)
 {
-    struct cw_out_message_s msg;
-    for (int i = 0; i < ON_BUFFER_SIZE; i++) {
-        msg.on_buffer[i] = 0;
+    const int text_len = strlen(text);
+
+    struct cw_message_s msg;
+    for (int i = 0; i < MAX_MESSAGE_LEN; i++) {
+        if (i < text_len) {
+            msg.message[i] = text[i];
+        }
+        else {
+            msg.message[i] = '\0';
+        }
     }
-    msg.on_buffer_end = 0;
+    msg.message_len = text_len;
     msg.freq = frequency;
     msg.dit_duration = dit_duration;
 
-    const char* sym = text;
+    xQueueSendToBack(cw_msg_queue, &msg, portMAX_DELAY); /* Send Message */
+}
+
+/* Parse the message and fill the on_buffer with CW on/CW off information.
+ * Returns the number of on/off bits written.
+ */
+size_t cw_text_to_on_buffer(const char *msg, uint8_t *on_buffer, size_t on_buffer_size)
+{
+    size_t pos = 0;
+    const char* sym = msg;
     do {
         if (*sym < '+' || *sym > '\\') {
-            if (msg.on_buffer_end + 3 < ON_BUFFER_SIZE) {
+            if (pos + 3 < on_buffer_size) {
                 for (int i = 0; i < 3; i++) {
-                    msg.on_buffer[msg.on_buffer_end++] = 0;
+                    on_buffer[pos++] = 0;
                 }
             }
         }
         else {
-            cw_symbol(*sym - '+', &msg);
+            pos += cw_symbol(*sym - '+', on_buffer + pos, on_buffer_size - pos);
         }
         sym++;
     } while (*sym != '\0');
 
-    xQueueSendToBack(cw_msg_queue, &msg, portMAX_DELAY); /* Send Message */
+    return pos;
 }
 
 size_t cw_fill_buffer(int16_t *buf, size_t bufsize)
@@ -236,7 +257,8 @@ size_t cw_fill_buffer(int16_t *buf, size_t bufsize)
 }
 
 static int16_t cw_audio_buf[AUDIO_BUF_LEN];
-static struct cw_out_message_s cw_fill_msg_current;
+static uint8_t cw_on_buffer[MAX_ON_BUFFER_LEN];
+static struct cw_message_s cw_fill_msg_current;
 static void cw_task(void *pvParameters)
 {
     float nco_phase = 0.0f;
@@ -248,6 +270,11 @@ static void cw_task(void *pvParameters)
         int status = xQueueReceive(cw_msg_queue, &cw_fill_msg_current, portMAX_DELAY);
         if (status == pdTRUE) {
 
+            size_t on_buffer_len = cw_text_to_on_buffer(
+                    cw_fill_msg_current.message,
+                    cw_on_buffer,
+                    MAX_ON_BUFFER_LEN);
+
             cw_transmit_ongoing = 1;
 
             const int samples_per_dit =
@@ -257,12 +284,12 @@ static void cw_task(void *pvParameters)
             const float omega = 2.0f * FLOAT_PI * cw_fill_msg_current.freq /
                 (float)cw_samplerate;
 
-            for (int i = 0; i < cw_fill_msg_current.on_buffer_end; i++) {
+            for (int i = 0; i < on_buffer_len; i++) {
                 for (int t = 0; t < samples_per_dit; t++) {
                     int16_t s = 0;
 
                     // Remove clicks from CW
-                    if (cw_fill_msg_current.on_buffer[i]) {
+                    if (cw_on_buffer[i]) {
                         const float remaining = 32768.0f - ampl;
                         ampl += remaining / 64.0f;
                     }
