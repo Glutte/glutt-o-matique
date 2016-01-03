@@ -36,5 +36,5 @@ régulièrement.
 Structure
 ---------
 
-![La machine d'états](doc/20151118-machine-etats.png)
+![La machine d'états](doc/20160103-machine-etats.png)
 
