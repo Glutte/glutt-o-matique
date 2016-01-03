@@ -293,10 +293,7 @@ void fsm_update() {
             }
             fsm_out.cw_psk31_trigger = 1;
 
-            if (fsm_in.cw_psk31_done && fsm_in.sq) {
-                next_state = FSM_OPEN2;
-            }
-            else if (fsm_in.cw_psk31_done) {
+            if (fsm_in.cw_psk31_done) {
                 next_state = FSM_OISIF;
             }
             break;
@@ -315,10 +312,7 @@ void fsm_update() {
             }
             fsm_out.cw_psk31_trigger = 1;
 
-            if (fsm_in.cw_psk31_done && fsm_in.sq) {
-                next_state = FSM_OPEN2;
-            }
-            else if (fsm_in.cw_psk31_done) {
+            if (fsm_in.cw_psk31_done) {
                 next_state = FSM_OISIF;
             }
             break;
