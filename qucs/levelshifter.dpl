@@ -1,0 +1,36 @@
+<Qucs Schematic 0.0.18>
+<Properties>
+  <View=-106,-288,1138,800,1,33,288>
+  <Grid=10,10,0>
+  <DataSet=levelshifter.dat>
+  <DataDisplay=levelshifter.sch>
+  <OpenDisplay=1>
+  <Script=levelshifter.m>
+  <RunScript=0>
+  <showFrame=0>
+  <FrameText0=Title>
+  <FrameText1=Drawn By:>
+  <FrameText2=Date:>
+  <FrameText3=Revision:>
+</Properties>
+<Symbol>
+</Symbol>
+<Components>
+</Components>
+<Wires>
+</Wires>
+<Diagrams>
+  <Rect 561 320 497 278 3 #c0c0c0 1 00 1 0 0.5 4 1 -0.000818638 0.0005 0.000708093 1 -1 0.5 1 315 0 225 "V_IN" "" "">
+	<"I_VCC.I" #ff00ff 0 3 0 0 0>
+	<"PNP.I" #00ff00 0 3 0 0 0>
+	<"NPN.I" #00ffff 0 3 0 0 0>
+  </Rect>
+  <Rect -24 324 477 284 3 #c0c0c0 1 00 1 -1 0.2 1 1 -1 0.5 1 1 -1 0.5 1 315 0 225 "V_IN" "" "">
+	<"OUT.V" #ff0000 0 3 0 0 0>
+  </Rect>
+  <Rect -20 686 476 306 3 #c0c0c0 1 00 1 0 0.5 4 1 -0.0004 5e-05 -6.53786e-05 1 -1 0.5 1 315 0 225 "V_IN" "" "">
+	<"OUT_R.I" #ff0000 0 3 0 0 0>
+  </Rect>
+</Diagrams>
+<Paintings>
+</Paintings>
