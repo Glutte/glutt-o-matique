@@ -2,3 +2,12 @@
 *.hex
 *.elf
 *.sw?
+outp.map
+
+.ycm_extra_conf.py
+cscope.out
+.cproject
+.project
+.settings
+tags
+
