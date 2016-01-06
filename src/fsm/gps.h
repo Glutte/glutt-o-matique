@@ -27,14 +27,12 @@
 #ifndef __GPS_H_
 #define __GPS_H_
 
-/* Setup GPS receiver over I2C and parse time */
+/* Setup GPS receiver over USART and parse time */
 
-/* I2C connections:
- * SCL on PB6
- * SDA on PB9
+/* USART connections:
+ * board TX to GPS RX on PD8
+ * board RX to GPS TX on PD9
  */
-
-#define GPS_I2C_ADDR 0x42 // I2C address of GPS receiver
 
 struct gps_time_s {
     uint16_t  year;   // Year, range 1999..2099 (UTC)

@@ -31,7 +31,11 @@
 #include "task.h"
 #include "queue.h"
 
-// USART 3 on PD8 and PD9
+/* USART 3 on PD8 and PD9
+ *
+ * board TX to GPS RX on PD8
+ * board RX to GPS TX on PD9
+ */
 const uint16_t GPIOD_PIN_USART3_TX = GPIO_Pin_8;
 const uint16_t GPIOD_PIN_USART3_RX = GPIO_Pin_9;
 
