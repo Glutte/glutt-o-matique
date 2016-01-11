@@ -1,0 +1,30 @@
+Allocation of PIOs to functions
+===============================
+
+Test logic
+----------
+-       out TX_OFF              PC13
+
+u-blox NEO-M8N GPS module connection
+------------------------------------
+Yellow  out  UART TX to GPS RX  PD8
+Orange  in   UART RX to GPS TX  PD9
+
+For the little test board with the 3 LEDs and switches
+------------------------------------------------------
+Blue    in   QRP_n              PC1
+Violet  out  LED red            PC2
+Grey    in   1750               PC4
+White   out  LED yel            PC5
+Black   -    GND                GND
+Brown   in   RX_n               PC6
+Red     in   U_n                PC8
+Orange  out  LED grn            PC9
+Green   in   D_n                PC11
+
+I2C to Audio Codec
+------------------
+-       i/o  SDA                PB9
+-       i/o  SCL                PB6
+
+

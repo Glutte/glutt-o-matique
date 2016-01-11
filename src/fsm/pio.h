@@ -31,18 +31,9 @@
 #include "stm32f4xx_rcc.h"
 #include "stm32f4xx_gpio.h"
 
-/*
-Blue    in  QRP_n   PC1
-Violet  out LED red PC2
-Grey    in  1750    PC4
-White   out LED yel PC5
-Black   -   GND     GND
-Brown   in  RX_n    PC6
-Red     in  U_n     PC8
-Orange  out LED grn PC9
-Green   in  D_n     PC11
-*/
+/* See pio.txt for PIO allocation details */
 
+/* On GPIO C */
 #define GPIO_PIN_QRP_n   GPIO_Pin_1
 #define GPIO_PIN_LED_red GPIO_Pin_2
 #define GPIO_PIN_1750    GPIO_Pin_4
@@ -51,17 +42,24 @@ Green   in  D_n     PC11
 #define GPIO_PIN_U_n     GPIO_Pin_8
 #define GPIO_PIN_LED_grn GPIO_Pin_9
 #define GPIO_PIN_D_n     GPIO_Pin_11
+#define GPIO_PIN_TX_n    GPIO_Pin_13
 
 
-#define PIO_OUTPUT_PINS GPIO_Pin_2 | GPIO_Pin_5 | GPIO_Pin_9
+#define GPIOC_OUTPUT_PINS GPIO_PIN_LED_red | \
+                          GPIO_PIN_LED_yel | \
+                          GPIO_PIN_LED_grn
 
-#define PIO_INPUT_PINS GPIO_Pin_1 | GPIO_Pin_4 | \
-                       GPIO_Pin_6 | GPIO_Pin_8 | \
-                       GPIO_Pin_11
+#define GPIOC_OPENDRAIN_PINS GPIO_PIN_TX_n
+
+#define GPIOC_INPUT_PINS GPIO_PIN_QRP_n | \
+                         GPIO_PIN_1750 | \
+                         GPIO_PIN_RX_n | \
+                         GPIO_PIN_U_n | \
+                         GPIO_PIN_D_n
 
 void pio_init(void);
 
-void pio_set_led_red(int on);
+void pio_set_tx(int on);
 void pio_set_led_yel(int on);
 void pio_set_led_grn(int on);
 

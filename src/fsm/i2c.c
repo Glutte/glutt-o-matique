@@ -32,6 +32,8 @@
 #include "task.h"
 #include "semphr.h"
 
+/* I2C 1 on PB9 and PB6
+ * See pio.txt for PIO allocation details */
 const uint16_t GPIOB_PIN_SDA = GPIO_Pin_9;
 const uint16_t GPIOB_PIN_SCL = GPIO_Pin_6;
 

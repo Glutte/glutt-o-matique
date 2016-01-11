@@ -267,7 +267,7 @@ static void exercise_fsm(void *pvParameters)
         struct fsm_output_signals_t fsm_out;
         fsm_get_outputs(&fsm_out);
 
-        pio_set_led_red(fsm_out.tx_on);
+        pio_set_tx(fsm_out.tx_on);
         pio_set_led_yel(fsm_out.modulation);
         pio_set_led_grn(fsm_input.carrier);
 

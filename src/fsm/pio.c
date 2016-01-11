@@ -41,14 +41,21 @@ void pio_init()
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
 
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
-    GPIO_InitStructure.GPIO_Pin   = PIO_OUTPUT_PINS;
+    GPIO_InitStructure.GPIO_Pin   = GPIOC_OUTPUT_PINS;
     GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
     GPIO_Init(GPIOC, &GPIO_InitStructure);
 
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
+    GPIO_InitStructure.GPIO_Pin   = GPIOC_OPENDRAIN_PINS;
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
+    GPIO_Init(GPIOC, &GPIO_InitStructure);
+
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IN;
-    GPIO_InitStructure.GPIO_Pin   = PIO_INPUT_PINS;
+    GPIO_InitStructure.GPIO_Pin   = GPIOC_INPUT_PINS;
     GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
@@ -81,13 +88,16 @@ void read_fsm_input_task(void *pvParameters)
     }
 }
 
-void pio_set_led_red(int on)
+void pio_set_tx(int on)
 {
+    // Led is active high, TX_n is inverted logic
     if (on) {
         GPIO_SetBits(GPIOC, GPIO_PIN_LED_red);
+        GPIO_ResetBits(GPIOC, GPIO_PIN_TX_n);
     }
     else {
         GPIO_ResetBits(GPIOC, GPIO_PIN_LED_red);
+        GPIO_SetBits(GPIOC, GPIO_PIN_TX_n);
     }
 }
 
