@@ -42,14 +42,16 @@
 #define GPIO_PIN_U_n     GPIO_Pin_8
 #define GPIO_PIN_LED_grn GPIO_Pin_9
 #define GPIO_PIN_D_n     GPIO_Pin_11
-#define GPIO_PIN_TX_n    GPIO_Pin_13
+#define GPIO_PIN_TX      GPIO_Pin_13
 
 
 #define GPIOC_OUTPUT_PINS GPIO_PIN_LED_red | \
                           GPIO_PIN_LED_yel | \
-                          GPIO_PIN_LED_grn
+                          GPIO_PIN_LED_grn | \
+                          GPIO_PIN_TX
 
-#define GPIOC_OPENDRAIN_PINS GPIO_PIN_TX_n
+#define GPIOC_OPENDRAIN_PINS 0
+
 
 #define GPIOC_INPUT_PINS GPIO_PIN_QRP_n | \
                          GPIO_PIN_1750 | \

@@ -47,12 +47,14 @@ void pio_init()
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
     GPIO_Init(GPIOC, &GPIO_InitStructure);
 
+#if GPIOC_OPENDRAIN_PINS
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
     GPIO_InitStructure.GPIO_Pin   = GPIOC_OPENDRAIN_PINS;
     GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
     GPIO_Init(GPIOC, &GPIO_InitStructure);
+#endif
 
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IN;
     GPIO_InitStructure.GPIO_Pin   = GPIOC_INPUT_PINS;
@@ -92,12 +94,10 @@ void pio_set_tx(int on)
 {
     // Led is active high, TX_n is inverted logic
     if (on) {
-        GPIO_SetBits(GPIOC, GPIO_PIN_LED_red);
-        GPIO_ResetBits(GPIOC, GPIO_PIN_TX_n);
+        GPIO_SetBits(GPIOC, GPIO_PIN_LED_red | GPIO_PIN_TX);
     }
     else {
-        GPIO_ResetBits(GPIOC, GPIO_PIN_LED_red);
-        GPIO_SetBits(GPIOC, GPIO_PIN_TX_n);
+        GPIO_ResetBits(GPIOC, GPIO_PIN_LED_red | GPIO_PIN_TX);
     }
 }
 

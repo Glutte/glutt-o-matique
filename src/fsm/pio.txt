@@ -3,7 +3,7 @@ Allocation of PIOs to functions
 
 Test logic
 ----------
--       out TX_OFF              PC13
+-       out TX_ON               PC13
 
 u-blox NEO-M8N GPS module connection
 ------------------------------------
