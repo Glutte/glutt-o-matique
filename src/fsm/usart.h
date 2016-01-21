@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Matthias P. Braendli
+ * Copyright (c) 2016 Matthias P. Braendli
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,8 +22,10 @@
  * SOFTWARE.
 */
 
-/* This handles the USART to the GPS receiver, and fills a queue of
+/* This handles the USART 3 to the GPS receiver, and fills a queue of
  * NMEA messages.
+ *
+ * It also handles the debug USART 1 and allows sending messages to the PC.
  */
 
 #ifndef __USART_H_
@@ -31,11 +33,20 @@
 
 #define MAX_NMEA_SENTENCE_LEN 256
 
+// Initialise both USART1 for PC and USART3 for GPS
 void usart_init(void);
 
-void usart_puts(const char* str);
+// Send the str to the GPS receiver
+void usart_gps_puts(const char* str);
+
+// a printf to send data to the PC
+void usart_debug(const char *format, ...);
+
+// Send a string to the PC
+void usart_debug_puts(const char* str);
 
 // Get a MAX_NMEA_SENTENCE_LEN sized NMEA sentence
+// Return 1 on success
 int usart_get_nmea_sentence(char* nmea);
 
 #endif //__USART_H_

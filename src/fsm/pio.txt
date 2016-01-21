@@ -10,6 +10,11 @@ u-blox NEO-M8N GPS module connection
 Yellow  out  UART TX to GPS RX  PD8
 Orange  in   UART RX to GPS TX  PD9
 
+Debug USART
+-----------
+-       out  UART TX to PC RX   PA9
+-       in   UART RX to PC TX   PA10
+
 For the little test board with the 3 LEDs and switches
 ------------------------------------------------------
 Blue    in   QRP_n              PC1
