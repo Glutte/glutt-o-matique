@@ -33,6 +33,8 @@
 
 /* See pio.txt for PIO allocation details */
 
+#define INVERTED_1750 0
+
 /* On GPIO C */
 #define GPIO_PIN_QRP_n   GPIO_Pin_1
 #define GPIO_PIN_LED_red GPIO_Pin_2
@@ -52,12 +54,13 @@
 
 #define GPIOC_OPENDRAIN_PINS 0
 
+#define GPIOC_INPUT_PINS 0
 
-#define GPIOC_INPUT_PINS GPIO_PIN_QRP_n | \
-                         GPIO_PIN_1750 | \
-                         GPIO_PIN_RX_n | \
-                         GPIO_PIN_U_n | \
-                         GPIO_PIN_D_n
+#define GPIOC_INPUT_PU_PINS GPIO_PIN_QRP_n | \
+                            GPIO_PIN_U_n | \
+                            GPIO_PIN_D_n | \
+                            GPIO_PIN_RX_n | \
+                            GPIO_PIN_1750
 
 void pio_init(void);
 

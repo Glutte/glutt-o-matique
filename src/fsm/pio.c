@@ -57,8 +57,15 @@ void pio_init()
 #endif
 
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IN;
-    GPIO_InitStructure.GPIO_Pin   = GPIOC_INPUT_PINS;
+    GPIO_InitStructure.GPIO_Pin   = GPIOC_INPUT_PU_PINS;
     GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_Init(GPIOC, &GPIO_InitStructure);
+
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IN;
+    GPIO_InitStructure.GPIO_Pin   = GPIOC_INPUT_PINS;
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
     GPIO_Init(GPIOC, &GPIO_InitStructure);
@@ -81,7 +88,11 @@ void read_fsm_input_task(void *pvParameters)
 {
     while (1) {
         pio_signals.qrp       = GPIO_ReadInputDataBit(GPIOC, GPIO_PIN_QRP_n) ? 0 : 1;
+#if INVERTED_1750
+        pio_signals.tone_1750 = GPIO_ReadInputDataBit(GPIOC, GPIO_PIN_1750) ? 0 : 1;
+#else
         pio_signals.tone_1750 = GPIO_ReadInputDataBit(GPIOC, GPIO_PIN_1750) ? 1 : 0;
+#endif
         pio_signals.carrier   = GPIO_ReadInputDataBit(GPIOC, GPIO_PIN_RX_n) ? 0 : 1;
         pio_signals.discrim_u = GPIO_ReadInputDataBit(GPIOC, GPIO_PIN_U_n) ? 0 : 1;
         pio_signals.discrim_d = GPIO_ReadInputDataBit(GPIOC, GPIO_PIN_D_n) ? 0 : 1;
