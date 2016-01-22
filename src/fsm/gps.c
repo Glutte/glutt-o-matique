@@ -103,7 +103,7 @@ void gps_init()
 {
     gps_timeutc.valid = 0;
 
-    usart_init();
+    usart_gps_init();
 
     timeutc_semaphore = xSemaphoreCreateBinary();
 

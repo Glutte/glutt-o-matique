@@ -40,6 +40,8 @@
 #include "gps.h"
 #include "fsm.h"
 #include "common.h"
+#include "usart.h"
+#include "vc.h"
 
 #define GPIOD_BOARD_LED_GREEN  GPIO_Pin_12
 #define GPIOD_BOARD_LED_ORANGE GPIO_Pin_13
@@ -69,6 +71,8 @@ void vApplicationStackOverflowHook( TaskHandle_t xTask,
 
 int main(void) {
     init();
+    usart_init();
+    usart_debug_puts("glutt-o-matique version " GIT_VERSION "\n");
 
     TaskHandle_t task_handle;
     xTaskCreate(
@@ -94,11 +98,17 @@ int main(void) {
 // already running when calling the init functions.
 static void launcher_task(void *pvParameters)
 {
+    usart_debug_puts("1");
     cw_psk31_init(16000);
+    usart_debug_puts("2");
     pio_init();
+    usart_debug_puts("3");
     i2c_init();
+    usart_debug_puts("4");
     common_init();
+    usart_debug_puts("5");
     gps_init();
+    usart_debug_puts("6");
 
     TaskHandle_t task_handle;
     xTaskCreate(
@@ -139,8 +149,10 @@ static void launcher_task(void *pvParameters)
 
     InitializeAudio(Audio16000HzSettings);
     SetAudioVolume(210);
+    usart_debug_puts("7");
 
     PlayAudioWithCallback(audio_callback, NULL);
+    usart_debug_puts("8\n");
 
 
     /* We are done now, suspend this task
@@ -173,6 +185,7 @@ static void detect_button_press(void *pvParameters)
 
         if (pin_high_count == pin_high_thresh) {
             tm_trigger = 1;
+            usart_debug_puts("Bouton bleu\n");
         }
         else if (pin_high_count == 0) {
             tm_trigger = 0;
@@ -225,6 +238,12 @@ static void gps_monit_task(void *pvParameters)
             }
             else {
                 GPIO_ResetBits(GPIOD, GPIOD_BOARD_LED_BLUE);
+            }
+
+            if (gps_time.sec % 30 == 0) {
+                usart_debug("T_GPS %04d-%02d-%02d %02d:%02d\n",
+                        gps_time.year, gps_time.month, gps_time.day,
+                        gps_time.hour, gps_time.min);
             }
         }
 
@@ -281,24 +300,17 @@ static void exercise_fsm(void *pvParameters)
 
 
 void init() {
-    GPIO_InitTypeDef  GPIO_InitStructure;
-    USART_InitTypeDef USART_InitStructure;
     // ---------- SysTick timer -------- //
     if (SysTick_Config(SystemCoreClock / 1000)) {
         // Capture error
         while (1){};
     }
 
-    // Enable full access to FPU (Should be done automatically in system_stm32f4xx.c):
-    //SCB->CPACR |= ((3UL << 10*2)|(3UL << 11*2));  // set CP10 and CP11 Full Access
-
-    // GPIOD Periph clock enable
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
 
     // Configure PD12, PD13, PD14 and PD15 in output pushpull mode
+    GPIO_InitTypeDef  GPIO_InitStructure;
     GPIO_InitStructure.GPIO_Pin =
         GPIOD_BOARD_LED_GREEN |
         GPIOD_BOARD_LED_ORANGE |
@@ -314,38 +326,9 @@ void init() {
     // Init PushButton
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
     GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_0;
-    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL; // TODO is there an external pullup ?
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
     GPIO_Init(GPIOA, &GPIO_InitStructure);
-
-
-    // ------ UART ------ //
-
-    // Clock
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
-
-    // IO
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5 | GPIO_Pin_6;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-    GPIO_Init(GPIOD, &GPIO_InitStructure);
-
-    GPIO_PinAFConfig(GPIOD, GPIO_PinSource5, GPIO_AF_USART1);
-    GPIO_PinAFConfig(GPIOD, GPIO_PinSource6, GPIO_AF_USART1);
-
-    // Conf
-    USART_InitStructure.USART_BaudRate = 115200;
-    USART_InitStructure.USART_WordLength = USART_WordLength_8b;
-    USART_InitStructure.USART_StopBits = USART_StopBits_1;
-    USART_InitStructure.USART_Parity = USART_Parity_No;
-    USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-    USART_InitStructure.USART_Mode = USART_Mode_Tx | USART_Mode_Rx;
-    USART_Init(USART2, &USART_InitStructure);
-
-    // Enable
-    USART_Cmd(USART2, ENABLE);
 }
 

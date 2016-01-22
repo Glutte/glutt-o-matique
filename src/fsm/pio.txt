@@ -32,4 +32,12 @@ I2C to Audio Codec
 -       i/o  SDA                PB9
 -       i/o  SCL                PB6
 
+STM32DISCOVERY onboard things
+-----------------------------
+-       out   Green LED         PD12
+-       out   Orange LED        PD13
+-       out   Red LED           PD14
+-       out   Blue LED          PD15
+-       in    Blue Push Button  PA0
+
 

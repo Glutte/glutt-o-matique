@@ -33,8 +33,12 @@
 
 #define MAX_NMEA_SENTENCE_LEN 256
 
-// Initialise both USART1 for PC and USART3 for GPS
+// Initialise USART1 for PC debugging
 void usart_init(void);
+
+// Initialise USART3 for GPS and NMEA queue
+// Needs running scheduler
+void usart_gps_init(void);
 
 // Send the str to the GPS receiver
 void usart_gps_puts(const char* str);
