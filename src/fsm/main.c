@@ -74,6 +74,12 @@ int main(void) {
     usart_init();
     usart_debug_puts("******* glutt-o-matique version " GIT_VERSION " *******\r\n");
 
+    if (RCC_GetFlagStatus(RCC_FLAG_IWDGRST) != RESET)
+    {
+        usart_debug_puts("WARNING: A IWDG Reset occured!\r\n");
+    }
+    RCC_ClearFlag();
+
     TaskHandle_t task_handle;
     xTaskCreate(
             launcher_task,
@@ -267,6 +273,9 @@ static void gps_monit_task(void *pvParameters)
         }
 
         vTaskDelay(100 / portTICK_RATE_MS);
+
+        // Reload watchdog
+        IWDG_ReloadCounter();
     }
 }
 
@@ -346,5 +355,15 @@ void init() {
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
     GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+
+    /* Setup Watchdog
+     * The IWDG runs at 32kHz. With a prescaler of 32 -> 1kHz.
+     * Counting to 2000 / 1000 = 2 seconds
+     */
+    IWDG_WriteAccessCmd(IWDG_WriteAccess_Enable);
+    IWDG_SetPrescaler(IWDG_Prescaler_32);
+    IWDG_SetReload(2000);
+    IWDG_Enable();
 }
 
