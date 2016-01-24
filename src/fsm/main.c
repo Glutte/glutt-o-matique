@@ -300,12 +300,9 @@ static void exercise_fsm(void *pvParameters)
 
 
 void init() {
-    // ---------- SysTick timer -------- //
-    if (SysTick_Config(SystemCoreClock / 1000)) {
-        // Capture error
-        while (1){};
-    }
-
+    /* Initialise the onboard peripherals
+     * Four LEDs and one push-button
+     */
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
 
