@@ -31,6 +31,7 @@
 #include "FreeRTOSConfig.h"
 #include "task.h"
 #include "semphr.h"
+#include "usart.h"
 
 /* I2C 1 on PB9 and PB6
  * See pio.txt for PIO allocation details */
@@ -62,6 +63,8 @@ static void i2c_device_init(void);
  */
 static void i2c_recover_from_lockup(void)
 {
+    usart_debug_puts("ERROR: I2C lockup\r\n");
+
     I2C_SoftwareResetCmd(I2Cx, ENABLE);
 
     // Configure I2C SCL and SDA pins.

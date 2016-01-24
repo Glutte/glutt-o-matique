@@ -72,7 +72,7 @@ void vApplicationStackOverflowHook( TaskHandle_t xTask,
 int main(void) {
     init();
     usart_init();
-    usart_debug_puts("glutt-o-matique version " GIT_VERSION "\r\n");
+    usart_debug_puts("******* glutt-o-matique version " GIT_VERSION " *******\r\n");
 
     TaskHandle_t task_handle;
     xTaskCreate(
@@ -98,17 +98,22 @@ int main(void) {
 // already running when calling the init functions.
 static void launcher_task(void *pvParameters)
 {
-    usart_debug_puts("1");
+    usart_debug_puts("CW init\r\n");
     cw_psk31_init(16000);
-    usart_debug_puts("2");
+
+    usart_debug_puts("PIO init\r\n");
     pio_init();
-    usart_debug_puts("3");
+
+    usart_debug_puts("I2C init\r\n");
     i2c_init();
-    usart_debug_puts("4");
+
+    usart_debug_puts("common init\r\n");
     common_init();
-    usart_debug_puts("5");
+
+    usart_debug_puts("GPS init\r\n");
     gps_init();
-    usart_debug_puts("6");
+
+    usart_debug_puts("TaskButton init\r\n");
 
     TaskHandle_t task_handle;
     xTaskCreate(
@@ -123,7 +128,7 @@ static void launcher_task(void *pvParameters)
         trigger_fault(FAULT_SOURCE_MAIN);
     }
 
-    usart_debug_puts("8");
+    usart_debug_puts("TaskFSM init\r\n");
 
     xTaskCreate(
             exercise_fsm,
@@ -137,7 +142,7 @@ static void launcher_task(void *pvParameters)
         trigger_fault(FAULT_SOURCE_MAIN);
     }
 
-    usart_debug_puts("9");
+    usart_debug_puts("TaskGPS init\r\n");
 
     xTaskCreate(
             gps_monit_task,
@@ -151,16 +156,17 @@ static void launcher_task(void *pvParameters)
         trigger_fault(FAULT_SOURCE_MAIN);
     }
 
-    usart_debug_puts("A");
+    usart_debug_puts("Audio init\r\n");
 
     InitializeAudio(Audio16000HzSettings);
-    usart_debug_puts("B");
+
+    usart_debug_puts("Audio set volume\r\n");
     SetAudioVolume(210);
-    usart_debug_puts("C");
 
+    usart_debug_puts("Audio set callback\r\n");
     PlayAudioWithCallback(audio_callback, NULL);
-    usart_debug_puts("D\r\n");
 
+    usart_debug_puts("Init done.\r\n");
 
     /* We are done now, suspend this task
      * With FreeDOS' heap_1.c, we cannot delete it.
@@ -229,11 +235,12 @@ static void audio_callback(void* context, int select_buffer)
     ProvideAudioBufferWithoutBlocking(samples, samples_len);
 }
 
-
 static struct gps_time_s gps_time;
 static void gps_monit_task(void *pvParameters)
 {
     GPIO_SetBits(GPIOD, GPIOD_BOARD_LED_BLUE);
+
+    int t_gps_print_latch = 0;
 
     while (1) {
         if (gps_locked()) {
@@ -247,10 +254,15 @@ static void gps_monit_task(void *pvParameters)
                 GPIO_ResetBits(GPIOD, GPIOD_BOARD_LED_BLUE);
             }
 
-            if (gps_time.sec % 30 == 0) {
-                usart_debug("T_GPS %04d-%02d-%02d %02d:%02d\r\n",
+            if (gps_time.sec % 30 == 0 && t_gps_print_latch == 0) {
+                usart_debug("T_GPS %04d-%02d-%02d %02d:%02d:%02d\r\n",
                         gps_time.year, gps_time.month, gps_time.day,
-                        gps_time.hour, gps_time.min);
+                        gps_time.hour, gps_time.min, gps_time.sec);
+
+                t_gps_print_latch = 1;
+            }
+            if (gps_time.sec % 30 > 0) {
+                t_gps_print_latch = 0;
             }
         }
 

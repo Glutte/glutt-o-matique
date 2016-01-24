@@ -7,13 +7,13 @@ Test logic
 
 u-blox NEO-M8N GPS module connection
 ------------------------------------
-Yellow  out  UART TX to GPS RX  PD8
-Orange  in   UART RX to GPS TX  PD9
+Yellow  out  UART3 TX to GPS RX PD8
+Orange  in   UART3 RX to GPS TX PD9
 
 Debug USART
 -----------
--       out  UART TX to PC RX   PA2
--       in   UART RX to PC TX   PA3
+-       out  UART2 TX to PC RX  PA2
+-       in   UART2 RX to PC TX  PA3
 
 For the little test board with the 3 LEDs and switches
 ------------------------------------------------------
@@ -34,8 +34,8 @@ I2C to Audio Codec
 -       -    I2S3 CK            PC10
 -       -    I2S3 SD            PC12
 -       -    I2S3 WS            PA4
--       i/o  SDA                PB9
--       i/o  SCL                PB6
+-       i/o  I2C1 SDA           PB9
+-       i/o  I2C1 SCL           PB6
 
 STM32DISCOVERY onboard things
 -----------------------------
