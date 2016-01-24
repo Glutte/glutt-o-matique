@@ -121,7 +121,7 @@ void AudioOn() {
 }
 
 void AudioOff() {
-    WriteRegister(0x02, 0x01);
+    WriteRegister(0x02, 0x9f);
     SPI3 ->I2SCFGR = 0;
 }
 

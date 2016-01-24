@@ -172,6 +172,9 @@ static void launcher_task(void *pvParameters)
     usart_debug_puts("Audio set callback\r\n");
     PlayAudioWithCallback(audio_callback, NULL);
 
+    // By default, let's the audio off to save power
+    AudioOff();
+
     usart_debug_puts("Init done.\r\n");
 
     /* We are done now, suspend this task
