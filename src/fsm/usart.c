@@ -39,9 +39,9 @@
 const uint16_t GPIOD_PIN_USART3_TX = GPIO_Pin_8;
 const uint16_t GPIOD_PIN_USART3_RX = GPIO_Pin_9;
 
-/* USART 3 on PA9 and PA10 */
-const uint16_t GPIOA_PIN_USART1_TX = GPIO_Pin_10;
-const uint16_t GPIOA_PIN_USART1_RX = GPIO_Pin_9;
+/* USART 2 on PA2 and PA3 */
+const uint16_t GPIOA_PIN_USART2_RX = GPIO_Pin_3;
+const uint16_t GPIOA_PIN_USART2_TX = GPIO_Pin_2;
 
 // The ISR writes into this buffer
 static char nmea_sentence[MAX_NMEA_SENTENCE_LEN];
@@ -54,21 +54,21 @@ static QueueHandle_t usart_nmea_queue;
 void usart_init()
 {
     // ============== PC DEBUG USART ===========
-    RCC_APB1PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
 
     GPIO_InitTypeDef GPIO_InitStruct;
-    GPIO_InitStruct.GPIO_Pin = GPIOA_PIN_USART1_RX | GPIOA_PIN_USART1_TX;
+    GPIO_InitStruct.GPIO_Pin = GPIOA_PIN_USART2_RX | GPIOA_PIN_USART2_TX;
     GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF;
     GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
     GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;
     GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    GPIO_PinAFConfig(GPIOA, GPIO_PinSource9, GPIO_AF_USART1);
-    GPIO_PinAFConfig(GPIOA, GPIO_PinSource10, GPIO_AF_USART1);
+    GPIO_PinAFConfig(GPIOA, GPIO_PinSource2, GPIO_AF_USART2);
+    GPIO_PinAFConfig(GPIOA, GPIO_PinSource3, GPIO_AF_USART2);
 
-    // Setup USART1 for 9600,8,N,1
+    // Setup USART2 for 9600,8,N,1
     USART_InitTypeDef USART_InitStruct;
     USART_InitStruct.USART_BaudRate = 9600;
     USART_InitStruct.USART_WordLength = USART_WordLength_8b;
@@ -76,24 +76,22 @@ void usart_init()
     USART_InitStruct.USART_Parity = USART_Parity_No;
     USART_InitStruct.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
     USART_InitStruct.USART_Mode = USART_Mode_Tx | USART_Mode_Rx;
-    USART_Init(USART1, &USART_InitStruct);
+    USART_Init(USART2, &USART_InitStruct);
 
-#if 0
-    // enable the USART1 receive interrupt
-    USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
+    // enable the USART2 receive interrupt
+    USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);
 
     NVIC_InitTypeDef NVIC_InitStructure;
-    NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannel = USART2_IRQn;
     NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 6;
     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
 
-    NVIC_SetPriority(USART1_IRQn, 6);
+    NVIC_SetPriority(USART2_IRQn, 6);
 
-    // finally this enables the complete USART1 peripheral
-    USART_Cmd(USART1, ENABLE);
-#endif
+    // finally this enables the complete USART2 peripheral
+    USART_Cmd(USART2, ENABLE);
 }
 
 void usart_gps_init()
@@ -152,8 +150,8 @@ static void usart_puts(USART_TypeDef* USART, const char* str)
 {
     while(*str) {
         // wait until data register is empty
-        while ( !(USART->SR & 0x00000040) );
         USART_SendData(USART, *str);
+        while(USART_GetFlagStatus(USART, USART_FLAG_TXE) == RESET) ;
         str++;
     }
 }
@@ -171,13 +169,13 @@ void usart_debug(const char *format, ...)
     va_list list;
     va_start(list, format);
     vsnprintf(usart_debug_message, MAX_MSG_LEN-1, format, list);
-    usart_puts(USART1, usart_debug_message);
+    usart_puts(USART2, usart_debug_message);
     va_end(list);
 }
 
 void usart_debug_puts(const char* str)
 {
-    usart_puts(USART1, str);
+    usart_puts(USART2, str);
 }
 
 int usart_get_nmea_sentence(char* nmea)
@@ -230,11 +228,16 @@ void USART3_IRQHandler(void)
     }
 }
 
-void USART1_IRQHandler(void)
+void USART2_IRQHandler(void)
 {
-    if (USART_GetITStatus(USART1, USART_IT_RXNE)) {
-        char t = USART1->DR;
-        (void)t; // ignore t
+    if (USART_GetITStatus(USART2, USART_IT_RXNE)) {
+        char t = USART2->DR;
+        if (t == 'h') {
+            usart_debug_puts("help: no commands supported yet!\r\n");
+        }
+        else {
+            usart_debug("Unknown command %c\r\n", t);
+        }
     }
 }
 

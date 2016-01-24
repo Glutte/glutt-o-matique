@@ -25,7 +25,7 @@
 /* This handles the USART 3 to the GPS receiver, and fills a queue of
  * NMEA messages.
  *
- * It also handles the debug USART 1 and allows sending messages to the PC.
+ * It also handles the debug USART 2 and allows sending messages to the PC.
  */
 
 #ifndef __USART_H_
@@ -33,7 +33,7 @@
 
 #define MAX_NMEA_SENTENCE_LEN 256
 
-// Initialise USART1 for PC debugging
+// Initialise USART2 for PC debugging
 void usart_init(void);
 
 // Initialise USART3 for GPS and NMEA queue

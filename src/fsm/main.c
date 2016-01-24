@@ -72,7 +72,7 @@ void vApplicationStackOverflowHook( TaskHandle_t xTask,
 int main(void) {
     init();
     usart_init();
-    usart_debug_puts("glutt-o-matique version " GIT_VERSION "\n");
+    usart_debug_puts("glutt-o-matique version " GIT_VERSION "\r\n");
 
     TaskHandle_t task_handle;
     xTaskCreate(
@@ -123,6 +123,8 @@ static void launcher_task(void *pvParameters)
         trigger_fault(FAULT_SOURCE_MAIN);
     }
 
+    usart_debug_puts("8");
+
     xTaskCreate(
             exercise_fsm,
             "TaskFSM",
@@ -134,6 +136,8 @@ static void launcher_task(void *pvParameters)
     if (!task_handle) {
         trigger_fault(FAULT_SOURCE_MAIN);
     }
+
+    usart_debug_puts("9");
 
     xTaskCreate(
             gps_monit_task,
@@ -147,12 +151,15 @@ static void launcher_task(void *pvParameters)
         trigger_fault(FAULT_SOURCE_MAIN);
     }
 
+    usart_debug_puts("A");
+
     InitializeAudio(Audio16000HzSettings);
+    usart_debug_puts("B");
     SetAudioVolume(210);
-    usart_debug_puts("7");
+    usart_debug_puts("C");
 
     PlayAudioWithCallback(audio_callback, NULL);
-    usart_debug_puts("8\n");
+    usart_debug_puts("D\r\n");
 
 
     /* We are done now, suspend this task
@@ -185,7 +192,7 @@ static void detect_button_press(void *pvParameters)
 
         if (pin_high_count == pin_high_thresh) {
             tm_trigger = 1;
-            usart_debug_puts("Bouton bleu\n");
+            usart_debug_puts("Bouton bleu\r\n");
         }
         else if (pin_high_count == 0) {
             tm_trigger = 0;
@@ -241,7 +248,7 @@ static void gps_monit_task(void *pvParameters)
             }
 
             if (gps_time.sec % 30 == 0) {
-                usart_debug("T_GPS %04d-%02d-%02d %02d:%02d\n",
+                usart_debug("T_GPS %04d-%02d-%02d %02d:%02d\r\n",
                         gps_time.year, gps_time.month, gps_time.day,
                         gps_time.hour, gps_time.min);
             }

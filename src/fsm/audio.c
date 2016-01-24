@@ -28,14 +28,16 @@ void InitializeAudio(int plln, int pllr, int i2sdiv, int i2sodd) {
     DMARunning = false;
 
     // Turn on peripherals.
-    // Assume GPIOA,B,C,D already on
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA1, ENABLE);
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI3, ENABLE);
 
     // Assume I2C is set up
 
     // Configure reset pin.
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4;;
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
