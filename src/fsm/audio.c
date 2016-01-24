@@ -67,11 +67,11 @@ void InitializeAudio(int plln, int pllr, int i2sdiv, int i2sodd) {
     GPIO_PinAFConfig(GPIOA, GPIO_PinSource4, GPIO_AF_SPI3);
 
     // Reset the codec.
-    GPIOD ->BSRRH = 1 << 4;
+    GPIO_ResetBits(GPIOD, GPIO_Pin_4);
     for (volatile int i = 0; i < 0x4fff; i++) {
         __asm__ volatile("nop");
     }
-    GPIOD ->BSRRL = 1 << 4;
+    GPIO_SetBits(GPIOD, GPIO_Pin_4);
 
     // Configure codec.
     WriteRegister(0x02, 0x01); // Keep codec powered off.
