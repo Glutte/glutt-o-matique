@@ -144,7 +144,7 @@ void i2c_init()
     }
 
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1, ENABLE);
-    RCC_APB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
 
     i2c_device_init();
     i2c_init_done = 1;
