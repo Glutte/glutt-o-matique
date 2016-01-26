@@ -36,5 +36,7 @@ régulièrement.
 Structure
 ---------
 
-![La machine d'états](doc/20160103-machine-etats.png)
+![La machine d'états](doc/statemachine.svg)
+
+![Le PCB de prototype](doc/perfboard.svg).
 
