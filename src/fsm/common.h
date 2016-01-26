@@ -31,6 +31,9 @@
 #ifndef _COMMON_H_
 #define _COMMON_H_
 
+/* Feature defines */
+#define ENABLE_PSK31 0
+
 #define FLOAT_PI 3.1415926535897932384f
 
 

@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Matthias P. Braendli
+ * Copyright (c) 2016 Matthias P. Braendli
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -112,6 +112,7 @@ const uint8_t cw_mapping[60] = { // {{{
     0b1010111, // SK , ASCII '\'
 }; //}}}
 
+#if ENABLE_PSK31
 /*
  * PSK31 Varicode
  * http://aintel.bi.ehu.es/psk31.html
@@ -246,7 +247,7 @@ const char *psk31_varicode[] = { // {{{
     "1011010111",
     "1110110101",
 }; //}}}
-
+#endif
 
 struct cw_message_s {
     char          message[MAX_MESSAGE_LEN];
@@ -393,6 +394,8 @@ static size_t cw_text_to_on_buffer(const char *msg, uint8_t *on_buffer, size_t o
     return pos;
 }
 
+
+#if ENABLE_PSK31
 /*
  * Turn a null terminated ASCII string into a uint8_t buffer
  * of 0 and 1 representing the PSK31 varicode for the input.
@@ -428,6 +431,7 @@ static size_t psk31_text_to_phase_buffer(const char* instr, uint8_t* outbits)
 
     return i;
 }
+#endif
 
 
 size_t cw_psk31_fill_buffer(int16_t *buf, size_t bufsize)
@@ -468,6 +472,7 @@ static int16_t cw_generate_audio(float omega, int i, int t)
     return s;
 }
 
+#if ENABLE_PSK31
 static float psk31_generate_audio_nco = 0.0f;
 static int   psk31_current_psk_phase = 1;
 static int16_t psk31_generate_audio(float omega, int i, int t, int samples_per_symbol)
@@ -495,6 +500,7 @@ static int16_t psk31_generate_audio(float omega, int i, int t, int samples_per_s
 
     return s;
 }
+#endif
 
 static void cw_psk31_task(void *pvParameters)
 {
@@ -518,11 +524,13 @@ static void cw_psk31_task(void *pvParameters)
                         MAX_ON_BUFFER_LEN);
 
             }
+#if ENABLE_PSK31
             else {
                 cw_psk31_buffer_len = psk31_text_to_phase_buffer(
                         cw_fill_msg_current.message,
                         cw_psk31_buffer);
             }
+#endif
 
             // Angular frequency of NCO
             const float omega = 2.0f * FLOAT_PI * cw_fill_msg_current.freq /
@@ -533,13 +541,20 @@ static void cw_psk31_task(void *pvParameters)
                 /* BPSK31 is at 31.25 symbols per second. */
                  cw_psk31_samplerate * 100 / 3125;
 
+#if ENABLE_PSK31
             psk31_current_psk_phase = 1;
+#endif
 
             for (int i = 0; i < cw_psk31_buffer_len; i++) {
                 for (int t = 0; t < samples_per_symbol; t++) {
+#if ENABLE_PSK31
                     int16_t s = (cw_fill_msg_current.dit_duration != 0) ?
                         cw_generate_audio(omega, i, t) :
                         psk31_generate_audio(omega, i, t, samples_per_symbol);
+#else
+                    int16_t s = cw_generate_audio(omega, i, t);
+#endif
+
 
                     if (buf_pos == AUDIO_BUF_LEN) {
                         xQueueSendToBack(cw_audio_queue, &cw_audio_buf, portMAX_DELAY);
@@ -555,9 +570,11 @@ static void cw_psk31_task(void *pvParameters)
                     cw_audio_buf[buf_pos++] = s;
                 }
 
+#if ENABLE_PSK31
                 if (cw_psk31_buffer[i] == 0) {
                     psk31_current_psk_phase *= -1;
                 }
+#endif
             }
 
             // We have completed this message
