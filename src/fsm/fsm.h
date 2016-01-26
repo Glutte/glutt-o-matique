@@ -52,7 +52,6 @@ struct fsm_input_signals_t {
     /* Signals coming from repeater electronics */
     int sq;                // Squelch detection
     int discrim_u;         // FM discriminator says RX is too high in frequency
-    int carrier;           // RX carrier detection
     int qrp;               // The relay is currently running with low power
     int start_tm;          // 2-hour pulse
     float temp;            // temperature in degrees C
@@ -73,7 +72,7 @@ struct fsm_input_signals_t {
 // All signals the FSM has to control
 struct fsm_output_signals_t {
     /* Signals to the repeater electronics */
-    int qrp;               // Place the repeater in QRP mode
+    int qrp;               // Place the repeater in QRP mode // TODO move out of FSM
     int tx_on;             // Enable TX circuitry
     int modulation;        // Enable repeater RX to TX modulation
 

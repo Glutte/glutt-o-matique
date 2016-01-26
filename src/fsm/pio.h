@@ -33,40 +33,46 @@
 
 /* See pio.txt for PIO allocation details */
 
-#define INVERTED_1750 0
-
 /* On GPIO C */
-#define GPIO_PIN_QRP_n   GPIO_Pin_1
-#define GPIO_PIN_LED_red GPIO_Pin_2
-#define GPIO_PIN_1750    GPIO_Pin_4
-#define GPIO_PIN_LED_yel GPIO_Pin_5
-#define GPIO_PIN_RX_n    GPIO_Pin_6
-#define GPIO_PIN_U_n     GPIO_Pin_8
-#define GPIO_PIN_LED_grn GPIO_Pin_9
-#define GPIO_PIN_D_n     GPIO_Pin_11
-#define GPIO_PIN_TX      GPIO_Pin_13
+#define GPIO_PIN_QRP_n    GPIO_Pin_1
+#define GPIO_PIN_TX       GPIO_Pin_2
+#define GPIO_PIN_1750_n   GPIO_Pin_4
+#define GPIO_PIN_MOD_OFF  GPIO_Pin_5
+#define GPIO_PIN_SQ_n     GPIO_Pin_6
+#define GPIO_PIN_U        GPIO_Pin_8
+#define GPIO_PIN_QRP_out  GPIO_Pin_9
+#define GPIO_PIN_D        GPIO_Pin_11
+#define GPIO_PIN_REPLIE_n GPIO_Pin_13
+#define GPIO_PIN_FAX_n    GPIO_Pin_14
 
 
-#define GPIOC_OUTPUT_PINS GPIO_PIN_LED_red | \
-                          GPIO_PIN_LED_yel | \
-                          GPIO_PIN_LED_grn | \
-                          GPIO_PIN_TX
+#define GPIOC_OUTPUT_PINS ( \
+                           GPIO_PIN_TX | \
+                           GPIO_PIN_MOD_OFF | \
+                           GPIO_PIN_QRP_out | \
+                           0)
 
-#define GPIOC_OPENDRAIN_PINS 0
+#undef GPIOC_OPENDRAIN_PINS
+#undef GPIOC_INPUT_PU_PINS
 
-#define GPIOC_INPUT_PINS 0
+#define GPIOC_INPUT_PINS ( \
+                          GPIO_PIN_QRP_n | \
+                          GPIO_PIN_1750_n | \
+                          GPIO_PIN_SQ_n | \
+                          GPIO_PIN_U | \
+                          GPIO_PIN_D | \
+                          GPIO_PIN_REPLIE_n | \
+                          0 )
 
-#define GPIOC_INPUT_PU_PINS GPIO_PIN_QRP_n | \
-                            GPIO_PIN_U_n | \
-                            GPIO_PIN_D_n | \
-                            GPIO_PIN_RX_n | \
-                            GPIO_PIN_1750
+/* Analog inputs */
+// TODO: SWR forward power
+// TODO: SWR reflected power
 
 void pio_init(void);
 
 void pio_set_tx(int on);
-void pio_set_led_yel(int on);
-void pio_set_led_grn(int on);
+void pio_set_mod_off(int mod_off);
+void pio_set_qrp(int on);
 
 void pio_set_fsm_signals(struct fsm_input_signals_t* sig);
 

@@ -47,7 +47,7 @@ void pio_init()
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
     GPIO_Init(GPIOC, &GPIO_InitStructure);
 
-#if GPIOC_OPENDRAIN_PINS
+#if defined(GPIOC_OPENDRAIN_PINS)
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
     GPIO_InitStructure.GPIO_Pin   = GPIOC_OPENDRAIN_PINS;
     GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
@@ -56,12 +56,14 @@ void pio_init()
     GPIO_Init(GPIOC, &GPIO_InitStructure);
 #endif
 
+#if defined(GPIOC_INPUT_PU_PINS)
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IN;
     GPIO_InitStructure.GPIO_Pin   = GPIOC_INPUT_PU_PINS;
     GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
     GPIO_Init(GPIOC, &GPIO_InitStructure);
+#endif
 
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IN;
     GPIO_InitStructure.GPIO_Pin   = GPIOC_INPUT_PINS;
@@ -87,15 +89,26 @@ void pio_set_fsm_signals(struct fsm_input_signals_t* sig)
 void read_fsm_input_task(void *pvParameters)
 {
     while (1) {
-        pio_signals.qrp       = GPIO_ReadInputDataBit(GPIOC, GPIO_PIN_QRP_n) ? 0 : 1;
-#if INVERTED_1750
-        pio_signals.tone_1750 = GPIO_ReadInputDataBit(GPIOC, GPIO_PIN_1750) ? 0 : 1;
-#else
-        pio_signals.tone_1750 = GPIO_ReadInputDataBit(GPIOC, GPIO_PIN_1750) ? 1 : 0;
-#endif
-        pio_signals.carrier   = GPIO_ReadInputDataBit(GPIOC, GPIO_PIN_RX_n) ? 0 : 1;
-        pio_signals.discrim_u = GPIO_ReadInputDataBit(GPIOC, GPIO_PIN_U_n) ? 0 : 1;
-        pio_signals.discrim_d = GPIO_ReadInputDataBit(GPIOC, GPIO_PIN_D_n) ? 0 : 1;
+        pio_signals.qrp =
+            GPIO_ReadInputDataBit(GPIOC, GPIO_PIN_QRP_n) ? 0 : 1;
+
+        pio_signals.tone_1750 =
+            GPIO_ReadInputDataBit(GPIOC, GPIO_PIN_1750_n) ? 0 : 1;
+
+        pio_signals.sq =
+            GPIO_ReadInputDataBit(GPIOC, GPIO_PIN_SQ_n) ? 0 : 1;
+
+        pio_signals.discrim_u =
+            GPIO_ReadInputDataBit(GPIOC, GPIO_PIN_U) ? 1 : 0;
+
+        pio_signals.discrim_d =
+            GPIO_ReadInputDataBit(GPIOC, GPIO_PIN_D) ? 1 : 0;
+
+        pio_signals.wind_generator_ok =
+            GPIO_ReadInputDataBit(GPIOC, GPIO_PIN_REPLIE_n) ? 1 : 0;
+
+        pio_signals.sstv_mode =
+            GPIO_ReadInputDataBit(GPIOC, GPIO_PIN_FAX_n) ? 0 : 1;
 
         vTaskDelay(100 / portTICK_RATE_MS);
     }
@@ -103,31 +116,30 @@ void read_fsm_input_task(void *pvParameters)
 
 void pio_set_tx(int on)
 {
-    // Led is active high, TX_n is inverted logic
     if (on) {
-        GPIO_SetBits(GPIOC, GPIO_PIN_LED_red | GPIO_PIN_TX);
+        GPIO_SetBits(GPIOC, GPIO_PIN_TX);
     }
     else {
-        GPIO_ResetBits(GPIOC, GPIO_PIN_LED_red | GPIO_PIN_TX);
+        GPIO_ResetBits(GPIOC, GPIO_PIN_TX);
     }
 }
 
-void pio_set_led_grn(int on)
+void pio_set_qrp(int on)
 {
     if (on) {
-        GPIO_SetBits(GPIOC, GPIO_PIN_LED_grn);
+        GPIO_SetBits(GPIOC, GPIO_PIN_QRP_out);
     }
     else {
-        GPIO_ResetBits(GPIOC, GPIO_PIN_LED_grn);
+        GPIO_ResetBits(GPIOC, GPIO_PIN_QRP_out);
     }
 }
 
-void pio_set_led_yel(int on)
+void pio_set_mod_off(int mod_off)
 {
-    if (on) {
-        GPIO_SetBits(GPIOC, GPIO_PIN_LED_yel);
+    if (mod_off) {
+        GPIO_SetBits(GPIOC, GPIO_PIN_MOD_OFF);
     }
     else {
-        GPIO_ResetBits(GPIOC, GPIO_PIN_LED_yel);
+        GPIO_ResetBits(GPIOC, GPIO_PIN_MOD_OFF);
     }
 }

@@ -1,9 +1,29 @@
 Allocation of PIOs to functions
 ===============================
 
-Test logic
-----------
--       out TX_ON               PC13
+TODO Connexions Relais
+----------------------
+-       in   QRP_n              PC1
+-       out  TX_ON              PC2
+-       i/o  ?                  PC3
+-       in   1750_n             PC4
+-       out  MOD_OFF            PC5
+-       in   SQ_n               PC6
+-       in   U_n                PC8
+-       out  QRP                PC9
+-       in   D_n                PC11
+-       in   REPLIE_n           PC13
+-       in   FAX_n              PC14
+
+-       i/o  ?                  PC15
+
+-       i/o  Dallas 1-wire
+
+TODO Analog signals
+-------------------
+-       in   SWR forward
+-       in   SWR reflected
+-       in   Vcc 12V measurement
 
 u-blox NEO-M8N GPS module connection
 ------------------------------------
@@ -17,15 +37,7 @@ Debug USART
 
 For the little test board with the 3 LEDs and switches
 ------------------------------------------------------
-Blue    in   QRP_n              PC1
-Violet  out  LED red            PC2
-Grey    in   1750               PC4
-White   out  LED yel            PC5
-Black   -    GND                GND
-Brown   in   RX_n               PC6
-Red     in   U_n                PC8
 Orange  out  LED grn            PC9
-Green   in   D_n                PC11
 
 I2C to Audio Codec
 ------------------

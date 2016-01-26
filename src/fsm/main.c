@@ -300,8 +300,6 @@ static void exercise_fsm(void *pvParameters)
         fsm_input.start_tm = (tm_trigger == 1 && last_tm_trigger == 0) ? 1 : 0;
         last_tm_trigger = tm_trigger;
 
-        fsm_input.sq = fsm_input.carrier; // TODO clarify
-
         fsm_input.cw_psk31_done = !cw_psk31_busy();
 
         if (fsm_input.cw_psk31_done) {
@@ -318,8 +316,8 @@ static void exercise_fsm(void *pvParameters)
         fsm_get_outputs(&fsm_out);
 
         pio_set_tx(fsm_out.tx_on);
-        pio_set_led_yel(fsm_out.modulation);
-        pio_set_led_grn(fsm_input.carrier);
+        pio_set_mod_off(!fsm_out.modulation);
+        pio_set_qrp(fsm_out.qrp); // TODO move out of FSM
 
         // Add message to CW generator only on rising edge of trigger
         if (fsm_out.cw_psk31_trigger && !cw_last_trigger) {
