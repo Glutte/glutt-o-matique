@@ -1,17 +1,17 @@
 Allocation of PIOs to functions
 ===============================
 
-TODO Connexions Relais
-----------------------
+Connexions Relais
+-----------------
 -       in   QRP_n              PC1
 -       out  TX_ON              PC2
 -       i/o  ?                  PC3
 -       in   1750_n             PC4
 -       out  MOD_OFF            PC5
 -       in   SQ_n               PC6
--       in   U_n                PC8
+-       in   U                  PC8
 -       out  QRP                PC9
--       in   D_n                PC11
+-       in   D                  PC11
 -       in   REPLIE_n           PC13
 -       in   FAX_n              PC14
 
@@ -21,6 +21,7 @@ TODO Connexions Relais
 
 TODO Analog signals
 -------------------
+-       in   f_0 deviation
 -       in   SWR forward
 -       in   SWR reflected
 -       in   Vcc 12V measurement
@@ -29,6 +30,7 @@ u-blox NEO-M8N GPS module connection
 ------------------------------------
 Yellow  out  UART3 TX to GPS RX PD8
 Orange  in   UART3 RX to GPS TX PD9
+-       out  GPS RESET_n        PD10
 
 Debug USART
 -----------
