@@ -124,8 +124,6 @@ void hard_fault_handler_c(uint32_t *hardfault_args)
     stacked_pc = hardfault_args[6];
     stacked_psr = hardfault_args[7];
 
-    while (1);
-
     usart_debug_puts("\n\n[Hard fault handler - all numbers in hex]\n");
     usart_debug("R0 = %x\n", stacked_r0);
     usart_debug("R1 = %x\n", stacked_r1);
