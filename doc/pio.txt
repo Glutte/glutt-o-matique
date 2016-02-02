@@ -5,7 +5,7 @@ Connexions Relais
 -----------------
 -       in   QRP_n              PC1
 -       out  TX_ON              PC2
--       i/o  ?                  PC3
+-       N/A  microphone         PC3
 -       in   1750_n             PC4
 -       out  MOD_OFF            PC5
 -       in   SQ_n               PC6
@@ -17,7 +17,7 @@ Connexions Relais
 
 -       i/o  ?                  PC15
 
--       i/o  Dallas 1-wire
+-       i/o  Dallas 1-wire      PA1
 
 TODO Analog signals
 -------------------

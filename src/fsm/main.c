@@ -41,6 +41,7 @@
 #include "fsm.h"
 #include "common.h"
 #include "usart.h"
+#include "ds18b20.h"
 #include "vc.h"
 
 #define GPIOD_BOARD_LED_GREEN  GPIO_Pin_12
@@ -72,7 +73,7 @@ void vApplicationStackOverflowHook( TaskHandle_t xTask,
 int main(void) {
     init();
     usart_init();
-    usart_debug_puts("******* glutt-o-matique version " GIT_VERSION " *******\r\n");
+    usart_debug_puts("\r\n******* glutt-o-matique version " GIT_VERSION " *******\r\n");
 
     if (RCC_GetFlagStatus(RCC_FLAG_IWDGRST) != RESET)
     {
@@ -118,6 +119,9 @@ static void launcher_task(void *pvParameters)
 
     usart_debug_puts("GPS init\r\n");
     gps_init();
+
+    usart_debug_puts("DS18B20 init\r\n");
+    ds18b20_init();
 
     usart_debug_puts("TaskButton init\r\n");
 
@@ -190,6 +194,7 @@ static void launcher_task(void *pvParameters)
 static void detect_button_press(void *pvParameters)
 {
     int pin_high_count = 0;
+    int last_pin_high_count = 0;
     const int pin_high_thresh = 10;
     while (1) {
         if (GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_0) == Bit_SET) {
@@ -205,13 +210,24 @@ static void detect_button_press(void *pvParameters)
 
         vTaskDelay(10 / portTICK_RATE_MS); /* Debounce Delay */
 
-        if (pin_high_count == pin_high_thresh) {
+        if (pin_high_count == pin_high_thresh &&
+                last_pin_high_count != pin_high_count) {
             tm_trigger = 1;
             usart_debug_puts("Bouton bleu\r\n");
+            float temp = 0.0f;
+            if (ds18b20_gettemp(&temp)) {
+                usart_debug("Temperature %d\r\n", temp);
+            }
+            else {
+                usart_debug_puts("No temp\r\n");
+            }
         }
-        else if (pin_high_count == 0) {
+        else if (pin_high_count == 0 &&
+                last_pin_high_count != pin_high_count) {
             tm_trigger = 0;
         }
+
+        last_pin_high_count = pin_high_count;
     }
 }
 
