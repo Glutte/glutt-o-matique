@@ -65,12 +65,14 @@ void pio_init()
     GPIO_Init(GPIOC, &GPIO_InitStructure);
 #endif
 
+#if defined(GPIOC_INPUT_PINS)
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IN;
     GPIO_InitStructure.GPIO_Pin   = GPIOC_INPUT_PINS;
     GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
     GPIO_Init(GPIOC, &GPIO_InitStructure);
+#endif
 
     xTaskCreate(
             read_fsm_input_task,
