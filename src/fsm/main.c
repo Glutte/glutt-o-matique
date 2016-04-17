@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Matthias P. Braendli
+ * Copyright (c) 2016 Matthias P. Braendli
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -41,7 +41,9 @@
 #include "fsm.h"
 #include "common.h"
 #include "usart.h"
+#if DS18B20_ENABLED
 #include "ds18b20.h"
+#endif
 #include "vc.h"
 
 #define GPIOD_BOARD_LED_GREEN  GPIO_Pin_12
@@ -120,8 +122,10 @@ static void launcher_task(void *pvParameters)
     usart_debug_puts("GPS init\r\n");
     gps_init();
 
+#if DS18B20_ENABLED
     usart_debug_puts("DS18B20 init\r\n");
     ds18b20_init();
+#endif
 
     usart_debug_puts("TaskButton init\r\n");
 
@@ -214,10 +218,14 @@ static void detect_button_press(void *pvParameters)
                 last_pin_high_count != pin_high_count) {
             tm_trigger = 1;
             usart_debug_puts("Bouton bleu\r\n");
+#if DS18B20_ENABLED
             float temp = 0.0f;
             if (ds18b20_gettemp(&temp)) {
                 usart_debug("Temperature %d\r\n", temp);
             }
+#else
+            if (0) {}
+#endif
             else {
                 usart_debug_puts("No temp\r\n");
             }
