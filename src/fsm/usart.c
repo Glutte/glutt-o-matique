@@ -78,6 +78,7 @@ void usart_init()
     USART_InitStruct.USART_Mode = USART_Mode_Tx | USART_Mode_Rx;
     USART_Init(USART2, &USART_InitStruct);
 
+#if USART2_RECEIVE_ENABLE
     // enable the USART2 receive interrupt
     USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);
 
@@ -89,6 +90,7 @@ void usart_init()
     NVIC_Init(&NVIC_InitStructure);
 
     NVIC_SetPriority(USART2_IRQn, 6);
+#endif
 
     // finally this enables the complete USART2 peripheral
     USART_Cmd(USART2, ENABLE);
