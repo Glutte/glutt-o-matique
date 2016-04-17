@@ -41,7 +41,7 @@ void ds18b20_init()
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
     GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-    GPIO_Init(GPIOB, &GPIO_InitStructure);
+    GPIO_Init(GPIOA, &GPIO_InitStructure);
 
     TM_OneWire_Init(&tm_onewire, GPIOA, ONEWIRE_PIN);
 }

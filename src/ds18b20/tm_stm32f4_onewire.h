@@ -92,8 +92,8 @@ extern C {
 
 /* Pin settings */
 
-#define ONEWIRE_LOW(structure)			GPIO_ResetBits((structure)->GPIOx, (structure)->GPIO_Pin)
-#define ONEWIRE_HIGH(structure)			GPIO_SetBits((structure)->GPIOx, (structure)->GPIO_Pin)
+#define ONEWIRE_LOW(structure)			TM_GPIO_ResetBits((structure)->GPIOx, (structure)->GPIO_Pin)
+#define ONEWIRE_HIGH(structure)			TM_GPIO_SetBits((structure)->GPIOx, (structure)->GPIO_Pin)
 #define ONEWIRE_INPUT(structure)		TM_GPIO_SetPinAsInput(structure->GPIOx, (structure)->GPIO_Pin)
 #define ONEWIRE_OUTPUT(structure)		TM_GPIO_SetPinAsOutput(structure->GPIOx, (structure)->GPIO_Pin)
 

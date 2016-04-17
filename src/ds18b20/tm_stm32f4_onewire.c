@@ -18,19 +18,26 @@
  */
 #include "tm_stm32f4_onewire.h"
 
+void usart_debug_puts(const char* str);
+void delay(const uint64_t us);
+
+static void
+TM_GPIO_SetBits(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
+{
+    GPIO_SetBits(GPIOx, GPIO_Pin);
+}
+
+static void
+TM_GPIO_ResetBits(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
+{
+    GPIO_ResetBits(GPIOx, GPIO_Pin);
+}
+
+
 static void
 TM_GPIO_SetPinAsInput(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
 {
     GPIO_SetBits(GPIOx, GPIO_Pin);
-#if 0
-    GPIO_InitTypeDef GPIO_InitStructure;
-    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IN;
-    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin;
-    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
-    GPIO_Init(GPIOx, &GPIO_InitStructure);
-#endif
 }
 
 static void
@@ -45,6 +52,7 @@ TM_GPIO_SetPinAsOutput(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
     GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
     GPIO_Init(GPIOx, &GPIO_InitStructure);
 #endif
+    GPIO_ResetBits(GPIOx, GPIO_Pin);
 }
 
 static int
@@ -56,11 +64,7 @@ TM_GPIO_GetInputPinValue(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
 static void
 ONEWIRE_DELAY(int us)
 {
-    const uint32_t wait_ticks =
-        (uint64_t)us * (uint64_t)SystemCoreClock / (uint64_t)1000000;
-
-    const uint32_t timeout = SysTick->VAL + wait_ticks;
-    while (SysTick->VAL < timeout);
+    delay(us);
 }
 
 void TM_OneWire_Init(TM_OneWire_t* OneWireStruct, GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin) {
