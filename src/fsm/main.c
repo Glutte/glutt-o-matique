@@ -69,6 +69,7 @@ static void audio_callback(void* context, int select_buffer);
 void vApplicationStackOverflowHook( TaskHandle_t xTask,
                                     signed char *pcTaskName )
 {
+    usart_debug("TASK OVERFLOW %s\r\n", pcTaskName);
     while (1) {};
 }
 
@@ -312,6 +313,10 @@ static void exercise_fsm(void *pvParameters)
     int cw_last_trigger = 0;
     int last_tm_trigger = 0;
 
+    int last_sq = 0;
+    int last_1750 = 0;
+    int last_qrp = 0;
+
     fsm_input.humidity = 0;
     fsm_input.temp = 15;
     fsm_input.swr_high = 0;
@@ -321,6 +326,20 @@ static void exercise_fsm(void *pvParameters)
         vTaskDelay(10 / portTICK_RATE_MS);
 
         pio_set_fsm_signals(&fsm_input);
+
+        if (last_sq != fsm_input.sq) {
+            last_sq = fsm_input.sq;
+            usart_debug("In SQ %d\r\n", last_sq);
+        }
+        if (last_1750 != fsm_input.tone_1750) {
+            last_1750 = fsm_input.tone_1750;
+            usart_debug("In 1750 %d\r\n", last_1750);
+        }
+        if (last_qrp != fsm_input.qrp) {
+            last_qrp = fsm_input.qrp;
+            usart_debug("In QRP %d\r\n", last_qrp);
+        }
+
         fsm_input.start_tm = (tm_trigger == 1 && last_tm_trigger == 0) ? 1 : 0;
         last_tm_trigger = tm_trigger;
 
