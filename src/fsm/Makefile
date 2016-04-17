@@ -100,7 +100,7 @@ $(BINDIR)/$(BINELF): $(OBJECTS) vc.h
 	$(CC) $(LDFLAGS) $(OBJECTS) -o $@
 	$(SIZE) $(BINDIR)/$(BINELF)
 
-%.o: %.c vc.h
+%.o: %.c $(INC)
 	$(CC) $(CFLAGS) $< -o $@
 
 %.o: %.s
