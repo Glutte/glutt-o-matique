@@ -148,12 +148,14 @@ void usart_gps_init()
 
 static void usart_puts(USART_TypeDef* USART, const char* str)
 {
+    vTaskSuspendAll();
     while(*str) {
         // wait until data register is empty
         USART_SendData(USART, *str);
         while(USART_GetFlagStatus(USART, USART_FLAG_TXE) == RESET) ;
         str++;
     }
+    xTaskResumeAll();
 }
 
 void usart_gps_puts(const char* str)
