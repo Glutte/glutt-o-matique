@@ -18,8 +18,7 @@
  */
 #include "tm_stm32f4_onewire.h"
 
-void usart_debug_puts(const char* str);
-void delay(const uint64_t us);
+void delay_us(uint32_t);
 
 static void
 TM_GPIO_SetBits(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
@@ -62,9 +61,9 @@ TM_GPIO_GetInputPinValue(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
 }
 
 static void
-ONEWIRE_DELAY(int us)
+ONEWIRE_DELAY(uint32_t micros)
 {
-    delay(us);
+    delay_us(micros);
 }
 
 void TM_OneWire_Init(TM_OneWire_t* OneWireStruct, GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin) {

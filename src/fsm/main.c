@@ -41,9 +41,8 @@
 #include "fsm.h"
 #include "common.h"
 #include "usart.h"
-#if DS18B20_ENABLED
-#include "ds18b20.h"
-#endif
+#include "delay.h"
+#include "temperature.h"
 #include "vc.h"
 
 #define GPIOD_BOARD_LED_GREEN  GPIO_Pin_12
@@ -75,6 +74,7 @@ void vApplicationStackOverflowHook( TaskHandle_t xTask,
 
 int main(void) {
     init();
+    delay_init();
     usart_init();
     usart_debug_puts("\r\n******* glutt-o-matique version " GIT_VERSION " *******\r\n");
 
@@ -123,10 +123,8 @@ static void launcher_task(void *pvParameters)
     usart_debug_puts("GPS init\r\n");
     gps_init();
 
-#if DS18B20_ENABLED
     usart_debug_puts("DS18B20 init\r\n");
-    ds18b20_init();
-#endif
+    temperature_init();
 
     usart_debug_puts("TaskButton init\r\n");
 
@@ -219,15 +217,14 @@ static void detect_button_press(void *pvParameters)
                 last_pin_high_count != pin_high_count) {
             tm_trigger = 1;
             usart_debug_puts("Bouton bleu\r\n");
-#if DS18B20_ENABLED
-            float temp = 0.0f;
-            if (ds18b20_gettemp(&temp)) {
-                usart_debug("Temperature %d\r\n", temp);
-            }
-#else
-            if (0) {}
-#endif
-            else {
+
+            if (temperature_valid()) {
+
+                float temp = temperature_get();
+
+                usart_debug("Temperature %f\r\n", temp);
+
+            } else {
                 usart_debug_puts("No temp\r\n");
             }
         }

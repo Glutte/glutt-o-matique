@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Matthias P. Braendli
+ * Copyright (c) 2016 Matthias P. Braendli, Maximilien Cuony
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,18 +22,28 @@
  * SOFTWARE.
 */
 
-#pragma once
+#include <stdint.h>
 
-/* See pio.txt for PIO allocation details */
+#ifndef __TEMPERATURE_H
+#define __TEMPERATURE_H
 
-/* On GPIO A */
-#define ONEWIRE_PIN       GPIO_Pin_1 // PA1
+/* Setup DS18B20 and report temperature */
 
-void ds18b20_init(void);
-
-/* Measure temperature measured by DS18B20 in degrees C.
- *
- * Returns 1 on success, 0 on failure
+/* On wire connection: PA1
  */
-int ds18b20_gettemp(float* temperature);
+
+
+#define TEMPERATURE_ONEWIRE_PIN GPIO_Pin_1
+
+
+// Setup communication and GPS receiver
+void temperature_init();
+
+// Return 1 if the temperature is valid
+int temperature_valid();
+
+// Get current temperature
+float temperature_get();
+
+#endif // __TEMPERATURE_H
 
