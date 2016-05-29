@@ -51,6 +51,7 @@
 #define GPIOD_BOARD_LED_BLUE   GPIO_Pin_15
 
 // Private variables
+static int tm_trigger_button = 0;
 static int tm_trigger = 0;
 
 // Private function prototypes
@@ -215,7 +216,7 @@ static void detect_button_press(void *pvParameters)
 
         if (pin_high_count == pin_high_thresh &&
                 last_pin_high_count != pin_high_count) {
-            tm_trigger = 1;
+            tm_trigger_button = 1;
             usart_debug_puts("Bouton bleu\r\n");
 
             if (temperature_valid()) {
@@ -230,7 +231,7 @@ static void detect_button_press(void *pvParameters)
         }
         else if (pin_high_count == 0 &&
                 last_pin_high_count != pin_high_count) {
-            tm_trigger = 0;
+            tm_trigger_button = 0;
         }
 
         last_pin_high_count = pin_high_count;
@@ -285,6 +286,8 @@ static void gps_monit_task(void *pvParameters)
                 GPIO_ResetBits(GPIOD, GPIOD_BOARD_LED_BLUE);
             }
 
+            // Even hours: tm_trigger=1, odd hours: tm_trigger=0
+            tm_trigger = (time.tm_hour + 1) % 2;
         }
 
         gps_utctime(&gps_time);
@@ -316,6 +319,7 @@ static void exercise_fsm(void *pvParameters)
 {
     int cw_last_trigger = 0;
     int last_tm_trigger = 0;
+    int last_tm_trigger_button = 0;
 
     int last_sq = 0;
     int last_1750 = 0;
@@ -345,10 +349,14 @@ static void exercise_fsm(void *pvParameters)
         }
 
 
+        if (tm_trigger_button == 1 && last_tm_trigger_button == 0) {
+            fsm_input.start_tm = 1;
+        }
+        last_tm_trigger_button = tm_trigger_button;
+
         if (tm_trigger == 1 && last_tm_trigger == 0) {
             fsm_input.start_tm = 1;
         }
-
         last_tm_trigger = tm_trigger;
 
         fsm_input.cw_psk31_done = !cw_psk31_busy();
