@@ -35,7 +35,8 @@
 
 
 TickType_t gps_timeutc_last_updated = 0;
-static struct gps_time_s gps_timeutc;
+static struct tm gps_timeutc;
+static int gps_timeutc_valid;
 
 const TickType_t gps_data_validity_timeout = 10000ul / portTICK_PERIOD_MS;
 
@@ -44,22 +45,23 @@ static void gps_task(void *pvParameters);
 SemaphoreHandle_t timeutc_semaphore;
 
 // Get current time from GPS
-void gps_utctime(struct gps_time_s *timeutc)
+int gps_utctime(struct tm *timeutc)
 {
+    int valid = 0;
+
     xSemaphoreTake(timeutc_semaphore, portMAX_DELAY);
     if (xTaskGetTickCount() - gps_timeutc_last_updated < gps_data_validity_timeout) {
-        timeutc->year  = gps_timeutc.year;
-        timeutc->month = gps_timeutc.month;
-        timeutc->day   = gps_timeutc.day;
-        timeutc->hour  = gps_timeutc.hour;
-        timeutc->min   = gps_timeutc.min;
-        timeutc->sec   = gps_timeutc.sec;
-        timeutc->valid = gps_timeutc.valid;
-    }
-    else {
-        timeutc->valid = 0;
+        timeutc->tm_year  = gps_timeutc.tm_year;
+        timeutc->tm_mon   = gps_timeutc.tm_mon;
+        timeutc->tm_mday  = gps_timeutc.tm_mday;
+        timeutc->tm_hour  = gps_timeutc.tm_hour;
+        timeutc->tm_min   = gps_timeutc.tm_min;
+        timeutc->tm_sec   = gps_timeutc.tm_sec;
+        valid             = gps_timeutc_valid;
     }
     xSemaphoreGive(timeutc_semaphore);
+
+    return valid;
 }
 
 #define RXBUF_LEN MAX_NMEA_SENTENCE_LEN
@@ -81,14 +83,14 @@ static void gps_task(void *pvParameters)
                         struct minmea_sentence_rmc frame;
                         if (minmea_parse_rmc(&frame, rxbuf)) {
                             xSemaphoreTake(timeutc_semaphore, portMAX_DELAY);
+                            gps_timeutc.tm_year  = 2000 + frame.date.year;
+                            gps_timeutc.tm_mon   = frame.date.month;
+                            gps_timeutc.tm_mday  = frame.date.day;
+                            gps_timeutc.tm_hour  = frame.time.hours;
+                            gps_timeutc.tm_min   = frame.time.minutes;
+                            gps_timeutc.tm_sec   = frame.time.seconds;
+                            gps_timeutc_valid    = frame.valid;
                             gps_timeutc_last_updated = xTaskGetTickCount();
-                            gps_timeutc.year  = 2000 + frame.date.year;
-                            gps_timeutc.month = frame.date.month;
-                            gps_timeutc.day   = frame.date.day;
-                            gps_timeutc.hour  = frame.time.hours;
-                            gps_timeutc.min   = frame.time.minutes;
-                            gps_timeutc.sec   = frame.time.seconds;
-                            gps_timeutc.valid = frame.valid;
                             xSemaphoreGive(timeutc_semaphore);
                         }
                     } break;
@@ -101,7 +103,7 @@ static void gps_task(void *pvParameters)
 
 void gps_init()
 {
-    gps_timeutc.valid = 0;
+    gps_timeutc_valid = 0;
 
     usart_gps_init();
 
@@ -127,7 +129,7 @@ void gps_init()
 int gps_locked()
 {
     if (xTaskGetTickCount() - gps_timeutc_last_updated < gps_data_validity_timeout) {
-        return gps_timeutc.valid;
+        return gps_timeutc_valid;
     }
     else {
         return 0;

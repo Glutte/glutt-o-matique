@@ -22,10 +22,10 @@
  * SOFTWARE.
 */
 
-#include <stdint.h>
+#pragma once
 
-#ifndef __GPS_H_
-#define __GPS_H_
+#include <stdint.h>
+#include <time.h>
 
 /* Setup GPS receiver over USART and parse time */
 
@@ -34,16 +34,6 @@
  * board RX to GPS TX on PD9
  */
 
-struct gps_time_s {
-    uint16_t  year;   // Year, range 1999..2099 (UTC)
-    uint8_t   month;  // Month, range 1..12 (UTC)
-    uint8_t   day;    // Day of Month, range 1..31 (UTC)
-    uint8_t   hour;   // Hour of Day, range 0..23 (UTC)
-    uint8_t   min;    // Minute of Hour, range 0..59 (UTC)
-    uint8_t   sec;    // Seconds of Minute, range 0..59 (UTC)
-    uint8_t   valid;  // validity flag
-};
-
 // Setup communication and GPS receiver
 void gps_init();
 
@@ -51,7 +41,6 @@ void gps_init();
 int gps_locked();
 
 // Get current time from GPS
-void gps_utctime(struct gps_time_s *timeutc);
-
-#endif // __GPS_H_
+// Returns 1 if time is valid, 0 otherwise
+int gps_utctime(struct tm *timeutc);
 

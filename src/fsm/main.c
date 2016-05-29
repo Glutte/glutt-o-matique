@@ -266,7 +266,7 @@ static void audio_callback(void* context, int select_buffer)
     ProvideAudioBufferWithoutBlocking(samples, samples_len);
 }
 
-static struct gps_time_s gps_time;
+static struct tm gps_time;
 static void gps_monit_task(void *pvParameters)
 {
     GPIO_SetBits(GPIOD, GPIOD_BOARD_LED_BLUE);
@@ -274,27 +274,34 @@ static void gps_monit_task(void *pvParameters)
     int t_gps_print_latch = 0;
 
     while (1) {
-        if (gps_locked()) {
+        struct tm time;
+        int time_valid = local_time(&time);
 
-            gps_utctime(&gps_time);
-
-            if (gps_time.sec % 4 >= 2) {
+        if (time_valid) {
+            if (time.tm_sec % 4 >= 2) {
                 GPIO_SetBits(GPIOD, GPIOD_BOARD_LED_BLUE);
             }
             else {
                 GPIO_ResetBits(GPIOD, GPIOD_BOARD_LED_BLUE);
             }
 
-            if (gps_time.sec % 30 == 0 && t_gps_print_latch == 0) {
-                usart_debug("T_GPS %04d-%02d-%02d %02d:%02d:%02d\r\n",
-                        gps_time.year, gps_time.month, gps_time.day,
-                        gps_time.hour, gps_time.min, gps_time.sec);
+        }
 
-                t_gps_print_latch = 1;
-            }
-            if (gps_time.sec % 30 > 0) {
-                t_gps_print_latch = 0;
-            }
+        gps_utctime(&gps_time);
+
+        if (gps_time.tm_sec % 30 == 0 && t_gps_print_latch == 0) {
+            usart_debug("T_GPS %04d-%02d-%02d %02d:%02d:%02d\r\n",
+                    gps_time.tm_year, gps_time.tm_mon, gps_time.tm_mday,
+                    gps_time.tm_hour, gps_time.tm_min, gps_time.tm_sec);
+
+            usart_debug("TIME  %04d-%02d-%02d %02d:%02d:%02d\r\n",
+                    time.tm_year, time.tm_mon, time.tm_mday,
+                    time.tm_hour, time.tm_min, time.tm_sec);
+
+            t_gps_print_latch = 1;
+        }
+        if (gps_time.tm_sec % 30 > 0) {
+            t_gps_print_latch = 0;
         }
 
         vTaskDelay(100 / portTICK_RATE_MS);

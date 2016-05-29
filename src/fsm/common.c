@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Matthias P. Braendli
+ * Copyright (c) 2016 Matthias P. Braendli
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,6 +26,7 @@
 #include "usart.h"
 #include "FreeRTOS.h"
 #include "timers.h"
+#include "gps.h"
 #include <stm32f4xx.h>
 #include <time.h>
 
@@ -37,6 +38,107 @@ static const uint16_t lfsr_start_state = 0x12ABu;
 static uint16_t lfsr;
 
 static void common_increase_timestamp(TimerHandle_t t);
+
+int find_last_sunday(const struct tm* time)
+{
+    struct tm t = *time;
+
+    // the last sunday can never be before the 20th
+    t.tm_mday = 20;
+
+    int last_sunday = 1;
+
+    while (t.tm_mon == time->tm_mon) {
+        t.tm_mday++;
+        if (mktime(&t) == (time_t)-1) {
+            // TODO error
+            return -1;
+        }
+
+        const int sunday = 0;
+        if (t.tm_wday == sunday) {
+            last_sunday = t.tm_mday;
+        }
+    }
+
+    return last_sunday;
+}
+
+/* Calculate if we are in daylight saving time.
+ * return  0 if false
+ *         1 if true
+ *        -1 in case of error
+ */
+static int is_dst(const struct tm *time)
+{
+    /* DST from 01:00 UTC on last Sunday in March
+     *     to   01:00 UTC on last Sunday in October
+     */
+    const int march = 2;
+    const int october = 9;
+    if (time->tm_mon < march) {
+        return 0;
+    }
+    else if (time->tm_mon == march) {
+        int last_sunday = find_last_sunday(time);
+        if (last_sunday == -1) return -1;
+
+        if (time->tm_mday < last_sunday) {
+            return 0;
+        }
+        else if (time->tm_mday == last_sunday) {
+            return (time->tm_hour < 1) ?  0 : 1;
+        }
+        else {
+            return 1;
+        }
+    }
+    else if (time->tm_mon > march && time->tm_mon < october) {
+        return 1;
+    }
+    else if (time->tm_mon == october) {
+        int last_sunday = find_last_sunday(time);
+        if (last_sunday == -1) return -1;
+
+        if (time->tm_mday < last_sunday) {
+            return 1;
+        }
+        else if (time->tm_mday == last_sunday) {
+            return (time->tm_hour < 1) ? 1 : 0;
+        }
+        else {
+            return 0;
+        }
+    }
+    else {
+        return 0;
+    }
+}
+
+int local_time(struct tm *time)
+{
+    const int local_time_offset=1; // hours
+
+    int valid = gps_utctime(time);
+
+    if (valid) {
+        time->tm_hour += local_time_offset;
+
+        if (is_dst(time)) {
+            time->tm_hour++;
+            time->tm_isdst = 1;
+        }
+
+        // Let mktime fix the struct tm *time
+        if (mktime(time) == (time_t)-1) {
+            // TODO inform about failure
+            valid = 0;
+        }
+    }
+
+    return valid;
+}
+
 
 void common_init(void)
 {
@@ -60,21 +162,6 @@ static void common_increase_timestamp(TimerHandle_t t)
 uint64_t timestamp_now(void)
 {
     return common_timestamp;
-}
-
-int dayofweek(uint8_t day, uint8_t month, uint16_t year)
-{
-   /* Zeller's congruence for the Gregorian calendar.
-    * With 0=Monday, ... 5=Saturday, 6=Sunday
-    */
-   if (month < 3) {
-      month += 12;
-      year--;
-   }
-   int k = year % 100;
-   int j = year / 100;
-   int h = day + 13*(month+1)/5 + k + k/4 + j/4 + 5*j;
-   return (h + 5) % 7 + 1;
 }
 
 

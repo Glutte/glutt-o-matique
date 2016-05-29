@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Matthias P. Braendli
+ * Copyright (c) 2016 Matthias P. Braendli
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,16 +26,15 @@
  * a random number
  */
 
-#include <stdint.h>
+#pragma once
 
-#ifndef _COMMON_H_
-#define _COMMON_H_
+#include <stdint.h>
+#include <time.h>
 
 /* Feature defines */
 #define ENABLE_PSK31 0
 
 #define FLOAT_PI 3.1415926535897932384f
-
 
 void common_init(void);
 
@@ -43,14 +42,11 @@ void common_init(void);
 // wall clock time.
 uint64_t timestamp_now(void);
 
-/* Convert date to day of week.
- * day:   1-31
- * month: 1-12
- * year:  1900 to 3000
- *
- * Returns 1=Monday, ... 6=Saturday, 7=Sunday
- */
-int dayofweek(uint8_t day, uint8_t month, uint16_t year);
+// Calculate local time from GPS time, including daylight saving time
+// Return 1 on success, 0 on failure
+// A call to this function will invalidate the information inside 'time'
+// regardless of return value.
+int local_time(struct tm *time);
 
 // Return either 0 or 1, somewhat randomly
 int random_bool(void);
@@ -61,6 +57,4 @@ int random_bool(void);
 #define FAULT_SOURCE_I2C   3
 #define FAULT_SOURCE_USART 4
 void trigger_fault(int source);
-
-#endif // _COMMON_H_
 
