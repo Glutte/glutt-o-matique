@@ -278,6 +278,7 @@ void fsm_update() {
             fsm_out.tx_on = 1;
             fsm_out.msg_frequency   = 588;
             fsm_out.cw_dit_duration = 110;
+            fsm_out.ack_start_tm    = 1;
 
             // TODO transmit humidity
             // TODO read voltage
@@ -302,6 +303,7 @@ void fsm_update() {
             fsm_out.tx_on = 1;
             fsm_out.msg_frequency   = 696;
             fsm_out.cw_dit_duration = 70;
+            fsm_out.ack_start_tm    = 1;
 
             // TODO read voltage
             if (fsm_in.wind_generator_ok) {

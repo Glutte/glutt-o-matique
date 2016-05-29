@@ -82,6 +82,9 @@ struct fsm_output_signals_t {
     int cw_dit_duration;   // CW speed, dit duration in ms
     int cw_psk31_trigger;  // Set to true to trigger a CW or PSK31 transmission.
                            // PSK31 is sent if cw_dit_duration is 0
+
+    /* Acknowledgements for input signals */
+    int ack_start_tm;      // Set to 1 to clear start_tm
 };
 
 // Initialise local structures

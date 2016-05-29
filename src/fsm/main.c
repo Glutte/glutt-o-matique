@@ -344,7 +344,11 @@ static void exercise_fsm(void *pvParameters)
             usart_debug("In QRP %d\r\n", last_qrp);
         }
 
-        fsm_input.start_tm = (tm_trigger == 1 && last_tm_trigger == 0) ? 1 : 0;
+
+        if (tm_trigger == 1 && last_tm_trigger == 0) {
+            fsm_input.start_tm = 1;
+        }
+
         last_tm_trigger = tm_trigger;
 
         fsm_input.cw_psk31_done = !cw_psk31_busy();
@@ -371,6 +375,10 @@ static void exercise_fsm(void *pvParameters)
             cw_psk31_push_message(fsm_out.msg, fsm_out.cw_dit_duration, fsm_out.msg_frequency);
         }
         cw_last_trigger = fsm_out.cw_psk31_trigger;
+
+        if (fsm_out.ack_start_tm) {
+            fsm_input.start_tm = 0;
+        }
     }
 }
 
