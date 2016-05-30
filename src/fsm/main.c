@@ -360,10 +360,15 @@ static void exercise_fsm(void *pvParameters)
         }
         last_tm_trigger = tm_trigger;
 
-        fsm_input.cw_psk31_done = !cw_psk31_busy();
-        if (last_cw_done != fsm_input.cw_psk31_done) {
-            last_cw_done = fsm_input.cw_psk31_done;
-            usart_debug("In CW done %d\r\n", last_cw_done);
+        int cw_done = !cw_psk31_busy();
+        if (last_cw_done != cw_done) {
+            usart_debug("In CW done %d\r\n", cw_done);
+            last_cw_done = cw_done;
+
+            fsm_input.cw_psk31_done = cw_done;
+        }
+        else {
+            fsm_input.cw_psk31_done = 0;
         }
 
         if (fsm_input.cw_psk31_done) {
