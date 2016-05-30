@@ -88,7 +88,7 @@ int main(void) {
     TaskHandle_t task_handle;
     xTaskCreate(
             launcher_task,
-            "TaskLauncher",
+            "Launcher",
             configMINIMAL_STACK_SIZE,
             (void*) NULL,
             tskIDLE_PRIORITY + 2UL,
@@ -324,6 +324,7 @@ static void exercise_fsm(void *pvParameters)
     int last_sq = 0;
     int last_1750 = 0;
     int last_qrp = 0;
+    int last_cw_done = 0;
 
     fsm_input.humidity = 0;
     fsm_input.temp = 15;
@@ -360,6 +361,10 @@ static void exercise_fsm(void *pvParameters)
         last_tm_trigger = tm_trigger;
 
         fsm_input.cw_psk31_done = !cw_psk31_busy();
+        if (last_cw_done != fsm_input.cw_psk31_done) {
+            last_cw_done = fsm_input.cw_psk31_done;
+            usart_debug("In CW done %d\r\n", last_cw_done);
+        }
 
         if (fsm_input.cw_psk31_done) {
             GPIO_ResetBits(GPIOD, GPIOD_BOARD_LED_ORANGE);
@@ -381,6 +386,8 @@ static void exercise_fsm(void *pvParameters)
         // Add message to CW generator only on rising edge of trigger
         if (fsm_out.cw_psk31_trigger && !cw_last_trigger) {
             cw_psk31_push_message(fsm_out.msg, fsm_out.cw_dit_duration, fsm_out.msg_frequency);
+
+            usart_debug_puts("Out CW trigger\r\n");
         }
         cw_last_trigger = fsm_out.cw_psk31_trigger;
 

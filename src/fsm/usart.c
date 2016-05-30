@@ -25,6 +25,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
+#include <inttypes.h>
 #include "common.h"
 #include "usart.h"
 #include <stm32f4xx.h>
@@ -146,38 +147,72 @@ void usart_gps_init()
     USART_Cmd(USART3, ENABLE);
 }
 
+// Make sure Tasks are suspended when this is called!
 static void usart_puts(USART_TypeDef* USART, const char* str)
 {
-    vTaskSuspendAll();
     while(*str) {
         // wait until data register is empty
         USART_SendData(USART, *str);
         while(USART_GetFlagStatus(USART, USART_FLAG_TXE) == RESET) ;
         str++;
     }
-    xTaskResumeAll();
 }
 
 void usart_gps_puts(const char* str)
 {
+    vTaskSuspendAll();
     return usart_puts(USART3, str);
+    xTaskResumeAll();
 }
 
 #define MAX_MSG_LEN 80
 static char usart_debug_message[MAX_MSG_LEN];
+
+void usart_debug_timestamp()
+{
+    // Don't call printf here, to reduce stack usage
+    uint64_t now = timestamp_now();
+    if (now == 0) {
+        usart_puts(USART2, "[0] ");
+    }
+    else {
+        char ts_str[64];
+        int i = 63;
+
+        ts_str[i--] = '\0';
+        ts_str[i--] = ' ';
+        ts_str[i--] = ']';
+
+        while (now > 0 && i >= 0) {
+            ts_str[i--] = '0' + (now % 10);
+            now /= 10;
+        }
+        ts_str[i] = '[';
+
+        usart_puts(USART2, &ts_str[i]);
+    }
+}
 
 void usart_debug(const char *format, ...)
 {
     va_list list;
     va_start(list, format);
     vsnprintf(usart_debug_message, MAX_MSG_LEN-1, format, list);
+
+    vTaskSuspendAll();
+    usart_debug_timestamp();
     usart_puts(USART2, usart_debug_message);
+    xTaskResumeAll();
+
     va_end(list);
 }
 
 void usart_debug_puts(const char* str)
 {
+    vTaskSuspendAll();
+    usart_debug_timestamp();
     usart_puts(USART2, str);
+    xTaskResumeAll();
 }
 
 int usart_get_nmea_sentence(char* nmea)

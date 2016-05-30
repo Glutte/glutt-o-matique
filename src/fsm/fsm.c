@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Matthias P. Braendli
+ * Copyright (c) 2016 Matthias P. Braendli
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,7 @@
 #include <string.h>
 #include "common.h"
 #include "fsm.h"
+#include "usart.h"
 
 static struct fsm_input_signals_t fsm_in;
 static struct fsm_output_signals_t fsm_out;
@@ -359,6 +360,40 @@ void fsm_update() {
 
     if (next_state != current_state) {
         timestamp_state[next_state] = timestamp_now();
+        switch (next_state) {
+            case FSM_OISIF:
+                usart_debug_puts("FSM: FSM_OISIF\r\n"); break;
+            case FSM_OPEN1:
+                usart_debug_puts("FSM: FSM_OPEN1\r\n"); break;
+            case FSM_OPEN2:
+                usart_debug_puts("FSM: FSM_OPEN2\r\n"); break;
+            case FSM_LETTRE:
+                usart_debug_puts("FSM: FSM_LETTRE\r\n"); break;
+            case FSM_ECOUTE:
+                usart_debug_puts("FSM: FSM_ECOUTE\r\n"); break;
+            case FSM_ATTENTE:
+                usart_debug_puts("FSM: FSM_ATTENTE\r\n"); break;
+            case FSM_QSO:
+                usart_debug_puts("FSM: FSM_QSO\r\n"); break;
+            case FSM_ANTI_BAVARD:
+                usart_debug_puts("FSM: FSM_ANTI_BAVARD\r\n"); break;
+            case FSM_BLOQUE:
+                usart_debug_puts("FSM: FSM_BLOQUE\r\n"); break;
+            case FSM_TEXTE_73:
+                usart_debug_puts("FSM: FSM_TEXTE_73\r\n"); break;
+            case FSM_TEXTE_HB9G:
+                usart_debug_puts("FSM: FSM_TEXTE_HB9G\r\n"); break;
+            case FSM_TEXTE_LONG:
+                usart_debug_puts("FSM: FSM_TEXTE_LONG\r\n"); break;
+            case FSM_BALISE_LONGUE:
+                usart_debug_puts("FSM: FSM_BALISE_LONGUE\r\n"); break;
+            case FSM_BALISE_SPECIALE:
+                usart_debug_puts("FSM: FSM_BALISE_SPECIALE\r\n"); break;
+            case FSM_BALISE_COURTE:
+                usart_debug_puts("FSM: FSM_BALISE_COURTE\r\n"); break;
+            default:
+                usart_debug_puts("FSM: ERROR!\r\n"); break;
+        }
     }
     current_state = next_state;
 }
