@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2016 Matthias P. Braendli
+ * Copyright (c) 2016 Matthias P. Braendli, Maximilien Cuony
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,39 +22,16 @@
  * SOFTWARE.
 */
 
-/* A set of common routines for internal timekeeping and a LFSR to generate
- * a random number
- */
+#include "../../../common/src/Core/main.c"
 
-#pragma once
+#include <pthread.h>
 
-#include <stdint.h>
-#include <time.h>
 
-/* Feature defines */
-#define ENABLE_PSK31 0
+void *threadFunc(void *arg) {
+    main2();
+}
 
-#define FLOAT_PI 3.1415926535897932384f
-
-void common_init(void);
-
-// Return the current timestamp in milliseconds. Timestamps are monotonic, and not
-// wall clock time.
-uint64_t timestamp_now(void);
-
-// Calculate local time from GPS time, including daylight saving time
-// Return 1 on success, 0 on failure
-// A call to this function will invalidate the information inside 'time'
-// regardless of return value.
-int local_time(struct tm *time);
-
-// Return either 0 or 1, somewhat randomly
-int random_bool(void);
-
-// Fault handling mechanism
-#define FAULT_SOURCE_MAIN  1
-#define FAULT_SOURCE_GPS   2
-#define FAULT_SOURCE_I2C   3
-#define FAULT_SOURCE_USART 4
-void trigger_fault(int source);
-
+void init() {
+    pthread_t pth;
+    pthread_create(&pth, NULL, threadFunc, "processing...");
+}

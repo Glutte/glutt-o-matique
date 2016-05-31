@@ -100,7 +100,6 @@
 #define configUSE_TICKLESS_IDLE         1
 #define configUSE_MUTEXES				1
 #define configQUEUE_REGISTRY_SIZE		8
-#define configCHECK_FOR_STACK_OVERFLOW	2 // Default: 2
 #define configUSE_RECURSIVE_MUTEXES		1
 #define configUSE_MALLOC_FAILED_HOOK	0 // Default: 1
 #define configUSE_APPLICATION_TASK_TAG	0
@@ -163,4 +162,3 @@ standard names. */
 #define xPortSysTickHandler SysTick_Handler
 
 #endif /* FREERTOS_CONFIG_H */
-
