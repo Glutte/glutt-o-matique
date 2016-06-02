@@ -22,16 +22,14 @@
  * SOFTWARE.
 */
 
-#include "stm32f4xx_conf.h"
-#include "stm32f4xx.h"
 #include "FreeRTOS.h"
 #include "FreeRTOSConfig.h"
 #include "task.h"
 #include "semphr.h"
-#include "common.h"
-#include "gps.h"
-#include "usart.h"
-#include "minmea.h"
+#include "Core/common.h"
+#include "GPS/gps.h"
+#include "GPS/minmea.h"
+#include "GPIO/usart.h"
 
 
 TickType_t gps_timeutc_last_updated = 0;
@@ -45,8 +43,7 @@ static void gps_task(void *pvParameters);
 SemaphoreHandle_t timeutc_semaphore;
 
 // Get current time from GPS
-int gps_utctime(struct tm *timeutc)
-{
+int gps_utctime(struct tm *timeutc) {
     int valid = 0;
 
     xSemaphoreTake(timeutc_semaphore, portMAX_DELAY);
@@ -67,8 +64,7 @@ int gps_utctime(struct tm *timeutc)
 #define RXBUF_LEN MAX_NMEA_SENTENCE_LEN
 static char rxbuf[RXBUF_LEN];
 
-static void gps_task(void *pvParameters)
-{
+static void gps_task(void *pvParameters) {
     // Periodically reinit the GPS
     while (1) {
         taskYIELD();
@@ -101,18 +97,16 @@ static void gps_task(void *pvParameters)
     }
 }
 
-void gps_init()
-{
+void gps_init() {
     gps_timeutc_valid = 0;
 
     usart_gps_init();
 
     timeutc_semaphore = xSemaphoreCreateBinary();
 
-    if( timeutc_semaphore == NULL ) {
+    if (timeutc_semaphore == NULL) {
         trigger_fault(FAULT_SOURCE_GPS);
-    }
-    else {
+    } else {
         xSemaphoreGive(timeutc_semaphore);
     }
 
@@ -126,13 +120,10 @@ void gps_init()
 }
 
 // Return 1 of the GPS is receiving time
-int gps_locked()
-{
+int gps_locked() {
     if (xTaskGetTickCount() - gps_timeutc_last_updated < gps_data_validity_timeout) {
         return gps_timeutc_valid;
-    }
-    else {
+    } else {
         return 0;
     }
 }
-

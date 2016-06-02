@@ -10,7 +10,7 @@
 // https://github.com/cloudyourcar/minmea-t/ README.md
 #define timegm mktime
 
-#include "minmea.h"
+#include "GPS/minmea.h"
 
 #include <stdlib.h>
 #include <string.h>

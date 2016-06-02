@@ -1,3 +1,7 @@
+#include "FreeRTOS.h"
+#include "FreeRTOSConfig.h"
+#include "task.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -32,6 +36,22 @@
 #define MAX(a,b) ((a) < (b) ? (b) : (a))
 #define LEN(a) (sizeof(a)/sizeof(a)[0])
 
+
+/**
+ * USART
+ **/
+char uart_recv_txt[4096];
+static char uart_send_txt[512];
+static int uart_send_txt_len;
+void gui_usart_send(char*);
+
+/**
+ * Leds
+ **/
+char led_blue = 0;
+char led_green = 0;
+char led_orange = 0;
+char led_red = 0;
 
 struct XWindow {
     Display *dpy;
@@ -81,7 +101,8 @@ static int has_extension(const char *string, const char *ext) {
     return FALSE;
 }
 
-int main2() {
+
+int main_gui() {
     /* Platform */
     int running = 1;
     struct XWindow win;
@@ -132,7 +153,9 @@ int main2() {
         {
             /* pick framebuffer with most samples per pixel */
             int i;
-            int fb_best = -1, best_num_samples = -1;
+            int fb_best = -1;
+            int best_num_samples = -1;
+
             for (i = 0; i < fb_count; ++i) {
                 XVisualInfo *vi = glXGetVisualFromFBConfig(win.dpy, fbc[i]);
                 if (vi) {
@@ -217,11 +240,12 @@ int main2() {
 
     background = nk_rgb(28,48,62);
 
-    static char box_buffer[512];
-    static int box_len;
-
     while (running)
     {
+        taskYIELD();
+
+        vTaskSuspendAll();
+
         /* Input */
         XEvent evt;
         nk_input_begin(ctx);
@@ -232,33 +256,124 @@ int main2() {
         nk_input_end(ctx);
 
         /* GUI */
-        {struct nk_panel layout;
-            if (nk_begin(ctx, &layout, "UART", nk_rect(50, 50, 400, 200), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_SCALABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
+        {
+
+            struct nk_panel layout;
+
+            if (nk_begin(ctx, &layout, "UART", nk_rect(50, 50, 400, 300), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_SCALABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
+
+
+                nk_menubar_begin(ctx);
+                nk_layout_row_begin(ctx, NK_STATIC, 25, 2);
+                nk_layout_row_push(ctx, 280);
+
+                int active = nk_edit_string(ctx, NK_EDIT_FIELD|NK_EDIT_SIG_ENTER, uart_send_txt, &uart_send_txt_len, 512,  nk_filter_default);
+
+                nk_layout_row_push(ctx, 70);
+                if (nk_button_label(ctx, "Send", NK_BUTTON_DEFAULT) || (active & NK_EDIT_COMMITED)) {
+
+                    uart_send_txt[uart_send_txt_len] = '\0';
+
+                    gui_usart_send(uart_send_txt);
+
+                    uart_send_txt[0] = '\0';
+                    uart_send_txt_len = 0;
+                }
+
+                nk_menubar_end(ctx);
 
                 nk_layout_row_dynamic(ctx, 25, 1);
 
                 nk_label(ctx, "UART Output:", NK_TEXT_LEFT);
 
-                nk_layout_row_dynamic(ctx, 75, 1);
-                nk_edit_string(ctx, NK_EDIT_BOX, box_buffer, &box_len, 512, nk_filter_default);
+                nk_layout_row_dynamic(ctx, 16, 1);
 
-                /* #<{(| nk_layout_row(ctx, NK_STATIC, 25, 2, ratio); |)}># */
-                /* active = nk_edit_string(ctx, NK_EDIT_FIELD|NK_EDIT_SIG_ENTER, text[7], &text_len[7], 64,  nk_filter_ascii); */
-                /* if (nk_button_label(ctx, "Submit", NK_BUTTON_DEFAULT) || */
-                /*     (active & NK_EDIT_COMMITED)) */
-                /* { */
-                /*     text[7][text_len[7]] = '\n'; */
-                /*     text_len[7]++; */
-                /*     memcpy(&box_buffer[box_len], &text[7], (nk_size)text_len[7]); */
-                /*     box_len += text_len[7]; */
-                /*     text_len[7] = 0; */
-                /* } */
-                nk_layout_row_end(ctx);
+                char * current_pointer = uart_recv_txt;
+                int l = 0;
 
-                /* nk_property_int(ctx, "Compression:", 0, &property, 100, 10, 1); */
+                while (*current_pointer != 0) {
+
+                    if (*current_pointer == '\n') {
+                        if (l > 1) {
+                            nk_text(ctx, current_pointer - l, l, NK_TEXT_LEFT);
+                        }
+                        current_pointer++;
+                        l = 0;
+                    }
+                    current_pointer++;
+                    l++;
+                }
+
+                if (l > 1) {
+                    nk_text(ctx, current_pointer - l, l, NK_TEXT_LEFT);
+                }
+
+                /* nk_layout_row_end(ctx); */
+
+
+                nk_end(ctx);
+            }
+
+
+            if (nk_begin(ctx, &layout, "LEDs", nk_rect(460, 50, 100, 155), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
+
+                nk_layout_row_static(ctx, 20, 20, 3);
+
+                struct nk_color color;
+
+
+                nk_text(ctx, "", 0, NK_TEXT_LEFT);
+
+                color.r = 255; color.g = 0; color.b = 0;
+
+                if (led_red == 1) {
+                    color.a = 255;
+                } else {
+                    color.a = 30;
+                }
+                nk_button_color(ctx, color, NK_BUTTON_DEFAULT);
+
+                nk_text(ctx, "", 0, NK_TEXT_LEFT);
+
+                color.r = 0; color.g = 255; color.b = 0;
+
+                if (led_green == 1) {
+                    color.a = 255;
+                } else {
+                    color.a = 30;
+                }
+                nk_button_color(ctx, color, NK_BUTTON_DEFAULT);
+
+                nk_text(ctx, "", 0, NK_TEXT_LEFT);
+
+                color.r = 255; color.g = 165; color.b = 0;
+
+                if (led_orange == 1) {
+                    color.a = 255;
+                } else {
+                    color.a = 30;
+                }
+                nk_button_color(ctx, color, NK_BUTTON_DEFAULT);
+
+                nk_text(ctx, "", 0, NK_TEXT_LEFT);
+
+                color.r = 0; color.g = 0; color.b = 255;
+
+                if (led_blue == 1) {
+                    color.a = 255;
+                } else {
+                    color.a = 30;
+                }
+                nk_button_color(ctx, color, NK_BUTTON_DEFAULT);
+
+                nk_text(ctx, "", 0, NK_TEXT_LEFT);
+
+                nk_end(ctx);
 
             }
-            nk_end(ctx);}
+
+
+        }
         /* if (nk_window_is_closed(ctx, "Demo")) break; */
 
         {
@@ -271,6 +386,8 @@ int main2() {
             nk_x11_render(NK_ANTI_ALIASING_ON, MAX_VERTEX_BUFFER, MAX_ELEMENT_BUFFER);
             glXSwapBuffers(win.dpy, win.win);
         }
+
+        xTaskResumeAll();
     }
 
     nk_x11_shutdown();

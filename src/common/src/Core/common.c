@@ -23,7 +23,7 @@
 */
 
 #include "Core/common.h"
-#include "Core/usart.h"
+#include "GPIO/usart.h"
 #include "FreeRTOS.h"
 #include "timers.h"
 /* #include "Core/gps.h" */
@@ -118,7 +118,7 @@ int local_time(struct tm *time)
 {
     const int local_time_offset=1; // hours
 
-    int valid = 0; // TODO gps_utctime(time);
+    int valid = gps_utctime(time);
 
     if (valid) {
         time->tm_hour += local_time_offset;

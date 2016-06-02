@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2016 Matthias P. Braendli
+ * Copyright (c) 2015 Matthias P. Braendli
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,36 +22,24 @@
  * SOFTWARE.
 */
 
-/* This handles the USART 3 to the GPS receiver, and fills a queue of
- * NMEA messages.
- *
- * It also handles the debug USART 2 and allows sending messages to the PC.
+#pragma once
+
+#include <stdint.h>
+#include <time.h>
+
+/* Setup GPS receiver over USART and parse time */
+
+/* USART connections:
+ * board TX to GPS RX on PD8
+ * board RX to GPS TX on PD9
  */
 
-#ifndef __USART_H_
-#define __USART_H_
+// Setup communication and GPS receiver
+void gps_init();
 
-#define MAX_NMEA_SENTENCE_LEN 256
+// Return 1 of the GPS is receiving time
+int gps_locked();
 
-// Initialise USART2 for PC debugging
-void usart_init(void);
-
-// Initialise USART3 for GPS and NMEA queue
-// Needs running scheduler
-void usart_gps_init(void);
-
-// Send the str to the GPS receiver
-void usart_gps_puts(const char* str);
-
-// a printf to send data to the PC
-void usart_debug(const char *format, ...);
-
-// Send a string to the PC
-void usart_debug_puts(const char* str);
-
-// Get a MAX_NMEA_SENTENCE_LEN sized NMEA sentence
-// Return 1 on success
-int usart_get_nmea_sentence(char* nmea);
-
-#endif //__USART_H_
-
+// Get current time from GPS
+// Returns 1 if time is valid, 0 otherwise
+int gps_utctime(struct tm *timeutc);

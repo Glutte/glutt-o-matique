@@ -27,11 +27,22 @@
 #include <pthread.h>
 
 
-void *threadFunc(void *arg) {
-    main2();
+static void thread_gui(void *arg) {
+    main_gui();
 }
 
 void init() {
-    pthread_t pth;
-    pthread_create(&pth, NULL, threadFunc, "processing...");
+
+    /* pthread_t pth; */
+    /* pthread_create(&pth, NULL, thread_gui, "processing..."); */
+
+    TaskHandle_t task_handle;
+    xTaskCreate(
+            thread_gui,
+            "Thread GUI",
+            configMINIMAL_STACK_SIZE,
+            (void*) NULL,
+            tskIDLE_PRIORITY + 2UL,
+            &task_handle);
+
 }

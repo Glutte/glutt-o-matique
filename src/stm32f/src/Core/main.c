@@ -24,12 +24,7 @@
 
 #include "stm32f4xx_conf.h"
 
-
-#define GPIOD_BOARD_LED_GREEN  GPIO_Pin_12
-#define GPIOD_BOARD_LED_ORANGE GPIO_Pin_13
-#define GPIOD_BOARD_LED_RED    GPIO_Pin_14
-#define GPIOD_BOARD_LED_BLUE   GPIO_Pin_15
-
+#include "../../../stm32f/includes/GPIO/leds.h"
 #include "../../../common/src/Core/main.c"
 
 
