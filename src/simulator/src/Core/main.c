@@ -35,10 +35,31 @@ static void thread_gui(void *arg) {
 extern int gui_gps_send_frame;
 extern int gui_gps_frames_valid;
 extern char gui_gps_lat[64];
+extern int gui_gps_lat_len;
 extern int gui_gps_lat_hem;
 extern char gui_gps_lon[64];
+extern int gui_gps_lon_len;
 extern int gui_gps_lon_hem;
 extern int gui_gps_send_current_time;
+
+int gui_gps_custom_hour_on;
+int gui_gps_custom_min_on;
+int gui_gps_custom_sec_on;
+int gui_gps_custom_day_on;
+int gui_gps_custom_month_on;
+int gui_gps_custom_year_on;
+char gui_gps_custom_hour[4];
+int gui_gps_custom_hour_len;
+char gui_gps_custom_min[4];
+int gui_gps_custom_min_len;
+char gui_gps_custom_sec[4];
+int gui_gps_custom_sec_len;
+char gui_gps_custom_day[4];
+int gui_gps_custom_day_len;
+char gui_gps_custom_month[4];
+int gui_gps_custom_month_len;
+char gui_gps_custom_year[6];
+int gui_gps_custom_year_len;
 
 static void thread_gui_gps(void *arg) {
 
@@ -47,14 +68,41 @@ static void thread_gui_gps(void *arg) {
 
         if (gui_gps_send_frame) {
 
+            time_t now = time(NULL);
+            struct tm *t = gmtime(&now);
+
             char gps_frame_buffer[128];
             int gps_buffer_pointer = 0;
 
-            strcpy(gps_frame_buffer + gps_buffer_pointer, "$GPRMC,");
+            strcpy(gps_frame_buffer + gps_buffer_pointer, "$GNRMC,");
             gps_buffer_pointer += 7;
 
-            strcpy(gps_frame_buffer + gps_buffer_pointer, "225446,");
-            gps_buffer_pointer += 7;
+            if (gui_gps_send_current_time) {
+
+                sprintf(gps_frame_buffer + gps_buffer_pointer, "%02d%02d%02d", t->tm_hour, t->tm_min, t->tm_sec);
+
+            } else {
+
+                int hour = atoi(gui_gps_custom_hour);
+                int min = atoi(gui_gps_custom_min);
+                int sec = atoi(gui_gps_custom_sec);
+
+                if (!gui_gps_custom_hour_on) {
+                    hour = t->tm_hour;
+                }
+                if (!gui_gps_custom_min_on) {
+                    min = t->tm_min;
+                }
+                if (!gui_gps_custom_sec_on) {
+                    sec = t->tm_sec;
+                }
+
+                sprintf(gps_frame_buffer + gps_buffer_pointer, "%02d%02d%02d", hour, min, sec);
+            }
+            gps_buffer_pointer += 6;
+
+            gps_frame_buffer[gps_buffer_pointer] = ',';
+            gps_buffer_pointer++;
 
             if (gui_gps_frames_valid) {
                 gps_frame_buffer[gps_buffer_pointer] = 'A';
@@ -62,12 +110,86 @@ static void thread_gui_gps(void *arg) {
                 gps_frame_buffer[gps_buffer_pointer] = 'V';
             }
             gps_buffer_pointer++;
+
             gps_frame_buffer[gps_buffer_pointer] = ',';
             gps_buffer_pointer++;
 
+            strcpy(gps_frame_buffer + gps_buffer_pointer, gui_gps_lat);
+            gps_buffer_pointer += gui_gps_lat_len;
+
+            gps_frame_buffer[gps_buffer_pointer] = ',';
+            gps_buffer_pointer++;
+
+            if (gui_gps_lat_hem == 0) {
+                gps_frame_buffer[gps_buffer_pointer] = 'N';
+            } else {
+                gps_frame_buffer[gps_buffer_pointer] = 'S';
+            }
+            gps_buffer_pointer++;
+
+            gps_frame_buffer[gps_buffer_pointer] = ',';
+            gps_buffer_pointer++;
+
+            strcpy(gps_frame_buffer + gps_buffer_pointer, gui_gps_lon);
+            gps_buffer_pointer += gui_gps_lon_len;
+
+            gps_frame_buffer[gps_buffer_pointer] = ',';
+            gps_buffer_pointer++;
+
+            if (gui_gps_lon_hem == 0) {
+                gps_frame_buffer[gps_buffer_pointer] = 'E';
+            } else {
+                gps_frame_buffer[gps_buffer_pointer] = 'W';
+            }
+            gps_buffer_pointer++;
+
+            strcpy(gps_frame_buffer + gps_buffer_pointer, ",,,");
+            gps_buffer_pointer += 3;
+
+            if (gui_gps_send_current_time) {
+
+                sprintf(gps_frame_buffer + gps_buffer_pointer, "%02d%02d%02d", t->tm_mday, t->tm_mon, t->tm_year - 100);
+
+            } else {
+                strcpy(gps_frame_buffer + gps_buffer_pointer, "000000");
+
+                int day = atoi(gui_gps_custom_day);
+                int mon = atoi(gui_gps_custom_month);
+                int year = atoi(gui_gps_custom_year);
+
+                if (!gui_gps_custom_day_on) {
+                    day = t->tm_mday;
+                }
+                if (!gui_gps_custom_month_on) {
+                    mon = t->tm_mon;
+                }
+                if (!gui_gps_custom_year_on) {
+                    year = t->tm_year - 100;
+                }
+
+                sprintf(gps_frame_buffer + gps_buffer_pointer, "%02d%02d%02d", day, mon, year);
+            }
+            gps_buffer_pointer += 6;
+
+            strcpy(gps_frame_buffer + gps_buffer_pointer, ",,,A*");
+            gps_buffer_pointer += 5;
+
+
+            uint8_t checksum = 0;
+            int i = 1;
+
+            while (gps_frame_buffer[i] && gps_frame_buffer[i] != '*') {
+                checksum ^= gps_frame_buffer[i];
+                i++;
+            }
+
+            sprintf(gps_frame_buffer + gps_buffer_pointer, "%02x\n", checksum);
+            gps_buffer_pointer += 3;
 
             gps_frame_buffer[gps_buffer_pointer] = '\0';
-            printf("%s\n", gps_frame_buffer);
+
+            gps_usart_send(gps_frame_buffer);
+            /* printf(gps_frame_buffer); */
 
         }
 

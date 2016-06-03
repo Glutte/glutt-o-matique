@@ -126,12 +126,6 @@ static void test_task(void *pvParameters) {
             leds_turn_off(LED_RED);
         }
 
-        char * poney = "$GNRMC,202140.00,A,4719.59789,N,00830.92084,E,0.012,,310516,,,A*65\n";
-        gps_usart_send(poney);
-        /* char * poney2 = "$GNRMC,202141.00,A,4719.59788,N,00830.92085,E,0.012,,310516,,,A*64"; */
-        /* gps_usart_send(poney2); */
-        /* char * poney3 = "$GNRMC,202142.00,A,4719.59785,N,00830.92087,E,0.010,,310516,,,A*6A"; */
-        /* gps_usart_send(poney3); */
     }
 
 }
@@ -339,7 +333,12 @@ static void gps_monit_task(void *pvParameters) {
                     gps_time.tm_hour, gps_time.tm_min, gps_time.tm_sec);
 
             usart_debug("TIME  %04d-%02d-%02d %02d:%02d:%02d\r\n",
-                    time.tm_year, time.tm_mon, time.tm_mday,
+#ifdef SIMULATOR
+                    time.tm_year + 1900,
+#else
+                    time.tm_year,
+#endif
+                    time.tm_mon, time.tm_mday,
                     time.tm_hour, time.tm_min, time.tm_sec);
 
             t_gps_print_latch = 1;

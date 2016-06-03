@@ -67,6 +67,24 @@ int gui_gps_lon_len = 10;
 static const char *gps_EW[] = {"East", "West"};
 int gui_gps_lon_hem = 0;
 int gui_gps_send_current_time = 1;
+int gui_gps_custom_hour_on = 0;
+int gui_gps_custom_min_on = 0;
+int gui_gps_custom_sec_on = 0;
+int gui_gps_custom_day_on = 0;
+int gui_gps_custom_month_on = 0;
+int gui_gps_custom_year_on = 0;
+char gui_gps_custom_hour[4] = "12";
+int gui_gps_custom_hour_len = 2;
+char gui_gps_custom_min[4] = "30";
+int gui_gps_custom_min_len = 2;
+char gui_gps_custom_sec[4] = "45";
+int gui_gps_custom_sec_len = 2;
+char gui_gps_custom_day[4] = "01";
+int gui_gps_custom_day_len = 2;
+char gui_gps_custom_month[4] = "06";
+int gui_gps_custom_month_len = 2;
+char gui_gps_custom_year[4] = "16";
+int gui_gps_custom_year_len = 2;
 
 struct XWindow {
     Display *dpy;
@@ -327,7 +345,7 @@ int main_gui() {
             nk_end(ctx);
 
 
-            if (nk_begin(ctx, &layout, "LEDs", nk_rect(460, 50, 100, 155), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
+            if (nk_begin(ctx, &layout, "LEDs", nk_rect(50, 360, 100, 155), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
 
                 nk_layout_row_static(ctx, 20, 20, 3);
 
@@ -382,7 +400,7 @@ int main_gui() {
             }
             nk_end(ctx);
 
-            if (nk_begin(ctx, &layout, "GPS", nk_rect(460, 210, 200, 455), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
+            if (nk_begin(ctx, &layout, "GPS", nk_rect(460, 50, 200, 465), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
 
                 nk_layout_row_dynamic(ctx, 30, 1);
                 nk_checkbox_label(ctx, "Send frames", &gui_gps_send_frame);
@@ -402,6 +420,58 @@ int main_gui() {
 
                 nk_layout_row_dynamic(ctx, 30, 1);
                 nk_checkbox_label(ctx, "Send current time", &gui_gps_send_current_time);
+
+                if (!gui_gps_send_current_time) {
+
+                    nk_label(ctx, "Custom values:", NK_TEXT_LEFT);
+
+                    nk_layout_row_dynamic(ctx, 30, 3);
+
+                    nk_label(ctx, "Hour", NK_TEXT_LEFT);
+                    nk_checkbox_label(ctx, "", &gui_gps_custom_hour_on);
+                    if (gui_gps_custom_hour_on) {
+                        nk_edit_string(ctx, NK_EDIT_SIMPLE, gui_gps_custom_hour, &gui_gps_custom_hour_len, 3, nk_filter_decimal);
+                    } else {
+                        nk_label(ctx, "", NK_TEXT_LEFT);
+                    }
+                    nk_label(ctx, "Minutes", NK_TEXT_LEFT);
+                    nk_checkbox_label(ctx, "", &gui_gps_custom_min_on);
+                    if (gui_gps_custom_min_on) {
+                        nk_edit_string(ctx, NK_EDIT_SIMPLE, gui_gps_custom_min, &gui_gps_custom_min_len, 3, nk_filter_decimal);
+                    } else {
+                        nk_label(ctx, "", NK_TEXT_LEFT);
+                    }
+                    nk_label(ctx, "Secondes", NK_TEXT_LEFT);
+                    nk_checkbox_label(ctx, "", &gui_gps_custom_sec_on);
+                    if (gui_gps_custom_sec_on) {
+                        nk_edit_string(ctx, NK_EDIT_SIMPLE, gui_gps_custom_sec, &gui_gps_custom_sec_len, 3, nk_filter_decimal);
+                    } else {
+                        nk_label(ctx, "", NK_TEXT_LEFT);
+                    }
+                    nk_label(ctx, "Day", NK_TEXT_LEFT);
+                    nk_checkbox_label(ctx, "", &gui_gps_custom_day_on);
+                    if (gui_gps_custom_day_on) {
+                        nk_edit_string(ctx, NK_EDIT_SIMPLE, gui_gps_custom_day, &gui_gps_custom_day_len, 3, nk_filter_decimal);
+                    } else {
+                        nk_label(ctx, "", NK_TEXT_LEFT);
+                    }
+                    nk_label(ctx, "Month", NK_TEXT_LEFT);
+                    nk_checkbox_label(ctx, "", &gui_gps_custom_month_on);
+                    if (gui_gps_custom_month_on) {
+                        nk_edit_string(ctx, NK_EDIT_SIMPLE, gui_gps_custom_month, &gui_gps_custom_month_len, 3, nk_filter_decimal);
+                    } else {
+                        nk_label(ctx, "", NK_TEXT_LEFT);
+                    }
+                    nk_label(ctx, "Year", NK_TEXT_LEFT);
+                    nk_checkbox_label(ctx, "", &gui_gps_custom_year_on);
+                    if (gui_gps_custom_year_on) {
+                        nk_edit_string(ctx, NK_EDIT_SIMPLE, gui_gps_custom_year, &gui_gps_custom_year_len, 3, nk_filter_decimal);
+                    } else {
+                        nk_label(ctx, "", NK_TEXT_LEFT);
+                    }
+
+
+                }
 
             }
             nk_end(ctx);
