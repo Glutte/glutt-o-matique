@@ -38,8 +38,7 @@ static uint16_t lfsr;
 
 static void common_increase_timestamp(TimerHandle_t t);
 
-int find_last_sunday(const struct tm* time)
-{
+int find_last_sunday(const struct tm* time) {
     struct tm t = *time;
 
     // the last sunday can never be before the 20th
@@ -68,8 +67,7 @@ int find_last_sunday(const struct tm* time)
  *         1 if true
  *        -1 in case of error
  */
-static int is_dst(const struct tm *time)
-{
+static int is_dst(const struct tm *time) {
     /* DST from 01:00 UTC on last Sunday in March
      *     to   01:00 UTC on last Sunday in October
      */
@@ -114,8 +112,7 @@ static int is_dst(const struct tm *time)
     }
 }
 
-int local_time(struct tm *time)
-{
+int local_time(struct tm *time) {
     const int local_time_offset=1; // hours
 
     int valid = gps_utctime(time);

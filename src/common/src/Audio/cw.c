@@ -34,11 +34,16 @@
  * audio_queue
  */
 
-#include "cw.h"
-#include "common.h"
+#include "Audio/cw.h"
+#include "Core/common.h"
+#include "Audio/audio.h"
+
+#ifdef SIMULATOR
+#define arm_cos_f32 cosf
+#define arm_sin_f32 sinf
+#else
 #include "arm_math.h"
-#include "audio.h"
-#include "debug.h"
+#endif
 
 /* Kernel includes. */
 #include "FreeRTOS.h"
@@ -367,6 +372,8 @@ int cw_psk31_push_message(const char* text, int dit_duration, int frequency)
 
     xQueueSendToBack(cw_msg_queue, &msg, portMAX_DELAY); /* Send Message */
 
+    cw_message_sent(msg.message);
+
     return 1;
 }
 
@@ -461,6 +468,10 @@ static int16_t cw_generate_audio(float omega, int i, int t)
     }
     else {
         cw_generate_audio_ampl -= cw_generate_audio_ampl / 64.0f;
+
+        if (cw_generate_audio_ampl < 0) {
+            cw_generate_audio_ampl = 0;
+        }
     }
 
     cw_generate_audio_nco += omega;
@@ -515,7 +526,7 @@ static void cw_psk31_task(void *pvParameters)
             cw_transmit_ongoing = 1;
 
             // Audio should be off, turn it on
-            AudioOn();
+            audio_on();
 
             if (cw_fill_msg_current.dit_duration) {
                 cw_psk31_buffer_len = cw_text_to_on_buffer(
@@ -582,7 +593,7 @@ static void cw_psk31_task(void *pvParameters)
             cw_transmit_ongoing = 0;
 
             // Turn off audio to save power
-            AudioOff();
+            audio_off();
         }
     }
 }

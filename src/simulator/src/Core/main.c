@@ -58,7 +58,7 @@ char gui_gps_custom_day[4];
 int gui_gps_custom_day_len;
 char gui_gps_custom_month[4];
 int gui_gps_custom_month_len;
-char gui_gps_custom_year[6];
+char gui_gps_custom_year[4];
 int gui_gps_custom_year_len;
 
 static void thread_gui_gps(void *arg) {

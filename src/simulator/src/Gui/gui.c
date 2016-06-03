@@ -86,6 +86,14 @@ int gui_gps_custom_month_len = 2;
 char gui_gps_custom_year[4] = "16";
 int gui_gps_custom_year_len = 2;
 
+
+/**
+ * Audio
+ **/
+char gui_audio_on = 0;
+char gui_cw_text[4096];
+
+
 struct XWindow {
     Display *dpy;
     Window win;
@@ -314,11 +322,11 @@ int main_gui() {
                     uart_send_txt_len = 0;
                 }
 
-                nk_menubar_end(ctx);
 
                 nk_layout_row_dynamic(ctx, 25, 1);
-
                 nk_label(ctx, "UART Output:", NK_TEXT_LEFT);
+
+                nk_menubar_end(ctx);
 
                 nk_layout_row_dynamic(ctx, 16, 1);
 
@@ -397,6 +405,63 @@ int main_gui() {
 
                 nk_text(ctx, "", 0, NK_TEXT_LEFT);
 
+            }
+            nk_end(ctx);
+
+            if (nk_begin(ctx, &layout, "Audio", nk_rect(160, 360, 100, 155), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
+
+                nk_layout_row_static(ctx, 20, 20, 3);
+
+                struct nk_color color;
+
+                nk_text(ctx, "", 0, NK_TEXT_LEFT);
+                nk_text(ctx, "", 0, NK_TEXT_LEFT);
+                nk_text(ctx, "", 0, NK_TEXT_LEFT);
+
+                nk_text(ctx, "", 0, NK_TEXT_LEFT);
+
+                color.r = 255; color.g = 255; color.b = 0; color.a = 255;
+
+                if (gui_audio_on == 1) {
+                    color.r = 0;
+                } else {
+                    color.g = 0;
+                }
+                nk_button_color(ctx, color, NK_BUTTON_DEFAULT);
+            }
+            nk_end(ctx);
+
+
+            if (nk_begin(ctx, &layout, "CW", nk_rect(270, 360, 180, 155), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_SCALABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
+
+                nk_menubar_begin(ctx);
+                nk_layout_row_dynamic(ctx, 25, 1);
+
+                nk_label(ctx, "CW Buffer:", NK_TEXT_LEFT);
+
+                nk_menubar_end(ctx);
+
+                nk_layout_row_dynamic(ctx, 16, 1);
+
+                char * current_pointer = gui_cw_text;
+                int l = 0;
+
+                while (*current_pointer != 0) {
+
+                    if (*current_pointer == '\n') {
+                        if (l > 1) {
+                            nk_text(ctx, current_pointer - l, l, NK_TEXT_LEFT);
+                        }
+                        current_pointer++;
+                        l = 0;
+                    }
+                    current_pointer++;
+                    l++;
+                }
+
+                if (l > 1) {
+                    nk_text(ctx, current_pointer - l, l, NK_TEXT_LEFT);
+                }
             }
             nk_end(ctx);
 

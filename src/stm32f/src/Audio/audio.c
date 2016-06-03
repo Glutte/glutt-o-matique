@@ -1,31 +1,12 @@
-#include "audio.h"
-#include "i2c.h"
+#include "GPIO/i2c.h"
 #include "stm32f4xx_conf.h"
 #include "stm32f4xx.h"
 
-#include <stdlib.h>
+#include "../../../common/src/Audio/audio.c"
 
-static void WriteRegister(uint8_t address, uint8_t value);
-static void StartAudioDMAAndRequestBuffers();
-static void StopAudioDMA();
+void audio_initialize_platform(int plln, int pllr, int i2sdiv, int i2sodd, int rate) {
 
-static AudioCallbackFunction *CallbackFunction;
-static void *CallbackContext;
-static int16_t * volatile NextBufferSamples;
-static volatile int NextBufferLength;
-static volatile int BufferNumber;
-static volatile bool DMARunning;
-
-void InitializeAudio(int plln, int pllr, int i2sdiv, int i2sodd) {
     GPIO_InitTypeDef  GPIO_InitStructure;
-
-    // Intitialize state.
-    CallbackFunction = NULL;
-    CallbackContext = NULL;
-    NextBufferSamples = NULL;
-    NextBufferLength = 0;
-    BufferNumber = 0;
-    DMARunning = false;
 
     // Turn on peripherals.
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
@@ -74,26 +55,24 @@ void InitializeAudio(int plln, int pllr, int i2sdiv, int i2sodd) {
     GPIO_SetBits(GPIOD, GPIO_Pin_4);
 
     // Configure codec.
-    WriteRegister(0x02, 0x01); // Keep codec powered off.
-    WriteRegister(0x04, 0xaf); // SPK always off and HP always on.
+    audio_write_register(0x02, 0x01); // Keep codec powered off.
+    audio_write_register(0x04, 0xaf); // SPK always off and HP always on.
 
-    WriteRegister(0x05, 0x81); // Clock configuration: Auto detection.
-    WriteRegister(0x06, 0x04); // Set slave mode and Philips audio standard.
-
-    SetAudioVolume(0xff);
+    audio_write_register(0x05, 0x81); // Clock configuration: Auto detection.
+    audio_write_register(0x06, 0x04); // Set slave mode and Philips audio standard.
 
     // Power on the codec.
-    WriteRegister(0x02, 0x9e);
+    audio_write_register(0x02, 0x9e);
 
     // Configure codec for fast shutdown.
-    WriteRegister(0x0a, 0x00); // Disable the analog soft ramp.
-    WriteRegister(0x0e, 0x04); // Disable the digital soft ramp.
+    audio_write_register(0x0a, 0x00); // Disable the analog soft ramp.
+    audio_write_register(0x0e, 0x04); // Disable the digital soft ramp.
 
-    WriteRegister(0x27, 0x00); // Disable the limiter attack level.
-    WriteRegister(0x1f, 0x0f); // Adjust bass and treble levels.
+    audio_write_register(0x27, 0x00); // Disable the limiter attack level.
+    audio_write_register(0x1f, 0x0f); // Adjust bass and treble levels.
 
-    WriteRegister(0x1a, 0x0a); // Adjust PCM volume level.
-    WriteRegister(0x1b, 0x0a);
+    audio_write_register(0x1a, 0x0a); // Adjust PCM volume level.
+    audio_write_register(0x1b, 0x0a);
 
     // Disable I2S.
     SPI3 ->I2SCFGR = 0;
@@ -114,78 +93,79 @@ void InitializeAudio(int plln, int pllr, int i2sdiv, int i2sodd) {
 
 }
 
-void AudioOn() {
-    WriteRegister(0x02, 0x9e);
+void audio_on() {
+    audio_write_register(0x02, 0x9e);
     SPI3 ->I2SCFGR = SPI_I2SCFGR_I2SMOD | SPI_I2SCFGR_I2SCFG_1
         | SPI_I2SCFGR_I2SE; // Master transmitter, Phillips mode, 16 bit values, clock polarity low, enable.
 }
 
-void AudioOff() {
-    WriteRegister(0x02, 0x9f);
+void audio_off() {
+    audio_write_register(0x02, 0x9f);
     SPI3 ->I2SCFGR = 0;
 }
 
-void SetAudioVolume(int volume) {
-    WriteRegister(0x20, (volume + 0x19) & 0xff);
-    WriteRegister(0x21, (volume + 0x19) & 0xff);
+void audio_set_volume(int volume) {
+    audio_write_register(0x20, (volume + 0x19) & 0xff);
+    audio_write_register(0x21, (volume + 0x19) & 0xff);
 }
 
-void OutputAudioSample(int16_t sample) {
+void audio_output_sample(int16_t sample) {
     while (!(SPI3 ->SR & SPI_SR_TXE ))
         ;
     SPI3 ->DR = sample;
 }
 
-void OutputAudioSampleWithoutBlocking(int16_t sample) {
+
+void audio_output_sample_without_blocking(int16_t sample) {
     SPI3 ->DR = sample;
 }
 
-void PlayAudioWithCallback(AudioCallbackFunction *callback, void *context) {
-    StopAudioDMA();
+void audio_play_with_callback(AudioCallbackFunction *callback, void *context) {
+    audio_stop_dma();
 
     NVIC_EnableIRQ(DMA1_Stream7_IRQn);
     NVIC_SetPriority(DMA1_Stream7_IRQn, 5);
 
     SPI3 ->CR2 |= SPI_CR2_TXDMAEN; // Enable I2S TX DMA request.
 
-    CallbackFunction = callback;
-    CallbackContext = context;
-    BufferNumber = 0;
+    callback_function = callback;
+    callback_context = context;
+    buffer_number = 0;
 
-    if (CallbackFunction)
-        CallbackFunction(CallbackContext, BufferNumber);
+    if (callback_function)
+        callback_function(callback_context, buffer_number);
 }
 
-void StopAudio() {
-    StopAudioDMA();
+void audio_stop() {
+    audio_stop_dma();
     SPI3 ->CR2 &= ~SPI_CR2_TXDMAEN; // Disable I2S TX DMA request.
     NVIC_DisableIRQ(DMA1_Stream7_IRQn);
-    CallbackFunction = NULL;
+    callback_function = NULL;
 }
 
-void ProvideAudioBuffer(void *samples, int numsamples) {
-    while (!ProvideAudioBufferWithoutBlocking(samples, numsamples))
+void audio_provide_buffer(void *samples, int numsamples) {
+    while (!audio_provide_buffer_without_blocking(samples, numsamples))
         __asm__ volatile ("wfi");
 }
 
-bool ProvideAudioBufferWithoutBlocking(void *samples, int numsamples) {
-    if (NextBufferSamples)
+bool audio_provide_buffer_without_blocking(void *samples, int numsamples) {
+    if (next_buffer_samples)
         return false;
 
     NVIC_DisableIRQ(DMA1_Stream7_IRQn);
 
-    NextBufferSamples = samples;
-    NextBufferLength = numsamples;
+    next_buffer_samples = samples;
+    next_buffer_length = numsamples;
 
-    if (!DMARunning)
-        StartAudioDMAAndRequestBuffers();
+    if (!dma_running)
+        audio_start_dma_and_request_buffers();
 
     NVIC_EnableIRQ(DMA1_Stream7_IRQn);
 
     return true;
 }
 
-static void StartAudioDMAAndRequestBuffers() {
+static void audio_start_dma_and_request_buffers() {
     // Configure DMA stream.
     DMA1_Stream7 ->CR = (0 * DMA_SxCR_CHSEL_0 ) | // Channel 0
         (1 * DMA_SxCR_PL_0 ) | // Priority 1
@@ -194,42 +174,42 @@ static void StartAudioDMAAndRequestBuffers() {
         DMA_SxCR_MINC | // Increase memory address
         (1 * DMA_SxCR_DIR_0 ) | // Memory to peripheral
         DMA_SxCR_TCIE; // Transfer complete interrupt
-    DMA1_Stream7 ->NDTR = NextBufferLength;
+    DMA1_Stream7 ->NDTR = next_buffer_length;
     DMA1_Stream7 ->PAR = (uint32_t) &SPI3 ->DR;
-    DMA1_Stream7 ->M0AR = (uint32_t) NextBufferSamples;
+    DMA1_Stream7 ->M0AR = (uint32_t) next_buffer_samples;
     DMA1_Stream7 ->FCR = DMA_SxFCR_DMDIS;
     DMA1_Stream7 ->CR |= DMA_SxCR_EN;
 
     // Update state.
-    NextBufferSamples = NULL;
-    BufferNumber ^= 1;
-    DMARunning = true;
+    next_buffer_samples = NULL;
+    buffer_number ^= 1;
+    dma_running = true;
 
     // Invoke callback if it exists to queue up another buffer.
-    if (CallbackFunction)
-        CallbackFunction(CallbackContext, BufferNumber);
+    if (callback_function)
+        callback_function(callback_context, buffer_number);
 }
 
-static void StopAudioDMA() {
+static void audio_stop_dma() {
     DMA1_Stream7 ->CR &= ~DMA_SxCR_EN; // Disable DMA stream.
     while (DMA1_Stream7 ->CR & DMA_SxCR_EN )
         ; // Wait for DMA stream to stop.
 
-    DMARunning = false;
+    dma_running = false;
 }
 
 void DMA1_Stream7_IRQHandler() {
     DMA1 ->HIFCR |= DMA_HIFCR_CTCIF7; // Clear interrupt flag.
 
-    if (NextBufferSamples) {
-        StartAudioDMAAndRequestBuffers();
+    if (next_buffer_samples) {
+        audio_start_dma_and_request_buffers();
     } else {
-        DMARunning = false;
+        dma_running = false;
     }
 }
 
 // Warning: don't i2c_write call from IRQ handler !
-static void WriteRegister(uint8_t address, uint8_t value)
+static void audio_write_register(uint8_t address, uint8_t value)
 {
     const uint8_t device = 0x4a;
     const uint8_t data[2] = {address, value};

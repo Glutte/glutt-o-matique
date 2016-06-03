@@ -22,8 +22,9 @@
  * SOFTWARE.
 */
 
-#include "i2c.h"
-#include "common.h"
+#include "GPIO/i2c.h"
+#include "Core/common.h"
+
 #include "stm32f4xx_conf.h"
 #include "stm32f4xx_i2c.h"
 #include "stm32f4xx.h"
@@ -31,7 +32,7 @@
 #include "FreeRTOSConfig.h"
 #include "task.h"
 #include "semphr.h"
-#include "usart.h"
+#include "GPIO/usart.h"
 
 /* I2C 1 on PB9 and PB6
  * See pio.txt for PIO allocation details */

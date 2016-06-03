@@ -34,8 +34,8 @@
 #include "semphr.h"
 
 /* Includes */
-/* #include "audio.h" */
-/* #include "cw.h" */
+#include "Audio/audio.h"
+#include "Audio/cw.h"
 /* #include "pio.h" */
 /* #include "i2c.h" */
 #include "GPS/gps.h"
@@ -119,11 +119,11 @@ static void test_task(void *pvParameters) {
 
         if (i == 0) {
             i = 1;
-            leds_turn_on(LED_RED);
+            leds_turn_on(LED_GREEN);
 
         } else {
             i = 0;
-            leds_turn_off(LED_RED);
+            leds_turn_off(LED_GREEN);
         }
 
     }
@@ -134,8 +134,8 @@ static void test_task(void *pvParameters) {
 // already running when calling the init functions.
 static void launcher_task(void *pvParameters)
 {
-    /* usart_debug_puts("CW init\r\n"); */
-    /* cw_psk31_init(16000); */
+    usart_debug_puts("CW init\r\n");
+    cw_psk31_init(16000);
     /*  */
     /* usart_debug_puts("PIO init\r\n"); */
     /* pio_init(); */
@@ -143,17 +143,17 @@ static void launcher_task(void *pvParameters)
     /* usart_debug_puts("I2C init\r\n"); */
     /* i2c_init(); */
     /*  */
-    /* usart_debug_puts("common init\r\n"); */
-    /* common_init(); */
-    /*  */
+    usart_debug_puts("common init\r\n");
+    common_init();
+
     usart_debug_puts("GPS init\r\n");
     gps_init();
-    /*  */
+
     /* usart_debug_puts("DS18B20 init\r\n"); */
     /* temperature_init(); */
     /*  */
     /* usart_debug_puts("TaskButton init\r\n"); */
-    /*  */
+
     TaskHandle_t task_handle;
     /* xTaskCreate( */
     /*         detect_button_press, */
@@ -195,24 +195,24 @@ static void launcher_task(void *pvParameters)
         trigger_fault(FAULT_SOURCE_MAIN);
     }
 
-    /* usart_debug_puts("Audio init\r\n"); */
-    /*  */
-    /* InitializeAudio(Audio16000HzSettings); */
-    /*  */
-    /* usart_debug_puts("Audio set volume\r\n"); */
-    /* SetAudioVolume(210); */
-    /*  */
-    /* usart_debug_puts("Audio set callback\r\n"); */
-    /* PlayAudioWithCallback(audio_callback, NULL); */
-    /*  */
-    /* // By default, let's the audio off to save power */
-    /* AudioOff(); */
+    usart_debug_puts("Audio init\r\n");
+
+    audio_initialize(Audio16000HzSettings);
+
+    usart_debug_puts("Audio set volume\r\n");
+    audio_set_volume(210);
+
+    usart_debug_puts("Audio set callback\r\n");
+    audio_play_with_callback(audio_callback, NULL);
+
+    // By default, let's the audio off to save power
+    audio_off();
 
     usart_debug_puts("Init done.\r\n");
 
     xTaskCreate(
             test_task,
-            "TaskFSM",
+            "Test task",
             4*configMINIMAL_STACK_SIZE,
             (void*) NULL,
             tskIDLE_PRIORITY + 2UL,
@@ -223,6 +223,10 @@ static void launcher_task(void *pvParameters)
      * See freertos.org -> More Advanced... -> Memory Management
      * for more info.
      */
+
+    cw_psk31_push_message("HB9G HI - TESTING", 50, 440);
+    cw_psk31_push_message("HB9G HI AGAIN", 50, 440);
+    cw_psk31_push_message("HB9G 73", 50, 440);
 
     while (1) {
         vTaskSuspend(NULL);
@@ -273,33 +277,33 @@ static void detect_button_press(void *pvParameters)
     /* } */
 }
 
-static void audio_callback(void* context, int select_buffer)
-{
-    /* static int16_t audio_buffer0[AUDIO_BUF_LEN]; */
-    /* static int16_t audio_buffer1[AUDIO_BUF_LEN]; */
-    /* int16_t *samples; */
-    /*  */
-    /* if (select_buffer == 0) { */
-    /*     samples = audio_buffer0; */
-    /*     GPIO_ResetBits(GPIOD, GPIOD_BOARD_LED_RED); */
-    /*     select_buffer = 1; */
-    /* } else { */
-    /*     samples = audio_buffer1; */
-    /*     GPIO_SetBits(GPIOD, GPIOD_BOARD_LED_RED); */
-    /*     select_buffer = 0; */
-    /* } */
-    /*  */
-    /* size_t samples_len = cw_psk31_fill_buffer(samples, AUDIO_BUF_LEN); */
-    /*  */
-    /* if (samples_len == 0) { */
-    /*     for (int i = 0; i < AUDIO_BUF_LEN; i++) { */
-    /*         samples[i] = 0; */
-    /*     } */
-    /*  */
-    /*     samples_len = AUDIO_BUF_LEN; */
-    /* } */
-    /*  */
-    /* ProvideAudioBufferWithoutBlocking(samples, samples_len); */
+static void audio_callback(void* context, int select_buffer) {
+    static int16_t audio_buffer0[AUDIO_BUF_LEN];
+    static int16_t audio_buffer1[AUDIO_BUF_LEN];
+    int16_t *samples;
+
+    if (select_buffer == 0) {
+        samples = audio_buffer0;
+        leds_turn_off(LED_RED);
+        select_buffer = 1;
+    } else {
+        samples = audio_buffer1;
+        leds_turn_on(LED_RED);
+        select_buffer = 0;
+    }
+
+    size_t samples_len = cw_psk31_fill_buffer(samples, AUDIO_BUF_LEN);
+
+    if (samples_len == 0) {
+        for (int i = 0; i < AUDIO_BUF_LEN; i++) {
+            samples[i] = 0;
+        }
+
+        samples_len = AUDIO_BUF_LEN;
+    }
+
+    audio_provide_buffer_without_blocking(samples, samples_len);
+
 }
 
 static struct tm gps_time;
