@@ -56,6 +56,7 @@ int gps_utctime(struct tm *timeutc) {
         timeutc->tm_sec   = gps_timeutc.tm_sec;
         valid             = gps_timeutc_valid;
     }
+
     xSemaphoreGive(timeutc_semaphore);
 
     return valid;

@@ -320,7 +320,6 @@ static void gps_monit_task(void *pvParameters) {
         int time_valid = local_time(&time);
 
         if (time_valid) {
-            printf("Valid\n");
             if (time.tm_sec % 4 >= 2) {
                 leds_turn_on(LED_BLUE);
             }

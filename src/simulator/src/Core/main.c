@@ -31,6 +31,49 @@ static void thread_gui(void *arg) {
     main_gui();
 }
 
+
+extern int gui_gps_send_frame;
+extern int gui_gps_frames_valid;
+extern char gui_gps_lat[64];
+extern int gui_gps_lat_hem;
+extern char gui_gps_lon[64];
+extern int gui_gps_lon_hem;
+extern int gui_gps_send_current_time;
+
+static void thread_gui_gps(void *arg) {
+
+    while(1) {
+        vTaskDelay(1000 / portTICK_RATE_MS);
+
+        if (gui_gps_send_frame) {
+
+            char gps_frame_buffer[128];
+            int gps_buffer_pointer = 0;
+
+            strcpy(gps_frame_buffer + gps_buffer_pointer, "$GPRMC,");
+            gps_buffer_pointer += 7;
+
+            strcpy(gps_frame_buffer + gps_buffer_pointer, "225446,");
+            gps_buffer_pointer += 7;
+
+            if (gui_gps_frames_valid) {
+                gps_frame_buffer[gps_buffer_pointer] = 'A';
+            } else {
+                gps_frame_buffer[gps_buffer_pointer] = 'V';
+            }
+            gps_buffer_pointer++;
+            gps_frame_buffer[gps_buffer_pointer] = ',';
+            gps_buffer_pointer++;
+
+
+            gps_frame_buffer[gps_buffer_pointer] = '\0';
+            printf("%s\n", gps_frame_buffer);
+
+        }
+
+    }
+}
+
 void init() {
 
     /* pthread_t pth; */
@@ -40,6 +83,14 @@ void init() {
     xTaskCreate(
             thread_gui,
             "Thread GUI",
+            configMINIMAL_STACK_SIZE,
+            (void*) NULL,
+            tskIDLE_PRIORITY + 2UL,
+            &task_handle);
+
+    xTaskCreate(
+            thread_gui_gps,
+            "Thread GUI GPS",
             configMINIMAL_STACK_SIZE,
             (void*) NULL,
             tskIDLE_PRIORITY + 2UL,

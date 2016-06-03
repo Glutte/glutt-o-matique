@@ -53,6 +53,21 @@ char led_green = 0;
 char led_orange = 0;
 char led_red = 0;
 
+/**
+ * GPS
+ */
+int gui_gps_send_frame = 1;
+int gui_gps_frames_valid = 1;
+char gui_gps_lat[64] = "4719.59788";
+int gui_gps_lat_len = 10;
+static const char *gps_NS[] = {"North", "South"};
+int gui_gps_lat_hem = 0;
+char gui_gps_lon[64] = "00830.92084";
+int gui_gps_lon_len = 10;
+static const char *gps_EW[] = {"East", "West"};
+int gui_gps_lon_hem = 0;
+int gui_gps_send_current_time = 1;
+
 struct XWindow {
     Display *dpy;
     Window win;
@@ -162,8 +177,9 @@ int main_gui() {
                     int sample_buffer, samples;
                     glXGetFBConfigAttrib(win.dpy, fbc[i], GLX_SAMPLE_BUFFERS, &sample_buffer);
                     glXGetFBConfigAttrib(win.dpy, fbc[i], GLX_SAMPLES, &samples);
-                    if ((fb_best < 0) || (sample_buffer && samples > best_num_samples))
+                    if ((fb_best < 0) || (sample_buffer && samples > best_num_samples)) {
                         fb_best = i; best_num_samples = samples;
+                    }
                 }
             }
             win.fbc = fbc[fb_best];
@@ -307,12 +323,8 @@ int main_gui() {
                 if (l > 1) {
                     nk_text(ctx, current_pointer - l, l, NK_TEXT_LEFT);
                 }
-
-                /* nk_layout_row_end(ctx); */
-
-
-                nk_end(ctx);
             }
+            nk_end(ctx);
 
 
             if (nk_begin(ctx, &layout, "LEDs", nk_rect(460, 50, 100, 155), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
@@ -320,7 +332,6 @@ int main_gui() {
                 nk_layout_row_static(ctx, 20, 20, 3);
 
                 struct nk_color color;
-
 
                 nk_text(ctx, "", 0, NK_TEXT_LEFT);
 
@@ -368,9 +379,32 @@ int main_gui() {
 
                 nk_text(ctx, "", 0, NK_TEXT_LEFT);
 
-                nk_end(ctx);
+            }
+            nk_end(ctx);
+
+            if (nk_begin(ctx, &layout, "GPS", nk_rect(460, 210, 200, 455), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
+
+                nk_layout_row_dynamic(ctx, 30, 1);
+                nk_checkbox_label(ctx, "Send frames", &gui_gps_send_frame);
+                nk_checkbox_label(ctx, "Valid frames", &gui_gps_frames_valid);
+
+                nk_layout_row_dynamic(ctx, 30, 2);
+
+                nk_label(ctx, "Latitude:", NK_TEXT_LEFT);
+                nk_edit_string(ctx, NK_EDIT_SIMPLE, gui_gps_lat, &gui_gps_lat_len, 64, nk_filter_float);
+                nk_label(ctx, "", NK_TEXT_LEFT);
+                gui_gps_lat_hem = nk_combo(ctx, gps_NS, LEN(gps_NS), gui_gps_lat_hem, 30);
+
+                nk_label(ctx, "Longitude:", NK_TEXT_LEFT);
+                nk_edit_string(ctx, NK_EDIT_SIMPLE, gui_gps_lon, &gui_gps_lon_len, 64, nk_filter_float);
+                nk_label(ctx, "", NK_TEXT_LEFT);
+                gui_gps_lon_hem = nk_combo(ctx, gps_EW, LEN(gps_EW), gui_gps_lon_hem, 30);
+
+                nk_layout_row_dynamic(ctx, 30, 1);
+                nk_checkbox_label(ctx, "Send current time", &gui_gps_send_current_time);
 
             }
+            nk_end(ctx);
 
 
         }

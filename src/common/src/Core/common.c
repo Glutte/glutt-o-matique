@@ -128,11 +128,14 @@ int local_time(struct tm *time)
             time->tm_isdst = 1;
         }
 
+        time->tm_year -= 1900;  //TODO Same on hardware ?
+
         // Let mktime fix the struct tm *time
         if (mktime(time) == (time_t)-1) {
             // TODO inform about failure
             valid = 0;
         }
+
     }
 
     return valid;
