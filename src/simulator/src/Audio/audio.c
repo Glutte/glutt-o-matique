@@ -21,7 +21,7 @@ void audio_initialize_platform(int plln, int pllr, int i2sdiv, int i2sodd, int r
     static pa_sample_spec ss = {
         .format = PA_SAMPLE_S16LE,
         .rate = 0,
-        .channels = 1
+        .channels = 2
     };
 
     ss.rate = rate;
