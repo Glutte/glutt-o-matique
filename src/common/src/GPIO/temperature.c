@@ -22,28 +22,41 @@
  * SOFTWARE.
 */
 
-#include <stdint.h>
-
-#ifndef __TEMPERATURE_H
-#define __TEMPERATURE_H
-
-/* Setup DS18B20 and report temperature */
-
-/* On wire connection: PA1
- */
+#include "FreeRTOS.h"
+#include "FreeRTOSConfig.h"
+#include "task.h"
+#include "Core/common.h"
+#include "GPIO/temperature.h"
 
 
-#define TEMPERATURE_ONEWIRE_PIN GPIO_Pin_1
+float _temperature_last_value;
+int _temperature_valid;
 
 
-// Setup communication and GPS receiver
-void temperature_init();
+static void temperature_task(void *pvParameters);
+
+
+void temperature_init() {
+
+    xTaskCreate(
+        temperature_task,
+        "TaskTemperature",
+        4*configMINIMAL_STACK_SIZE,
+        (void*) NULL,
+        tskIDLE_PRIORITY + 2UL,
+        NULL);
+}
+
+// Return the current temperature
+float temperature_get() {
+    if (_temperature_valid) {
+        return _temperature_last_value;
+    } else {
+        return 0.0f;
+    }
+}
 
 // Return 1 if the temperature is valid
-int temperature_valid();
-
-// Get current temperature
-float temperature_get();
-
-#endif // __TEMPERATURE_H
-
+int temperature_valid() {
+    return _temperature_valid;
+}

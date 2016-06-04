@@ -94,6 +94,13 @@ char gui_audio_on = 0;
 char gui_cw_text[4096];
 
 
+/**
+ * Temperature
+ **/
+int gui_temperature_valid = 1;
+float gui_temperature = 25.0;
+
+
 struct XWindow {
     Display *dpy;
     Window win;
@@ -541,6 +548,22 @@ int main_gui() {
             }
             nk_end(ctx);
 
+            if (nk_begin(ctx, &layout, "Temperature", nk_rect(670, 50, 200, 200), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
+
+                nk_layout_row_dynamic(ctx, 25, 1);
+
+                nk_checkbox_label(ctx, "Valid temperature", &gui_temperature_valid);
+
+                if (gui_temperature_valid) {
+
+                    nk_layout_row_dynamic(ctx, 25, 2);
+
+                    nk_label(ctx, "Temperature", NK_TEXT_LEFT);
+                    nk_property_float(ctx, "°C", -20.0f, &gui_temperature, 50.0f, 0.1f, 0.5f);
+                }
+
+            }
+            nk_end(ctx);
 
         }
         /* if (nk_window_is_closed(ctx, "Demo")) break; */

@@ -43,7 +43,7 @@
 #include "Core/common.h"
 #include "GPIO/usart.h"
 /* #include "delay.h" */
-/* #include "temperature.h" */
+#include "GPIO/temperature.h"
 #include "GPIO/leds.h"
 #include "vc.h"
 
@@ -102,8 +102,6 @@ int main(void) {
     }
 
     vTaskStartScheduler();
-    /* pthread_t pth; */
-    /* pthread_create(&pth, NULL, threadscheduler, "processing..."); */
 
     /* HALT */
     while(1);
@@ -149,9 +147,9 @@ static void launcher_task(void *pvParameters)
     usart_debug_puts("GPS init\r\n");
     gps_init();
 
-    /* usart_debug_puts("DS18B20 init\r\n"); */
-    /* temperature_init(); */
-    /*  */
+    usart_debug_puts("DS18B20 init\r\n");
+    temperature_init();
+
     /* usart_debug_puts("TaskButton init\r\n"); */
 
     TaskHandle_t task_handle;
@@ -344,6 +342,7 @@ static void gps_monit_task(void *pvParameters) {
 #endif
                     time.tm_mon, time.tm_mday,
                     time.tm_hour, time.tm_min, time.tm_sec);
+
 
             t_gps_print_latch = 1;
         }

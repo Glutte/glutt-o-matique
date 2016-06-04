@@ -20,7 +20,7 @@ ASOURCES=$(shell find -L $(SRCDIR) -name '*.s')
 CSOURCES+=$(shell find -L $(SRCDIR) -name '*.c')
 # Find header directories
 INC=$(shell find -L . -name '*.h' -exec dirname {} \; | uniq)
-INCLUDES=$(INC:%=-I%) -I ../common/includes/
+INCLUDES=$(INC:%=-I%) -I ../common/includes/ -I ./includes/
 # Create object list
 OBJECTS=$(ASOURCES:%.s=%.o)
 OBJECTS+=$(CSOURCES:%.c=obj/%.o)

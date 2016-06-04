@@ -1,45 +1,22 @@
-/*
- * The MIT License (MIT)
- *
- * Copyright (c) 2016 Matthias P. Braendli, Maximilien Cuony
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
-*/
+/* On wire connection: PA1
+ */
+
+#define TEMPERATURE_ONEWIRE_PIN GPIO_Pin_1
 
 #include "stm32f4xx_conf.h"
 #include "stm32f4xx.h"
-#include "FreeRTOS.h"
-#include "FreeRTOSConfig.h"
-#include "task.h"
-#include "common.h"
+
 #include "tm_stm32f4_ds18b20.h"
 #include "tm_stm32f4_onewire.h"
-#include "temperature.h"
-#include "delay.h"
+#include "Core/delay.h"
 
 
-float _temperature_last_value;
-int _temperature_valid;
+#include "../../../common/src/GPIO/temperature.c"
 
 const TickType_t _temperature_delay = 60000 / portTICK_PERIOD_MS; // 60s
 
 static TM_OneWire_t tm_onewire;
+
 
 
 void ds18b20_init() {
@@ -96,7 +73,6 @@ int ds18b20_gettemp(float *temperature) {
     return status;
 }
 
-
 static void temperature_task(void *pvParameters) {
 
     while (1) {
@@ -114,29 +90,4 @@ static void temperature_task(void *pvParameters) {
         vTaskDelay(_temperature_delay);
 
     }
-}
-
-void temperature_init() {
-
-    xTaskCreate(
-        temperature_task,
-        "TaskTemperature",
-        4*configMINIMAL_STACK_SIZE,
-        (void*) NULL,
-        tskIDLE_PRIORITY + 2UL,
-        NULL);
-}
-
-// Return the current temperature
-float temperature_get() {
-    if (_temperature_valid) {
-        return _temperature_last_value;
-    } else {
-        return 0.0f;
-    }
-}
-
-// Return 1 if the temperature is valid
-int temperature_valid() {
-    return _temperature_valid;
 }
