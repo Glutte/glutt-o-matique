@@ -22,11 +22,12 @@
  * SOFTWARE.
 */
 
+#pragma once
+#include <stdint.h>
 
 // High-precisions delay (with approximations)
 
-
-// Thoses functions works only if interupts are disabled
+// These functions only work if interupts are disabled
 void delay_us(uint32_t micros);
 void delay_ms(uint32_t millis);
 

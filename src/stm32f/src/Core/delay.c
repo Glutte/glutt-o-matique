@@ -1,4 +1,3 @@
-
 /*
  * The MIT License (MIT)
  *
@@ -23,37 +22,30 @@
  * SOFTWARE.
 */
 
-
-#include <stdint.h>
+#include "delay.h"
 #include "stm32f4xx_conf.h"
 #include "stm32f4xx.h"
 
-#ifndef __DELAY_H
-#define __DELAY_H
-
-
 uint32_t delay_multiplier = 1;
 
-void delay_us(uint32_t micros) {
-
+void delay_us(uint32_t micros)
+{
     micros = micros * delay_multiplier - 10;
     while (micros--);
 }
 
-void delay_ms(uint32_t millis) {
-
+void delay_ms(uint32_t millis)
+{
     for (int i = 0; i < 1000; i++) {
         delay_us(millis);
     }
 }
 
-void delay_init() {
-
+void delay_init()
+{
     RCC_ClocksTypeDef RCC_Clocks;
     RCC_GetClocksFreq(&RCC_Clocks);
 
     delay_multiplier = RCC_Clocks.HCLK_Frequency / 4000000;
-
 }
 
-#endif
