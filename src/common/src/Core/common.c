@@ -26,8 +26,9 @@
 #include "GPIO/usart.h"
 #include "FreeRTOS.h"
 #include "timers.h"
-/* #include "Core/gps.h" */
+#include "GPS/gps.h"
 #include <time.h>
+
 
 static uint64_t common_timestamp = 0; // milliseconds since startup
 static TimerHandle_t common_timer;
@@ -37,6 +38,11 @@ static const uint16_t lfsr_start_state = 0x12ABu;
 static uint16_t lfsr;
 
 static void common_increase_timestamp(TimerHandle_t t);
+
+
+#ifdef SIMULATOR
+long timestamp_delta = 0;
+#endif
 
 int find_last_sunday(const struct tm* time) {
     struct tm t = *time;
@@ -157,11 +163,20 @@ void common_init(void)
 
 static void common_increase_timestamp(TimerHandle_t t)
 {
-    common_timestamp++;
 
 #ifdef SIMULATOR
-    //Simulator rate is 100ticks/s
-    common_timestamp += 9;
+    struct timespec ctime;
+
+    clock_gettime(CLOCK_REALTIME, &ctime);
+    common_timestamp = ctime.tv_sec * 1000 + ctime.tv_nsec / 1.0e6 - timestamp_delta;
+
+    if (timestamp_delta == 0) {
+        timestamp_delta = common_timestamp;
+        common_timestamp = 0;
+    }
+
+#else
+    common_timestamp++;
 #endif
 }
 

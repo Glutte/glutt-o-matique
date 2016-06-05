@@ -17,7 +17,7 @@ void fsm_state_switched(char * new_state) {
 
 
     time_t now = time(NULL);
-    struct tm *t = gmtime(&now);
+    struct tm *t = localtime(&now);
 
     gui_last_fsm_states[0] = new_state;
     gui_last_fsm_states_timestamps[0] = t->tm_hour * 10000 + t->tm_min * 100 + t->tm_sec;
