@@ -24,7 +24,7 @@
 
 #include "stm32f4xx_conf.h"
 
-#include "../../../stm32f/includes/GPIO/leds.h"
+#include "leds.h"
 #include "../../../common/src/Core/main.c"
 
 
