@@ -37,7 +37,7 @@
 #define GPIO_PIN_QRP_out  GPIO_Pin_9
 #define GPIO_PIN_D        GPIO_Pin_11
 #define GPIO_PIN_REPLIE_n GPIO_Pin_13
-#define GPIO_PIN_FAX_n    GPIO_Pin_14
+#define GPIO_PIN_FAX      GPIO_Pin_14
 
 
 #define GPIOC_OUTPUT_PINS ( \
@@ -56,6 +56,7 @@
                           GPIO_PIN_U | \
                           GPIO_PIN_D | \
                           GPIO_PIN_REPLIE_n | \
+                          GPIO_PIN_FAX | \
                           0 )
 
 #include "GPIO/pio.h"
@@ -146,7 +147,7 @@ void read_fsm_input_task(void *pvParameters)
             GPIO_ReadInputDataBit(GPIOC, GPIO_PIN_REPLIE_n) ? 1 : 0;
 
         pio_signals.sstv_mode =
-            GPIO_ReadInputDataBit(GPIOC, GPIO_PIN_FAX_n) ? 0 : 1;
+            GPIO_ReadInputDataBit(GPIOC, GPIO_PIN_FAX) ? 1 : 0;
 
         vTaskDelay(100 / portTICK_RATE_MS);
     }
