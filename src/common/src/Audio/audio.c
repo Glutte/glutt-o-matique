@@ -26,18 +26,12 @@
 
 #include <stdlib.h>
 
-static void audio_write_register(uint8_t address, uint8_t value);
-static void audio_start_dma_and_request_buffers();
-static void audio_stop_dma();
-
-static AudioCallbackFunction *callback_function;
-static void *callback_context;
-static int16_t * volatile next_buffer_samples;
-static volatile int next_buffer_length;
-static volatile int buffer_number;
-static volatile bool dma_running;
-
-void audio_initialize_platform(int plln, int pllr, int i2sdiv, int i2sodd, int rate);
+AudioCallbackFunction *callback_function;
+void *callback_context;
+int16_t * next_buffer_samples;
+int next_buffer_length;
+int buffer_number;
+bool dma_running;
 
 void audio_initialize(int plln, int pllr, int i2sdiv, int i2sodd, int rate) {
 

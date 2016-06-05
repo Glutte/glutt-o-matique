@@ -1,3 +1,5 @@
 src/GPIO/usart.c
 src/GPS/gps.c
 src/Core/common.c
+src/Audio/cw.c
+src/Audio/audio.c

@@ -23,10 +23,11 @@
 */
 
 #include "GPIO/i2c.h"
+#include "Audio/audio.h"
 #include "stm32f4xx_conf.h"
 #include "stm32f4xx.h"
 
-#include "../common/src/Audio/audio.c"
+static void audio_write_register(uint8_t address, uint8_t value);
 
 void audio_initialize_platform(int plln, int pllr, int i2sdiv, int i2sodd, int rate) {
 
@@ -164,7 +165,7 @@ void audio_stop() {
     audio_stop_dma();
     SPI3 ->CR2 &= ~SPI_CR2_TXDMAEN; // Disable I2S TX DMA request.
     NVIC_DisableIRQ(DMA1_Stream7_IRQn);
-    callback_function = NULL;
+    callback_function = (AudioCallbackFunction*)0;
 }
 
 void audio_provide_buffer(void *samples, int numsamples) {
@@ -189,7 +190,7 @@ bool audio_provide_buffer_without_blocking(void *samples, int numsamples) {
     return true;
 }
 
-static void audio_start_dma_and_request_buffers() {
+void audio_start_dma_and_request_buffers() {
     // Configure DMA stream.
     DMA1_Stream7 ->CR = (0 * DMA_SxCR_CHSEL_0 ) | // Channel 0
         (1 * DMA_SxCR_PL_0 ) | // Priority 1
@@ -205,7 +206,7 @@ static void audio_start_dma_and_request_buffers() {
     DMA1_Stream7 ->CR |= DMA_SxCR_EN;
 
     // Update state.
-    next_buffer_samples = NULL;
+    next_buffer_samples = (void*)0;
     buffer_number ^= 1;
     dma_running = true;
 
@@ -214,7 +215,7 @@ static void audio_start_dma_and_request_buffers() {
         callback_function(callback_context, buffer_number);
 }
 
-static void audio_stop_dma() {
+void audio_stop_dma() {
     DMA1_Stream7 ->CR &= ~DMA_SxCR_EN; // Disable DMA stream.
     while (DMA1_Stream7 ->CR & DMA_SxCR_EN )
         ; // Wait for DMA stream to stop.

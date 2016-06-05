@@ -22,7 +22,6 @@
  * SOFTWARE.
 */
 
-#include "../common/src/Audio/cw.c"
 #include "GPIO/usart.h"
 
 // Function to display message in GUI, unused on STM32 firmware

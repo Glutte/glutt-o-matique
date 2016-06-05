@@ -6,6 +6,18 @@
 
 typedef void AudioCallbackFunction(void *context,int buffer);
 
+// Variables used by both glutt-o-logique and simulator
+extern AudioCallbackFunction *callback_function;
+extern void *callback_context;
+extern int16_t *next_buffer_samples;
+extern int next_buffer_length;
+extern int buffer_number;
+extern bool dma_running;
+
+void audio_initialize_platform(int plln, int pllr, int i2sdiv, int i2sodd, int rate);
+void audio_start_dma_and_request_buffers();
+void audio_stop_dma();
+
 #define Audio8000HzSettings 256,5,12,1,8000
 #define Audio16000HzSettings 213,2,13,0,16000
 #define Audio32000HzSettings 213,2,6,1,32000
