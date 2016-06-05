@@ -254,6 +254,9 @@ const char *psk31_varicode[] = { // {{{
 }; //}}}
 #endif
 
+// Function to display message in GUI
+void cw_message_sent(const char* str);
+
 struct cw_message_s {
     char          message[MAX_MESSAGE_LEN];
     size_t        message_len;
