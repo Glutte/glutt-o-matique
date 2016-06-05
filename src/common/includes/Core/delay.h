@@ -28,7 +28,12 @@
 // High-precisions delay (with approximations)
 
 // These functions only work if interupts are disabled
+#ifdef SIMULATOR
+void delay_us(int micros);
+void delay_ms(int millis);
+#else
 void delay_us(uint32_t micros);
 void delay_ms(uint32_t millis);
+#endif
 
-void delay_init();
+void delay_init(void);

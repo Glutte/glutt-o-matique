@@ -20,11 +20,13 @@
 
 void delay_us(uint32_t);
 
+/*
 static void
 TM_GPIO_SetBits(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
 {
     GPIO_SetBits(GPIOx, GPIO_Pin);
 }
+*/
 
 static void
 TM_GPIO_ResetBits(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)

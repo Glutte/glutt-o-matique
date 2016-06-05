@@ -32,8 +32,14 @@
 #include "task.h"
 #include "timers.h"
 #include "semphr.h"
+#include "src/GPS/gps_sim.h"
+#include "src/Gui/gui.h"
 
-static void thread_gui(void *arg) {
+
+void init(void);
+
+
+static void thread_gui(void __attribute__ ((unused))*arg) {
     main_gui();
 }
 
@@ -67,7 +73,7 @@ int gui_gps_custom_month_len;
 char gui_gps_custom_year[4];
 int gui_gps_custom_year_len;
 
-static void thread_gui_gps(void *arg) {
+static void thread_gui_gps(void __attribute__ ((unused))*arg) {
 
     while(1) {
         vTaskDelay(1000 / portTICK_RATE_MS);

@@ -39,6 +39,7 @@ MCFLAGS=-mcpu=cortex-m4 -mthumb -mlittle-endian \
 -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -mthumb-interwork
 # COMPILE FLAGS
 DEFS=-DUSE_STDPERIPH_DRIVER -DSTM32F4XX -DARM_MATH_CM4 -D__FPU_PRESENT=1
+
 CFLAGS  =-Wall -ggdb -std=c99 -c $(MCFLAGS) $(DEFS) $(INCLUDES)
 # LINKER FLAGS
 LDSCRIPT= $(SRCDIR)/bsp/stm32_flash.ld

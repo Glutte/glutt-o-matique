@@ -15,8 +15,8 @@ extern int buffer_number;
 extern bool dma_running;
 
 void audio_initialize_platform(int plln, int pllr, int i2sdiv, int i2sodd, int rate);
-void audio_start_dma_and_request_buffers();
-void audio_stop_dma();
+void audio_start_dma_and_request_buffers(void);
+void audio_stop_dma(void);
 
 #define Audio8000HzSettings 256,5,12,1,8000
 #define Audio16000HzSettings 213,2,13,0,16000
@@ -35,8 +35,8 @@ void audio_stop_dma();
 void audio_initialize(int plln,int pllr,int i2sdiv,int i2sodd, int rate);
 
 // Power up and down the audio hardware.
-void audio_on();
-void audio_off();
+void audio_on(void);
+void audio_off(void);
 
 // Set audio volume in steps of 0.5 dB. 0xff is +12 dB.
 void audio_set_volume(int volume);
@@ -48,7 +48,7 @@ void audio_output_sample_without_blocking(int16_t sample);
 // Start and stop audio playback using DMA.
 // Callback is optional, and called whenever a new buffer is needed.
 void audio_play_with_callback(AudioCallbackFunction *callback,void *context);
-void audio_stop();
+void audio_stop(void);
 
 // Provide a new buffer to the audio DMA. Output is double buffered, so
 // at least two buffers must be maintained by the program. It is not allowed

@@ -1,4 +1,7 @@
-void delay_init() {
+#include "Core/delay.h"
+#include <unistd.h>
+
+void delay_init(void) {
 }
 
 void delay_us(int micros) {

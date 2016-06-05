@@ -23,13 +23,15 @@
 */
 
 
-#include "../../../common/includes/GPIO/usart.h"
+#include "GPIO/usart.h"
+#include "src/Gui/gui.h"
 
 extern char uart_recv_txt[4096];
 int uart_recv_pointer = 0;
 
 
-void usart_move_buffer_up();
+void usart_move_buffer_up(void);
+void gui_usart_send(char *);
 
 
 void usart_init() {

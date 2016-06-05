@@ -62,12 +62,14 @@ void usart_debug_puts_header(const char* hdr, const char* str);
 // Return 1 on success
 int usart_get_nmea_sentence(char* nmea);
 
-void usart_debug_timestamp();
+void usart_debug_timestamp(void);
 
-void usart_gps_specific_init();
+void usart_gps_specific_init(void);
 
 void usart_process_char(char);
 void usart_gps_process_char(char);
+
+void usart_puts(USART_TypeDef*, const char*);
 
 #endif //__USART_H_
 

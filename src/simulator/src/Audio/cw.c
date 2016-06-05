@@ -22,8 +22,13 @@
  * SOFTWARE.
 */
 
+#include "Audio/cw.h"
+
 extern char gui_cw_text[4096];
 int gui_cw_text_pointer = 0;
+
+void cw_move_buffer_up(void);
+void cw_move_buffer_up(void);
 
 void cw_move_buffer_up() {
 

@@ -53,7 +53,7 @@ void usart_gps_init() {
 
 void usart_gps_puts(const char* str) {
     vTaskSuspendAll();
-    return usart_puts(USART3, str);
+    usart_puts(USART3, str);
     xTaskResumeAll();
 }
 

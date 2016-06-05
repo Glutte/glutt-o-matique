@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Matthias P. Braendli
+ * Copyright (c) 2016 Matthias P. Braendli, Maximilien Cuony
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,26 +22,6 @@
  * SOFTWARE.
 */
 
-#ifndef _PIO_H_
-#define _PIO_H_
+#pragma once
 
-#include <stddef.h>
-#include <stdint.h>
-#include "Core/fsm.h"
-
-/* Analog inputs */
-// TODO: SWR forward power
-// TODO: SWR reflected power
-
-void pio_init(void);
-
-void pio_set_tx(int on);
-void pio_set_mod_off(int mod_off);
-void pio_set_qrp(int on);
-
-void pio_set_fsm_signals(struct fsm_input_signals_t* sig);
-
-int pio_read_button(void);
-
-#endif // _PIO_H_
-
+void main_gui(void);

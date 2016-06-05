@@ -45,5 +45,7 @@ size_t cw_psk31_fill_buffer(int16_t *buf, size_t bufsize);
 // Return 1 if the CW or PSK31 generator is running
 int cw_psk31_busy(void);
 
+void cw_message_sent(const char*);
+
 #endif // __CW_H_
 

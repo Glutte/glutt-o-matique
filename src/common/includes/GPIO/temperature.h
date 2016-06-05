@@ -37,3 +37,4 @@ int temperature_valid();
 // Get current temperature
 float temperature_get();
 
+void temperature_task(void *);

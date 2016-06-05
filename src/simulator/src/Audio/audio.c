@@ -33,12 +33,12 @@ pa_simple *s = NULL;
 int current_buffer_length = 0;
 int16_t * current_buffer_samples;
 
-static void audio_buffer_sent();
+static void audio_buffer_sent(void);
 static void audio_buffer_sender(void *args);
 
 extern char gui_audio_on;
 
-void audio_initialize_platform(int plln, int pllr, int i2sdiv, int i2sodd, int rate) {
+void audio_initialize_platform(int __attribute__ ((unused))plln, int __attribute__ ((unused))pllr, int __attribute__ ((unused))i2sdiv, int __attribute__ ((unused))i2sodd, int rate) {
 
     int error;
 
@@ -50,7 +50,9 @@ void audio_initialize_platform(int plln, int pllr, int i2sdiv, int i2sodd, int r
 
     ss.rate = rate;
 
-    if (s = pa_simple_new(NULL, "Glutte", PA_STREAM_PLAYBACK, NULL, "playback", &ss, NULL, NULL, &error)) {
+    s = pa_simple_new(NULL, "Glutte", PA_STREAM_PLAYBACK, NULL, "playback", &ss, NULL, NULL, &error);
+
+    if (s) {
 
     } else {
         printf("Pulseaudio playback init error\n");
@@ -69,7 +71,7 @@ void audio_initialize_platform(int plln, int pllr, int i2sdiv, int i2sodd, int r
 
 }
 
-static void audio_buffer_sender(void *args) {
+static void audio_buffer_sender(void __attribute__ ((unused)) *args) {
 
     while(1) {
 
@@ -102,11 +104,11 @@ void audio_off() {
     gui_audio_on = 0;
 }
 
-void audio_set_volume(int volume) {
+void audio_set_volume(int __attribute__ ((unused))volume) {
 }
 
 
-void audio_output_sample_without_blocking(int16_t sample) {
+void audio_output_sample_without_blocking(int16_t __attribute__ ((unused))sample) {
 }
 
 void audio_play_with_callback(AudioCallbackFunction *callback, void *context) {
