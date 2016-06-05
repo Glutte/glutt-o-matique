@@ -23,19 +23,7 @@
 */
 
 
-#define USART_TypeDef int
-
-int _USART2 = 2;
-int _USART3 = 3;
-
-#define USART2 &_USART2
-#define USART3 &_USART3
-
-static void usart_puts(USART_TypeDef*, const char*);
-
 #include "../../../common/includes/GPIO/usart.h"
-#include "../../../common/src/GPIO/usart.c"
-
 
 extern char uart_recv_txt[4096];
 int uart_recv_pointer = 0;
@@ -68,9 +56,9 @@ void usart_move_buffer_up() {
 }
 
 // Make sure Tasks are suspended when this is called!
-static void usart_puts(USART_TypeDef* USART, const char* str) {
+void usart_puts(USART_TypeDef* USART, const char* str) {
 
-    if (*USART == _USART2) {
+    if (USART == USART2) {
         while(*str) {
             if (*str != '\r') {
                 uart_recv_txt[uart_recv_pointer+1] = '\0';

@@ -17,8 +17,12 @@ ASOURCES=$(shell find -L $(SRCDIR) -name '*.s')
 CSOURCES+=$(shell find -L $(SRCDIR) -name '*.c')
 HEADERS=$(shell find -L $(SRCDIR) -name '*.h')
 
+COMMON_DIR=../common
+COMMON_SOURCE_LIST=$(shell cat ../common/sourcelist.txt)
+CSOURCES+=$(COMMON_SOURCE_LIST:%.c=../common/%.c)
+
 INC=$(shell find -L $(SRCDIR) -name '*.h' -exec dirname {} \; | uniq)
-INC+=../common/includes
+INC+=$(COMMON_DIR)/includes
 INCLUDES=$(INC:%=-I%)
 
 # Create object list

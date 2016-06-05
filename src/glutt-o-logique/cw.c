@@ -27,8 +27,6 @@
 
 // Function to display message in GUI, unused on STM32 firmware
 void cw_message_sent(const char* str) {
-    usart_debug_puts("CW: ");
-    usart_debug_puts(str);
-    usart_debug_puts("\r\n");
+    usart_debug_puts_header("CW: ", str);
 }
 

@@ -104,9 +104,12 @@ void usart_debug_puts(const char* str) {
     xTaskResumeAll();
 }
 
-void usart_debug_puts_no_header(const char* str) {
+void usart_debug_puts_header(const char* hdr, const char* str) {
     vTaskSuspendAll();
+    usart_debug_timestamp();
+    usart_puts(USART2, hdr);
     usart_puts(USART2, str);
+    usart_puts(USART2, "\r\n");
     xTaskResumeAll();
 }
 

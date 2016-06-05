@@ -31,6 +31,14 @@
 #ifndef __USART_H_
 #define __USART_H_
 
+#ifdef STM32F4XX
+#  include <stm32f4xx_usart.h>
+#else
+#  define USART_TypeDef int
+#  define USART2 ((USART_TypeDef*)2)
+#  define USART3 ((USART_TypeDef*)3)
+#endif
+
 #define MAX_NMEA_SENTENCE_LEN 256
 
 // Initialise USART2 for PC debugging
@@ -48,7 +56,7 @@ void usart_debug(const char *format, ...);
 
 // Send a string to the PC
 void usart_debug_puts(const char* str);
-void usart_debug_puts_no_header(const char* str);
+void usart_debug_puts_header(const char* hdr, const char* str);
 
 // Get a MAX_NMEA_SENTENCE_LEN sized NMEA sentence
 // Return 1 on success

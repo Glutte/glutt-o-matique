@@ -6,9 +6,7 @@ extern int * gui_last_fsm_states_timestamps[];
 
 
 void fsm_state_switched(char * new_state) {
-    usart_debug_puts("FSM: ");
-    usart_debug_puts_no_header(new_state);
-    usart_debug_puts_no_header("\r\n");
+    usart_debug_puts_header("FSM: ", new_state);
 
     for (int i = 8; i >= 0; i--) {
         gui_last_fsm_states[i + 1] = gui_last_fsm_states[i];

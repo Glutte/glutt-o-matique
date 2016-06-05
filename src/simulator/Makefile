@@ -31,6 +31,10 @@ C_FILES			+= timers.c
 C_FILES			+= heap_3.c
 C_FILES			+= port.c
 
+# common Objects
+COMMON_SOURCE_LIST=$(shell cat ../common/sourcelist.txt)
+C_FILES+=$(COMMON_SOURCE_LIST:%.c=../common/%.c)
+
 # Main Object
 SRC_SOURCES+=$(shell find -L src/ -name '*.c')
 C_FILES			+= $(SRC_SOURCES)
