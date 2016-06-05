@@ -56,7 +56,7 @@ char led_red = 0;
 /**
  * GPS
  */
-int gui_gps_send_frame = 1;
+int gui_gps_send_frame = 0;
 int gui_gps_frames_valid = 1;
 char gui_gps_lat[64] = "4719.59788";
 int gui_gps_lat_len = 10;
