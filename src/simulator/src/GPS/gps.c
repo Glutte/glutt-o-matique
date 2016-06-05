@@ -1,4 +1,4 @@
-#include "../../../common/src/GPS/gps.c"
+#include "GPIO/usart.h"
 
 void gps_usart_send(char * string) {
 
