@@ -1,9 +1,11 @@
-#include "../../../common/src/GPIO/temperature.c"
+#include "GPIO/temperature.h"
+#include "FreeRTOS.h"
+#include "task.h"
 
 extern int gui_temperature_valid;
 extern float gui_temperature;
 
-static void temperature_task(void *pvParameters) {
+void temperature_task(void *pvParameters) {
 
     while (1) {
 

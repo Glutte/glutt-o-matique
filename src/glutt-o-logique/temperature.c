@@ -33,7 +33,9 @@
 #include "Core/delay.h"
 
 
-#include "../common/src/GPIO/temperature.c"
+#include "FreeRTOS.h"
+#include "task.h"
+#include "GPIO/temperature.h"
 
 const TickType_t _temperature_delay = 60000 / portTICK_PERIOD_MS; // 60s
 
@@ -95,7 +97,7 @@ int ds18b20_gettemp(float *temperature) {
     return status;
 }
 
-static void temperature_task(void *pvParameters) {
+void temperature_task(void *pvParameters) {
 
     while (1) {
 

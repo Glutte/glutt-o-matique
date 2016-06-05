@@ -1,4 +1,4 @@
-#include "../../../common/src/GPIO/leds.c"
+#include "GPIO/leds.h"
 
 
 extern char led_blue;

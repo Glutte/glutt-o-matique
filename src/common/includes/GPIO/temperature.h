@@ -22,11 +22,11 @@
  * SOFTWARE.
 */
 
+#pragma once
 #include <stdint.h>
 
-#ifndef __TEMPERATURE_H
-#define __TEMPERATURE_H
-
+extern float _temperature_last_value;
+extern int _temperature_valid;
 
 // Setup communication and temperature
 void temperature_init();
@@ -36,6 +36,4 @@ int temperature_valid();
 
 // Get current temperature
 float temperature_get();
-
-#endif // __TEMPERATURE_H
 

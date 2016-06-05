@@ -33,7 +33,7 @@ float _temperature_last_value;
 int _temperature_valid;
 
 
-static void temperature_task(void *pvParameters);
+void temperature_task(void *pvParameters);
 
 
 void temperature_init() {

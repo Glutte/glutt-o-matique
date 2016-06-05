@@ -22,7 +22,7 @@
  * SOFTWARE.
 */
 
-#include "../common/src/GPIO/leds.c"
+#include "GPIO/leds.h"
 
 #include "stm32f4xx_conf.h"
 
