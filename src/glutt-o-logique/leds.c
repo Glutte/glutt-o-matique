@@ -1,4 +1,4 @@
-#include "../../../common/src/GPIO/leds.c"
+#include "../common/src/GPIO/leds.c"
 
 #include "stm32f4xx_conf.h"
 

@@ -1,1 +1,1 @@
-#include "../../../common/src/GPS/minmea.c"
+#include "../common/src/GPS/minmea.c"

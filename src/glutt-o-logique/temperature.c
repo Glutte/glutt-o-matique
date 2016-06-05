@@ -11,7 +11,7 @@
 #include "Core/delay.h"
 
 
-#include "../../../common/src/GPIO/temperature.c"
+#include "../common/src/GPIO/temperature.c"
 
 const TickType_t _temperature_delay = 60000 / portTICK_PERIOD_MS; // 60s
 

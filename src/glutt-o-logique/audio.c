@@ -2,7 +2,7 @@
 #include "stm32f4xx_conf.h"
 #include "stm32f4xx.h"
 
-#include "../../../common/src/Audio/audio.c"
+#include "../common/src/Audio/audio.c"
 
 void audio_initialize_platform(int plln, int pllr, int i2sdiv, int i2sodd, int rate) {
 

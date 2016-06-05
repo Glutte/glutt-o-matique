@@ -38,8 +38,8 @@ const uint16_t GPIOA_PIN_USART2_TX = GPIO_Pin_2;
 
 static void usart_puts(USART_TypeDef*, const char*);
 
-#include "../../../common/includes/GPIO/usart.h"
-#include "../../../common/src/GPIO/usart.c"
+#include "../common/includes/GPIO/usart.h"
+#include "../common/src/GPIO/usart.c"
 
 
 void usart_init() {
