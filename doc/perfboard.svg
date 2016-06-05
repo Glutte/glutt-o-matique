@@ -2284,9 +2284,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.8284271"
-     inkscape:cx="842.10835"
-     inkscape:cy="133.74215"
+     inkscape:zoom="2"
+     inkscape:cx="889.36751"
+     inkscape:cy="364.19891"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -24880,7 +24880,7 @@
            id="tspan34218"
            y="1007.1062"
            x="398.24316"
-           sodipodi:role="line">2016-05-30 HB9EGM - HB9FOH</tspan></text>
+           sodipodi:role="line">2016-06-05 HB9EGM - HB9FOH</tspan></text>
     </g>
     <g
        transform="matrix(0,1,1,0,-301.18106,329.52752)"
@@ -25863,9 +25863,9 @@
        d="m 779.52758,499.60628 9.92126,9.92126 60.94489,0 0,107.71654 28.34645,9.92125 35.43308,25.51182 21.25984,0"
        style="fill:none;fill-rule:evenodd;stroke:#34c3ff;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:bevel;stroke-opacity:1" />
     <g
-       id="g9250">
+       id="g9256">
       <g
-         transform="translate(83.622059,-21.259838)"
+         transform="translate(83.622059,-77.952754)"
          id="g9839">
         <path
            sodipodi:nodetypes="ccc"
@@ -25881,7 +25881,7 @@
       </g>
       <g
          id="g9845"
-         transform="translate(83.622059,7.0866201)">
+         transform="translate(83.622077,-49.606296)">
         <path
            style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:bevel;stroke-opacity:1"
            d="m 864.56695,712.20472 7.08661,0 0,7.0866"
