@@ -25,8 +25,6 @@
 #include "stm32f4xx_conf.h"
 
 #include "leds.h"
-#include "../common/src/Core/main.c"
-
 
 void init() {
     /* Initialise the onboard peripherals

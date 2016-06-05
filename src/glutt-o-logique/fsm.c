@@ -22,10 +22,10 @@
  * SOFTWARE.
 */
 
-#include "../common/src/Core/fsm.c"
+#include "Core/fsm.h"
 #include "GPIO/usart.h"
 
-void fsm_state_switched(char * new_state) {
+void fsm_state_switched(const char *new_state) {
     usart_debug_puts_header("FSM: ", new_state);
 }
 

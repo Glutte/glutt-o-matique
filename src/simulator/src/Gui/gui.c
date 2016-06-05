@@ -132,8 +132,8 @@ int in_u = 0;
 int in_d = 0;
 int in_fax_n = 1;
 
-char * gui_last_fsm_states[] = {"", "", "", "", "", "", "", "", "", ""};
-int * gui_last_fsm_states_timestamps[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+const char * gui_last_fsm_states[] = {"", "", "", "", "", "", "", "", "", ""};
+int gui_last_fsm_states_timestamps[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 
 int auto_scroll_uart = 1;

@@ -36,9 +36,6 @@ static fsm_state_t current_state;
 // in ms using the timestamp_now() function
 static uint64_t timestamp_state[_NUM_FSM_STATES];
 
-
-void fsm_state_switched(char * new_state);
-
 void fsm_init() {
     memset(&fsm_in, 0, sizeof(fsm_in));
     memset(&fsm_out, 0, sizeof(fsm_out));

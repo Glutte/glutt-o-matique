@@ -99,5 +99,8 @@ void fsm_update_inputs(struct fsm_input_signals_t* inputs);
 // Getter for outputs
 void fsm_get_outputs(struct fsm_output_signals_t* out);
 
+// Announce a state change
+void fsm_state_switched(const char *new_state);
+
 #endif // _FSM_H_
 

@@ -22,10 +22,16 @@
  * SOFTWARE.
 */
 
-#include "../../../common/src/Core/main.c"
-
 #include <pthread.h>
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 
+/* Kernel includes. */
+#include "FreeRTOS.h"
+#include "task.h"
+#include "timers.h"
+#include "semphr.h"
 
 static void thread_gui(void *arg) {
     main_gui();
