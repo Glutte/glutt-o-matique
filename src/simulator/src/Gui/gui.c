@@ -136,6 +136,10 @@ char * gui_last_fsm_states[] = {"", "", "", "", "", "", "", "", "", ""};
 int * gui_last_fsm_states_timestamps[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 
+int auto_scroll_uart = 1;
+int auto_scroll_cw = 1;
+
+
 struct XWindow {
     Display *dpy;
     Window win;
@@ -347,6 +351,7 @@ int main_gui() {
         {
 
             struct nk_panel layout;
+            int nb_lines = 0;
 
             if (nk_begin(ctx, &layout, "UART", nk_rect(50, 50, 400, 330), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_SCALABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
 
@@ -369,8 +374,9 @@ int main_gui() {
                 }
 
 
-                nk_layout_row_dynamic(ctx, 25, 1);
+                nk_layout_row_dynamic(ctx, 25, 2);
                 nk_label(ctx, "UART Output:", NK_TEXT_LEFT);
+                nk_checkbox_label(ctx, "(Auto scroll)", &auto_scroll_uart);
 
                 nk_menubar_end(ctx);
 
@@ -384,6 +390,7 @@ int main_gui() {
                     if (*current_pointer == '\n') {
                         if (l > 1) {
                             nk_text(ctx, current_pointer - l, l, NK_TEXT_LEFT);
+                            nb_lines++;
                         }
                         current_pointer++;
                         l = 0;
@@ -394,7 +401,11 @@ int main_gui() {
 
                 if (l > 1) {
                     nk_text(ctx, current_pointer - l, l, NK_TEXT_LEFT);
+                    nb_lines++;
                 }
+            }
+            if (auto_scroll_uart) {
+                layout.offset->y = nb_lines * 32 + 200;
             }
             nk_end(ctx);
 
@@ -481,9 +492,10 @@ int main_gui() {
             if (nk_begin(ctx, &layout, "CW", nk_rect(270, 390, 180, 155), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_SCALABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
 
                 nk_menubar_begin(ctx);
-                nk_layout_row_dynamic(ctx, 25, 1);
+                nk_layout_row_dynamic(ctx, 25, 2);
 
                 nk_label(ctx, "CW Buffer:", NK_TEXT_LEFT);
+                nk_checkbox_label(ctx, "(Auto scroll)", &auto_scroll_cw);
 
                 nk_menubar_end(ctx);
 
@@ -491,12 +503,14 @@ int main_gui() {
 
                 char * current_pointer = gui_cw_text;
                 int l = 0;
+                nb_lines = 0;
 
                 while (*current_pointer != 0) {
 
                     if (*current_pointer == '\n') {
                         if (l > 1) {
                             nk_text(ctx, current_pointer - l, l, NK_TEXT_LEFT);
+                            nb_lines++;
                         }
                         current_pointer++;
                         l = 0;
@@ -507,7 +521,11 @@ int main_gui() {
 
                 if (l > 1) {
                     nk_text(ctx, current_pointer - l, l, NK_TEXT_LEFT);
+                    nb_lines++;
                 }
+            }
+            if (auto_scroll_uart) {
+                layout.offset->y = nb_lines * 32 + 200;
             }
             nk_end(ctx);
 
