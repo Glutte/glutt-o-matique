@@ -71,11 +71,6 @@ void vApplicationStackOverflowHook( TaskHandle_t xTask,
     while (1) {};
 }
 
-void * threadscheduler(void * arg) {
-    /* Start the RTOS Scheduler */
-    vTaskStartScheduler();
-}
-
 int main(void) {
     init();
     delay_init();
