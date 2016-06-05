@@ -13,8 +13,8 @@ SIZE=arm-none-eabi-size
 BINDIR=bin
 SRCDIR=.
 
-SOURCES=$(shell find -L $(SRCDIR) -name '*.s')
-SOURCES+=$(shell find -L $(SRCDIR) -name '*.c')
+ASOURCES=$(shell find -L $(SRCDIR) -name '*.s')
+CSOURCES+=$(shell find -L $(SRCDIR) -name '*.c')
 HEADERS=$(shell find -L $(SRCDIR) -name '*.h')
 
 INC=$(shell find -L $(SRCDIR) -name '*.h' -exec dirname {} \; | uniq)
@@ -22,7 +22,8 @@ INC+=../common/includes
 INCLUDES=$(INC:%=-I%)
 
 # Create object list
-OBJECTS=$(SOURCES:%.c=obj/%.o)
+OBJECTS=$(CSOURCES:%.c=obj/%.o)
+OBJECTS+=$(ASOURCES:%.s=obj/%.o)
 
 # Define output files ELF & IHEX
 BINELF=outp.elf
