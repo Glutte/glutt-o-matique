@@ -101,6 +101,41 @@ int gui_temperature_valid = 1;
 float gui_temperature = 25.0;
 
 
+/**
+ * Outputs
+ */
+char gui_out_tx = 0;
+char gui_out_mod_off = 0;
+char gui_out_qrp = 0;
+
+
+/**
+ * Inputs
+ */
+int gui_in_button = 0;
+int gui_in_qrp_n = 1;
+int gui_in_1750_n = 1;
+int gui_in_sq_n = 1;
+int gui_in_u = 0;
+int gui_in_d = 0;
+int gui_in_replie_n = 1;
+static const char *replie_status[] = {"Replié", "In vent"};
+int gui_in_fax_n = 1;
+
+
+
+int in_button = 0;
+int in_qrp_n = 1;
+int in_1750_n = 1;
+int in_sq_n = 1;
+int in_u = 0;
+int in_d = 0;
+int in_fax_n = 1;
+
+char * gui_last_fsm_states[] = {"", "", "", "", "", "", "", "", "", ""};
+int * gui_last_fsm_states_timestamps[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+
 struct XWindow {
     Display *dpy;
     Window win;
@@ -139,10 +174,12 @@ static int has_extension(const char *string, const char *ext) {
     for (start = string;;) {
         where = strstr((const char*)start, ext);
         if (!where) break;
+
         term = where + strlen(ext);
         if (where == start || *(where - 1) == ' ') {
-            if (*term == ' ' || *term == '\0')
+            if (*term == ' ' || *term == '\0') {
                 return TRUE;
+            }
         }
         start = term;
     }
@@ -231,9 +268,11 @@ int main_gui() {
             ButtonPress | ButtonReleaseMask| ButtonMotionMask |
             Button1MotionMask | Button3MotionMask | Button4MotionMask | Button5MotionMask|
             PointerMotionMask| StructureNotifyMask;
+
         win.win = XCreateWindow(win.dpy, RootWindow(win.dpy, win.vis->screen), 0, 0,
                 WINDOW_WIDTH, WINDOW_HEIGHT, 0, win.vis->depth, InputOutput,
                 win.vis->visual, CWBorderPixel|CWColormap|CWEventMask, &win.swa);
+
         if (!win.win) die("[X11]: Failed to create window\n");
         XFree(win.vis);
         XStoreName(win.dpy, win.win, "glutt-o-matique simulator 3000");
@@ -309,7 +348,7 @@ int main_gui() {
 
             struct nk_panel layout;
 
-            if (nk_begin(ctx, &layout, "UART", nk_rect(50, 50, 400, 300), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_SCALABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
+            if (nk_begin(ctx, &layout, "UART", nk_rect(50, 50, 400, 330), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_SCALABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
 
 
                 nk_menubar_begin(ctx);
@@ -360,7 +399,7 @@ int main_gui() {
             nk_end(ctx);
 
 
-            if (nk_begin(ctx, &layout, "LEDs", nk_rect(50, 360, 100, 155), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
+            if (nk_begin(ctx, &layout, "LEDs", nk_rect(50, 390, 100, 155), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
 
                 nk_layout_row_static(ctx, 20, 20, 3);
 
@@ -415,7 +454,7 @@ int main_gui() {
             }
             nk_end(ctx);
 
-            if (nk_begin(ctx, &layout, "Audio", nk_rect(160, 360, 100, 155), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
+            if (nk_begin(ctx, &layout, "Audio", nk_rect(160, 390, 100, 155), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
 
                 nk_layout_row_static(ctx, 20, 20, 3);
 
@@ -439,7 +478,7 @@ int main_gui() {
             nk_end(ctx);
 
 
-            if (nk_begin(ctx, &layout, "CW", nk_rect(270, 360, 180, 155), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_SCALABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
+            if (nk_begin(ctx, &layout, "CW", nk_rect(270, 390, 180, 155), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_SCALABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
 
                 nk_menubar_begin(ctx);
                 nk_layout_row_dynamic(ctx, 25, 1);
@@ -472,7 +511,7 @@ int main_gui() {
             }
             nk_end(ctx);
 
-            if (nk_begin(ctx, &layout, "GPS", nk_rect(460, 50, 200, 465), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
+            if (nk_begin(ctx, &layout, "GPS", nk_rect(460, 50, 200, 500), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
 
                 nk_layout_row_dynamic(ctx, 30, 1);
                 nk_checkbox_label(ctx, "Send frames", &gui_gps_send_frame);
@@ -548,7 +587,179 @@ int main_gui() {
             }
             nk_end(ctx);
 
-            if (nk_begin(ctx, &layout, "Temperature", nk_rect(670, 50, 200, 200), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
+
+            if (nk_begin(ctx, &layout, "Output", nk_rect(670, 380, 200, 170), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
+
+                nk_layout_row_dynamic(ctx, 25, 2);
+
+                struct nk_color color;
+
+                nk_label(ctx, "TX", NK_TEXT_LEFT);
+
+                color.r = 0; color.g = 255; color.b = 0;
+
+                if (gui_out_tx == 1) {
+                    color.a = 255;
+                } else {
+                    color.a = 30;
+                }
+                nk_button_color(ctx, color, NK_BUTTON_DEFAULT);
+
+                nk_label(ctx, "Mod OFF", NK_TEXT_LEFT);
+
+                color.r = 255; color.g = 255; color.b = 0;
+
+                if (gui_out_mod_off == 1) {
+                    color.a = 255;
+                } else {
+                    color.a = 30;
+                }
+                nk_button_color(ctx, color, NK_BUTTON_DEFAULT);
+
+                nk_label(ctx, "QRP", NK_TEXT_LEFT);
+
+                color.r = 255; color.g = 0; color.b = 0;
+
+                if (gui_out_qrp == 1) {
+                    color.a = 255;
+                } else {
+                    color.a = 30;
+                }
+                nk_button_color(ctx, color, NK_BUTTON_DEFAULT);
+
+            }
+            nk_end(ctx);
+
+            if (nk_begin(ctx, &layout, "Input", nk_rect(670, 50, 200, 320), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
+
+                nk_layout_row_dynamic(ctx, 25, 3);
+
+                struct nk_color color_on = nk_rgb(0, 255, 0);
+                struct nk_color color_off = nk_rgb(255, 0, 0);
+
+                struct nk_color c;
+
+                if (gui_in_button) {
+                    c = color_on;
+                } else {
+                    c = color_off;
+                }
+
+                nk_label_colored(ctx, "Button", NK_TEXT_LEFT, c);
+                nk_checkbox_label(ctx, "", &in_button);
+
+                if (nk_button_label(ctx, "", NK_BUTTON_REPEATER)) {
+                    gui_in_button = !in_button;
+                } else {
+                    gui_in_button = in_button;
+                }
+
+                if (gui_in_qrp_n) {
+                    c = color_on;
+                } else {
+                    c = color_off;
+                }
+
+                nk_label_colored(ctx, "QRP_n", NK_TEXT_LEFT, c);
+                nk_checkbox_label(ctx, "", &in_qrp_n);
+
+                if (nk_button_label(ctx, "", NK_BUTTON_REPEATER)) {
+                    gui_in_qrp_n = !in_qrp_n;
+                } else {
+                    gui_in_qrp_n = in_qrp_n;
+                }
+
+                if (gui_in_1750_n) {
+                    c = color_on;
+                } else {
+                    c = color_off;
+                }
+
+                nk_label_colored(ctx, "1750_n", NK_TEXT_LEFT, c);
+                nk_checkbox_label(ctx, "", &in_1750_n);
+
+                if (nk_button_label(ctx, "", NK_BUTTON_REPEATER)) {
+                    gui_in_1750_n = !in_1750_n;
+                } else {
+                    gui_in_1750_n = in_1750_n;
+                }
+
+                if (gui_in_sq_n) {
+                    c = color_on;
+                } else {
+                    c = color_off;
+                }
+
+                nk_label_colored(ctx, "SQ_n", NK_TEXT_LEFT, c);
+                nk_checkbox_label(ctx, "", &in_sq_n);
+
+                if (nk_button_label(ctx, "", NK_BUTTON_REPEATER)) {
+                    gui_in_sq_n = !in_sq_n;
+                } else {
+                    gui_in_sq_n = in_sq_n;
+                }
+
+                if (gui_in_u) {
+                    c = color_on;
+                } else {
+                    c = color_off;
+                }
+
+                nk_label_colored(ctx, "U", NK_TEXT_LEFT, c);
+                nk_checkbox_label(ctx, "", &in_u);
+
+                if (nk_button_label(ctx, "", NK_BUTTON_REPEATER)) {
+                    gui_in_u = !in_u;
+                } else {
+                    gui_in_u = in_u;
+                }
+
+                if (gui_in_d) {
+                    c = color_on;
+                } else {
+                    c = color_off;
+                }
+
+                nk_label_colored(ctx, "D", NK_TEXT_LEFT, c);
+                nk_checkbox_label(ctx, "", &in_d);
+
+                if (nk_button_label(ctx, "", NK_BUTTON_REPEATER)) {
+                    gui_in_d = !in_d;
+                } else {
+                    gui_in_d = in_d;
+                }
+
+                if (gui_in_fax_n) {
+                    c = color_on;
+                } else {
+                    c = color_off;
+                }
+
+                nk_label_colored(ctx, "FAX_n", NK_TEXT_LEFT, c);
+                nk_checkbox_label(ctx, "", &in_fax_n);
+
+                if (nk_button_label(ctx, "", NK_BUTTON_REPEATER)) {
+                    gui_in_fax_n = !in_fax_n;
+                } else {
+                    gui_in_fax_n = in_fax_n;
+                }
+
+                if (gui_in_replie_n) {
+                    c = color_on;
+                } else {
+                    c = color_off;
+                }
+
+                nk_layout_row_dynamic(ctx, 18, 2);
+                nk_label_colored(ctx, "REPLIE_n", NK_TEXT_LEFT, c);
+                gui_in_replie_n = nk_combo(ctx, replie_status, LEN(replie_status), gui_in_replie_n, 30);
+                nk_label(ctx, "", NK_TEXT_LEFT);
+
+
+            }
+            nk_end(ctx);
+
+            if (nk_begin(ctx, &layout, "Temperature", nk_rect(880, 50, 200, 140), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
 
                 nk_layout_row_dynamic(ctx, 25, 1);
 
@@ -565,8 +776,38 @@ int main_gui() {
             }
             nk_end(ctx);
 
+            if (nk_begin(ctx, &layout, "FSM", nk_rect(880, 200, 200, 350), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
+
+                nk_layout_row_dynamic(ctx, 25, 2);
+
+                for (int i = 0; i < 9; i++) {
+                    nk_label(ctx, gui_last_fsm_states[i], NK_TEXT_LEFT);
+
+                    char buffer[50];
+
+                    int v = gui_last_fsm_states_timestamps[i];
+
+                    if (v > 0) {
+
+                        int hours = v / 10000;
+                        v -= hours * 10000;
+                        int minutes = v / 100;
+                        v -= minutes * 100;
+                        int seconds = v;
+
+                        sprintf(buffer, "%02d:%02d:%02d", hours, minutes, seconds);
+
+                    } else {
+                        buffer[0] = '\0';
+                    }
+                    nk_label(ctx, buffer, NK_TEXT_RIGHT);
+
+                }
+
+            }
+            nk_end(ctx);
+
         }
-        /* if (nk_window_is_closed(ctx, "Demo")) break; */
 
         {
             float bg[4];

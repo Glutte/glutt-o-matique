@@ -27,42 +27,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "fsm.h"
-#include "stm32f4xx_rcc.h"
-#include "stm32f4xx_gpio.h"
-
-/* See pio.txt for PIO allocation details */
-
-/* On GPIO C */
-#define GPIO_PIN_QRP_n    GPIO_Pin_1
-#define GPIO_PIN_TX       GPIO_Pin_2
-#define GPIO_PIN_1750_n   GPIO_Pin_4
-#define GPIO_PIN_MOD_OFF  GPIO_Pin_5
-#define GPIO_PIN_SQ_n     GPIO_Pin_6
-#define GPIO_PIN_U        GPIO_Pin_8
-#define GPIO_PIN_QRP_out  GPIO_Pin_9
-#define GPIO_PIN_D        GPIO_Pin_11
-#define GPIO_PIN_REPLIE_n GPIO_Pin_13
-#define GPIO_PIN_FAX_n    GPIO_Pin_14
-
-
-#define GPIOC_OUTPUT_PINS ( \
-                           GPIO_PIN_TX | \
-                           GPIO_PIN_MOD_OFF | \
-                           GPIO_PIN_QRP_out | \
-                           0)
-
-#undef GPIOC_OPENDRAIN_PINS
-#undef GPIOC_INPUT_PU_PINS
-
-#define GPIOC_INPUT_PINS ( \
-                          GPIO_PIN_QRP_n | \
-                          GPIO_PIN_1750_n | \
-                          GPIO_PIN_SQ_n | \
-                          GPIO_PIN_U | \
-                          GPIO_PIN_D | \
-                          GPIO_PIN_REPLIE_n | \
-                          0 )
+#include "Core/fsm.h"
 
 /* Analog inputs */
 // TODO: SWR forward power
@@ -75,6 +40,8 @@ void pio_set_mod_off(int mod_off);
 void pio_set_qrp(int on);
 
 void pio_set_fsm_signals(struct fsm_input_signals_t* sig);
+
+int pio_read_button();
 
 #endif // _PIO_H_
 

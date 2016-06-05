@@ -198,9 +198,6 @@ static void thread_gui_gps(void *arg) {
 
 void init() {
 
-    /* pthread_t pth; */
-    /* pthread_create(&pth, NULL, thread_gui, "processing..."); */
-
     TaskHandle_t task_handle;
     xTaskCreate(
             thread_gui,

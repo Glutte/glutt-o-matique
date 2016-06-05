@@ -23,9 +23,9 @@
 */
 
 #include <string.h>
-#include "common.h"
-#include "fsm.h"
-#include "usart.h"
+#include "Core/common.h"
+#include "Core/fsm.h"
+#include "GPIO/usart.h"
 
 static struct fsm_input_signals_t fsm_in;
 static struct fsm_output_signals_t fsm_out;
@@ -35,6 +35,9 @@ static fsm_state_t current_state;
 // Keep track of when we last entered a given state, measured
 // in ms using the timestamp_now() function
 static uint64_t timestamp_state[_NUM_FSM_STATES];
+
+
+void fsm_state_switched(char * new_state);
 
 void fsm_init() {
     memset(&fsm_in, 0, sizeof(fsm_in));
@@ -362,37 +365,37 @@ void fsm_update() {
         timestamp_state[next_state] = timestamp_now();
         switch (next_state) {
             case FSM_OISIF:
-                usart_debug_puts("FSM: FSM_OISIF\r\n"); break;
+                fsm_state_switched("FSM_OISIF"); break;
             case FSM_OPEN1:
-                usart_debug_puts("FSM: FSM_OPEN1\r\n"); break;
+                fsm_state_switched("FSM_OPEN1"); break;
             case FSM_OPEN2:
-                usart_debug_puts("FSM: FSM_OPEN2\r\n"); break;
+                fsm_state_switched("FSM_OPEN2"); break;
             case FSM_LETTRE:
-                usart_debug_puts("FSM: FSM_LETTRE\r\n"); break;
+                fsm_state_switched("FSM_LETTRE"); break;
             case FSM_ECOUTE:
-                usart_debug_puts("FSM: FSM_ECOUTE\r\n"); break;
+                fsm_state_switched("FSM_ECOUTE"); break;
             case FSM_ATTENTE:
-                usart_debug_puts("FSM: FSM_ATTENTE\r\n"); break;
+                fsm_state_switched("FSM_ATTENTE"); break;
             case FSM_QSO:
-                usart_debug_puts("FSM: FSM_QSO\r\n"); break;
+                fsm_state_switched("FSM_QSO"); break;
             case FSM_ANTI_BAVARD:
-                usart_debug_puts("FSM: FSM_ANTI_BAVARD\r\n"); break;
+                fsm_state_switched("FSM_ANTI_BAVARD"); break;
             case FSM_BLOQUE:
-                usart_debug_puts("FSM: FSM_BLOQUE\r\n"); break;
+                fsm_state_switched("FSM_BLOQUE"); break;
             case FSM_TEXTE_73:
-                usart_debug_puts("FSM: FSM_TEXTE_73\r\n"); break;
+                fsm_state_switched("FSM_TEXTE_73"); break;
             case FSM_TEXTE_HB9G:
-                usart_debug_puts("FSM: FSM_TEXTE_HB9G\r\n"); break;
+                fsm_state_switched("FSM_TEXTE_HB9G"); break;
             case FSM_TEXTE_LONG:
-                usart_debug_puts("FSM: FSM_TEXTE_LONG\r\n"); break;
+                fsm_state_switched("FSM_TEXTE_LONG"); break;
             case FSM_BALISE_LONGUE:
-                usart_debug_puts("FSM: FSM_BALISE_LONGUE\r\n"); break;
+                fsm_state_switched("FSM_BALISE_LONGUE"); break;
             case FSM_BALISE_SPECIALE:
-                usart_debug_puts("FSM: FSM_BALISE_SPECIALE\r\n"); break;
+                fsm_state_switched("FSM_BALISE_SPECIALE"); break;
             case FSM_BALISE_COURTE:
-                usart_debug_puts("FSM: FSM_BALISE_COURTE\r\n"); break;
+                fsm_state_switched("FSM_BALISE_COURTE"); break;
             default:
-                usart_debug_puts("FSM: ERROR!\r\n"); break;
+                fsm_state_switched("ERROR!"); break;
         }
     }
     current_state = next_state;

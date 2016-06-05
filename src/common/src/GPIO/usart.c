@@ -80,6 +80,12 @@ void usart_debug_puts(const char* str) {
     xTaskResumeAll();
 }
 
+void usart_debug_puts_no_header(const char* str) {
+    vTaskSuspendAll();
+    usart_puts(USART2, str);
+    xTaskResumeAll();
+}
+
 int usart_get_nmea_sentence(char* nmea) {
     return xQueueReceive(usart_nmea_queue, nmea, portMAX_DELAY);
 }

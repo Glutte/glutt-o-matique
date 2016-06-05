@@ -158,6 +158,11 @@ void common_init(void)
 static void common_increase_timestamp(TimerHandle_t t)
 {
     common_timestamp++;
+
+#ifdef SIMULATOR
+    //Simulator rate is 100ticks/s
+    common_timestamp += 9;
+#endif
 }
 
 uint64_t timestamp_now(void)

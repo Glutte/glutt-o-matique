@@ -48,6 +48,7 @@ void usart_debug(const char *format, ...);
 
 // Send a string to the PC
 void usart_debug_puts(const char* str);
+void usart_debug_puts_no_header(const char* str);
 
 // Get a MAX_NMEA_SENTENCE_LEN sized NMEA sentence
 // Return 1 on success

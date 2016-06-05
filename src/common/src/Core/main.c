@@ -36,13 +36,13 @@
 /* Includes */
 #include "Audio/audio.h"
 #include "Audio/cw.h"
-/* #include "pio.h" */
-/* #include "i2c.h" */
+#include "GPIO/pio.h"
+#include "GPIO/i2c.h"
 #include "GPS/gps.h"
-/* #include "fsm.h" */
+#include "Core/fsm.h"
 #include "Core/common.h"
 #include "GPIO/usart.h"
-/* #include "delay.h" */
+#include "Core/delay.h"
 #include "GPIO/temperature.h"
 #include "GPIO/leds.h"
 #include "vc.h"
@@ -78,16 +78,20 @@ void * threadscheduler(void * arg) {
 
 int main(void) {
     init();
-    /* delay_init(); */
+    delay_init();
     usart_init();
     usart_debug_puts("\r\n******* glutt-o-matique version " GIT_VERSION " *******\r\n");
-    /*  */
-    /* if (RCC_GetFlagStatus(RCC_FLAG_IWDGRST) != RESET) */
-    /* { */
-    /*     usart_debug_puts("WARNING: A IWDG Reset occured!\r\n"); */
-    /* } */
-    /* RCC_ClearFlag(); */
-    /*  */
+
+#ifndef SIMULATOR
+
+    if (RCC_GetFlagStatus(RCC_FLAG_IWDGRST) != RESET)
+    {
+        usart_debug_puts("WARNING: A IWDG Reset occured!\r\n");
+    }
+    RCC_ClearFlag();
+
+#endif
+
     TaskHandle_t task_handle;
     xTaskCreate(
             launcher_task,
@@ -134,13 +138,13 @@ static void launcher_task(void *pvParameters)
 {
     usart_debug_puts("CW init\r\n");
     cw_psk31_init(16000);
-    /*  */
-    /* usart_debug_puts("PIO init\r\n"); */
-    /* pio_init(); */
-    /*  */
-    /* usart_debug_puts("I2C init\r\n"); */
-    /* i2c_init(); */
-    /*  */
+
+    usart_debug_puts("PIO init\r\n");
+    pio_init();
+
+    usart_debug_puts("I2C init\r\n");
+    i2c_init();
+
     usart_debug_puts("common init\r\n");
     common_init();
 
@@ -150,35 +154,35 @@ static void launcher_task(void *pvParameters)
     usart_debug_puts("DS18B20 init\r\n");
     temperature_init();
 
-    /* usart_debug_puts("TaskButton init\r\n"); */
+    usart_debug_puts("TaskButton init\r\n");
 
     TaskHandle_t task_handle;
-    /* xTaskCreate( */
-    /*         detect_button_press, */
-    /*         "TaskButton", */
-    /*         4*configMINIMAL_STACK_SIZE, */
-    /*         (void*) NULL, */
-    /*         tskIDLE_PRIORITY + 2UL, */
-    /*         &task_handle); */
-    /*  */
-    /* if (!task_handle) { */
-    /*     trigger_fault(FAULT_SOURCE_MAIN); */
-    /* } */
-    /*  */
-    /* usart_debug_puts("TaskFSM init\r\n"); */
-    /*  */
-    /* xTaskCreate( */
-    /*         exercise_fsm, */
-    /*         "TaskFSM", */
-    /*         4*configMINIMAL_STACK_SIZE, */
-    /*         (void*) NULL, */
-    /*         tskIDLE_PRIORITY + 2UL, */
-    /*         &task_handle); */
-    /*  */
-    /* if (!task_handle) { */
-    /*     trigger_fault(FAULT_SOURCE_MAIN); */
-    /* } */
-    /*  */
+    xTaskCreate(
+            detect_button_press,
+            "TaskButton",
+            4*configMINIMAL_STACK_SIZE,
+            (void*) NULL,
+            tskIDLE_PRIORITY + 2UL,
+            &task_handle);
+
+    if (!task_handle) {
+        trigger_fault(FAULT_SOURCE_MAIN);
+    }
+
+    usart_debug_puts("TaskFSM init\r\n");
+
+    xTaskCreate(
+            exercise_fsm,
+            "TaskFSM",
+            4*configMINIMAL_STACK_SIZE,
+            (void*) NULL,
+            tskIDLE_PRIORITY + 2UL,
+            &task_handle);
+
+    if (!task_handle) {
+        trigger_fault(FAULT_SOURCE_MAIN);
+    }
+
     usart_debug_puts("TaskGPS init\r\n");
 
     xTaskCreate(
@@ -222,10 +226,6 @@ static void launcher_task(void *pvParameters)
      * for more info.
      */
 
-    cw_psk31_push_message("HB9G HI - TESTING", 50, 440);
-    cw_psk31_push_message("HB9G HI AGAIN", 50, 440);
-    cw_psk31_push_message("HB9G 73", 50, 440);
-
     while (1) {
         vTaskSuspend(NULL);
     }
@@ -234,45 +234,45 @@ static void launcher_task(void *pvParameters)
 
 static void detect_button_press(void *pvParameters)
 {
-    /* int pin_high_count = 0; */
-    /* int last_pin_high_count = 0; */
-    /* const int pin_high_thresh = 10; */
-    /* while (1) { */
-    /*     if (GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_0) == Bit_SET) { */
-    /*         if (pin_high_count < pin_high_thresh) { */
-    /*             pin_high_count++; */
-    /*         } */
-    /*     } */
-    /*     else { */
-    /*         if (pin_high_count > 0) { */
-    /*             pin_high_count--; */
-    /*         } */
-    /*     } */
-    /*  */
-    /*     vTaskDelay(10 / portTICK_RATE_MS); #<{(| Debounce Delay |)}># */
-    /*  */
-    /*     if (pin_high_count == pin_high_thresh && */
-    /*             last_pin_high_count != pin_high_count) { */
-    /*         tm_trigger_button = 1; */
-    /*         usart_debug_puts("Bouton bleu\r\n"); */
-    /*  */
-    /*         if (temperature_valid()) { */
-    /*  */
-    /*             float temp = temperature_get(); */
-    /*  */
-    /*             usart_debug("Temperature %f\r\n", temp); */
-    /*  */
-    /*         } else { */
-    /*             usart_debug_puts("No temp\r\n"); */
-    /*         } */
-    /*     } */
-    /*     else if (pin_high_count == 0 && */
-    /*             last_pin_high_count != pin_high_count) { */
-    /*         tm_trigger_button = 0; */
-    /*     } */
-    /*  */
-    /*     last_pin_high_count = pin_high_count; */
-    /* } */
+    int pin_high_count = 0;
+    int last_pin_high_count = 0;
+    const int pin_high_thresh = 10;
+    while (1) {
+        if (pio_read_button()) {
+            if (pin_high_count < pin_high_thresh) {
+                pin_high_count++;
+            }
+        }
+        else {
+            if (pin_high_count > 0) {
+                pin_high_count--;
+            }
+        }
+
+        vTaskDelay(10 / portTICK_RATE_MS); /* Debounce Delay */
+
+        if (pin_high_count == pin_high_thresh &&
+                last_pin_high_count != pin_high_count) {
+            tm_trigger_button = 1;
+            usart_debug_puts("Bouton bleu\r\n");
+
+            if (temperature_valid()) {
+
+                float temp = temperature_get();
+
+                usart_debug("Temperature %f\r\n", temp);
+
+            } else {
+                usart_debug_puts("No temp\r\n");
+            }
+        }
+        else if (pin_high_count == 0 &&
+                last_pin_high_count != pin_high_count) {
+            tm_trigger_button = 0;
+        }
+
+        last_pin_high_count = pin_high_count;
+    }
 }
 
 static void audio_callback(void* context, int select_buffer) {
@@ -352,95 +352,97 @@ static void gps_monit_task(void *pvParameters) {
 
         vTaskDelay(100 / portTICK_RATE_MS);
 
-        // Reload watchdog //TODO
-        /* IWDG_ReloadCounter(); */
+        // Reload watchdog
+#ifndef SIMULATOR
+        IWDG_ReloadCounter();
+#endif
     }
 }
 
-/* static struct fsm_input_signals_t fsm_input; */
+static struct fsm_input_signals_t fsm_input;
 static void exercise_fsm(void *pvParameters)
 {
-    /* int cw_last_trigger = 0; */
-    /* int last_tm_trigger = 0; */
-    /* int last_tm_trigger_button = 0; */
-    /*  */
-    /* int last_sq = 0; */
-    /* int last_1750 = 0; */
-    /* int last_qrp = 0; */
-    /* int last_cw_done = 0; */
-    /*  */
-    /* fsm_input.humidity = 0; */
-    /* fsm_input.temp = 15; */
-    /* fsm_input.swr_high = 0; */
-    /* fsm_input.sstv_mode = 0; */
-    /* fsm_input.wind_generator_ok = 1; */
-    /* while (1) { */
-    /*     vTaskDelay(10 / portTICK_RATE_MS); */
-    /*  */
-    /*     pio_set_fsm_signals(&fsm_input); */
-    /*  */
-    /*     if (last_sq != fsm_input.sq) { */
-    /*         last_sq = fsm_input.sq; */
-    /*         usart_debug("In SQ %d\r\n", last_sq); */
-    /*     } */
-    /*     if (last_1750 != fsm_input.tone_1750) { */
-    /*         last_1750 = fsm_input.tone_1750; */
-    /*         usart_debug("In 1750 %d\r\n", last_1750); */
-    /*     } */
-    /*     if (last_qrp != fsm_input.qrp) { */
-    /*         last_qrp = fsm_input.qrp; */
-    /*         usart_debug("In QRP %d\r\n", last_qrp); */
-    /*     } */
-    /*  */
-    /*  */
-    /*     if (tm_trigger_button == 1 && last_tm_trigger_button == 0) { */
-    /*         fsm_input.start_tm = 1; */
-    /*     } */
-    /*     last_tm_trigger_button = tm_trigger_button; */
-    /*  */
-    /*     if (tm_trigger == 1 && last_tm_trigger == 0) { */
-    /*         fsm_input.start_tm = 1; */
-    /*     } */
-    /*     last_tm_trigger = tm_trigger; */
-    /*  */
-    /*     int cw_done = !cw_psk31_busy(); */
-    /*     if (last_cw_done != cw_done) { */
-    /*         usart_debug("In CW done %d\r\n", cw_done); */
-    /*         last_cw_done = cw_done; */
-    /*  */
-    /*         fsm_input.cw_psk31_done = cw_done; */
-    /*     } */
-    /*     else { */
-    /*         fsm_input.cw_psk31_done = 0; */
-    /*     } */
-    /*  */
-    /*     if (fsm_input.cw_psk31_done) { */
-    /*         GPIO_ResetBits(GPIOD, GPIOD_BOARD_LED_ORANGE); */
-    /*     } */
-    /*     else { */
-    /*         GPIO_SetBits(GPIOD, GPIOD_BOARD_LED_ORANGE); */
-    /*     } */
-    /*  */
-    /*     fsm_update_inputs(&fsm_input); */
-    /*     fsm_update(); */
-    /*  */
-    /*     struct fsm_output_signals_t fsm_out; */
-    /*     fsm_get_outputs(&fsm_out); */
-    /*  */
-    /*     pio_set_tx(fsm_out.tx_on); */
-    /*     pio_set_mod_off(!fsm_out.modulation); */
-    /*     pio_set_qrp(fsm_out.qrp); // TODO move out of FSM */
-    /*  */
-    /*     // Add message to CW generator only on rising edge of trigger */
-    /*     if (fsm_out.cw_psk31_trigger && !cw_last_trigger) { */
-    /*         cw_psk31_push_message(fsm_out.msg, fsm_out.cw_dit_duration, fsm_out.msg_frequency); */
-    /*  */
-    /*         usart_debug_puts("Out CW trigger\r\n"); */
-    /*     } */
-    /*     cw_last_trigger = fsm_out.cw_psk31_trigger; */
-    /*  */
-    /*     if (fsm_out.ack_start_tm) { */
-    /*         fsm_input.start_tm = 0; */
-    /*     } */
-    /* } */
+    int cw_last_trigger = 0;
+    int last_tm_trigger = 0;
+    int last_tm_trigger_button = 0;
+
+    int last_sq = 0;
+    int last_1750 = 0;
+    int last_qrp = 0;
+    int last_cw_done = 0;
+
+    fsm_input.humidity = 0;
+    fsm_input.temp = 15;
+    fsm_input.swr_high = 0;
+    fsm_input.sstv_mode = 0;
+    fsm_input.wind_generator_ok = 1;
+    while (1) {
+        vTaskDelay(10 / portTICK_RATE_MS);
+
+        pio_set_fsm_signals(&fsm_input);
+
+        if (last_sq != fsm_input.sq) {
+            last_sq = fsm_input.sq;
+            usart_debug("In SQ %d\r\n", last_sq);
+        }
+        if (last_1750 != fsm_input.tone_1750) {
+            last_1750 = fsm_input.tone_1750;
+            usart_debug("In 1750 %d\r\n", last_1750);
+        }
+        if (last_qrp != fsm_input.qrp) {
+            last_qrp = fsm_input.qrp;
+            usart_debug("In QRP %d\r\n", last_qrp);
+        }
+
+
+        if (tm_trigger_button == 1 && last_tm_trigger_button == 0) {
+            fsm_input.start_tm = 1;
+        }
+        last_tm_trigger_button = tm_trigger_button;
+
+        if (tm_trigger == 1 && last_tm_trigger == 0) {
+            fsm_input.start_tm = 1;
+        }
+        last_tm_trigger = tm_trigger;
+
+        int cw_done = !cw_psk31_busy();
+        if (last_cw_done != cw_done) {
+            usart_debug("In CW done %d\r\n", cw_done);
+            last_cw_done = cw_done;
+
+            fsm_input.cw_psk31_done = cw_done;
+        }
+        else {
+            fsm_input.cw_psk31_done = 0;
+        }
+
+        if (fsm_input.cw_psk31_done) {
+            leds_turn_off(LED_ORANGE);
+        }
+        else {
+            leds_turn_on(LED_ORANGE);
+        }
+
+        fsm_update_inputs(&fsm_input);
+        fsm_update();
+
+        struct fsm_output_signals_t fsm_out;
+        fsm_get_outputs(&fsm_out);
+
+        pio_set_tx(fsm_out.tx_on);
+        pio_set_mod_off(!fsm_out.modulation);
+        pio_set_qrp(fsm_out.qrp); // TODO move out of FSM
+
+        // Add message to CW generator only on rising edge of trigger
+        if (fsm_out.cw_psk31_trigger && !cw_last_trigger) {
+            cw_psk31_push_message(fsm_out.msg, fsm_out.cw_dit_duration, fsm_out.msg_frequency);
+
+            usart_debug_puts("Out CW trigger\r\n");
+        }
+        cw_last_trigger = fsm_out.cw_psk31_trigger;
+
+        if (fsm_out.ack_start_tm) {
+            fsm_input.start_tm = 0;
+        }
+    }
 }
