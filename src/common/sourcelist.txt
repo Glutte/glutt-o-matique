@@ -1,2 +1,3 @@
 src/GPIO/usart.c
 src/GPS/gps.c
+src/Core/common.c

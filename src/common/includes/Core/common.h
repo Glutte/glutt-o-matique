@@ -58,4 +58,3 @@ int random_bool(void);
 #define FAULT_SOURCE_USART 4
 void trigger_fault(int source);
 
-void hard_fault_handler_extra();
