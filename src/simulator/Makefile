@@ -55,23 +55,23 @@ OBJS = $(patsubst %.c,%.o,$(C_FILES))
 CWARNS += -W
 CWARNS += -Wall
 # CWARNS += -Werror
-CWARNS += -Wextra
-CWARNS += -Wformat
-CWARNS += -Wmissing-braces
-CWARNS += -Wno-cast-align
-CWARNS += -Wparentheses
-CWARNS += -Wshadow
-CWARNS += -Wno-sign-compare
-CWARNS += -Wswitch
-CWARNS += -Wuninitialized
-CWARNS += -Wunknown-pragmas
-CWARNS += -Wunused-function
-CWARNS += -Wunused-label
-CWARNS += -Wunused-parameter
-CWARNS += -Wunused-value
-CWARNS += -Wunused-variable
-CWARNS += -Wmissing-prototypes
-
+# CWARNS += -Wextra
+# CWARNS += -Wformat
+# CWARNS += -Wmissing-braces
+# CWARNS += -Wno-cast-align
+# CWARNS += -Wparentheses
+# CWARNS += -Wshadow
+# CWARNS += -Wno-sign-compare
+# CWARNS += -Wswitch
+# CWARNS += -Wuninitialized
+# CWARNS += -Wunknown-pragmas
+# CWARNS += -Wunused-function
+# CWARNS += -Wunused-label
+# CWARNS += -Wunused-parameter
+# CWARNS += -Wunused-value
+# CWARNS += -Wunused-variable
+# CWARNS += -Wmissing-prototypes
+#
 CFLAGS += -m32
 CFLAGS += -DDEBUG=1
 CFLAGS += -g -DUSE_STDIO=1 -D__GCC_POSIX__=1 -lX11 -lm -lGL -lm -lGLU -lpulse-simple -lpulse
