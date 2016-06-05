@@ -528,9 +528,6 @@ static void cw_psk31_task(void *pvParameters)
 
             cw_transmit_ongoing = 1;
 
-            // Audio should be off, turn it on
-            audio_on();
-
             if (cw_fill_msg_current.dit_duration) {
                 cw_psk31_buffer_len = cw_text_to_on_buffer(
                         cw_fill_msg_current.message,
@@ -594,9 +591,6 @@ static void cw_psk31_task(void *pvParameters)
             // We have completed this message
 
             cw_transmit_ongoing = 0;
-
-            // Turn off audio to save power
-            audio_off();
         }
     }
 }

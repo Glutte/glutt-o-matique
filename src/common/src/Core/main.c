@@ -425,6 +425,12 @@ static void exercise_fsm(void *pvParameters)
         fsm_get_outputs(&fsm_out);
 
         pio_set_tx(fsm_out.tx_on);
+        if (fsm_out.tx_on) {
+            audio_on();
+        }
+        else {
+            audio_off();
+        }
         pio_set_mod_off(!fsm_out.modulation);
         pio_set_qrp(fsm_out.qrp); // TODO move out of FSM
 
