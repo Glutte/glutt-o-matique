@@ -450,9 +450,9 @@ void main_gui() {
 
                 nk_text(ctx, "", 0, NK_TEXT_LEFT);
 
-                color.r = 255; color.g = 0; color.b = 0;
+                color.r = 255; color.g = 165; color.b = 0;
 
-                if (led_red == 1) {
+                if (led_orange == 1) {
                     color.a = 255;
                 } else {
                     color.a = 30;
@@ -472,9 +472,9 @@ void main_gui() {
 
                 nk_text(ctx, "", 0, NK_TEXT_LEFT);
 
-                color.r = 255; color.g = 165; color.b = 0;
+                color.r = 255; color.g = 0; color.b = 0;
 
-                if (led_orange == 1) {
+                if (led_red == 1) {
                     color.a = 255;
                 } else {
                     color.a = 30;
