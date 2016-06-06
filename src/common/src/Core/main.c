@@ -305,6 +305,9 @@ static void gps_monit_task(void __attribute__ ((unused))*pvParameters) {
     leds_turn_on(LED_BLUE);
 
     int t_gps_print_latch = 0;
+    int t_gps_hours_handeled = 0;
+    uint64_t last_hour_timestamp = 0;
+
 
     while (1) {
         struct tm time;
@@ -343,6 +346,30 @@ static void gps_monit_task(void __attribute__ ((unused))*pvParameters) {
         }
         if (gps_time.tm_sec % 30 > 0) {
             t_gps_print_latch = 0;
+        }
+
+        if (time_valid && gps_time.tm_sec == 0 && gps_time.tm_min == 0 && t_gps_hours_handeled == 0) {
+
+            uint64_t current_timestamp = timestamp_now();
+
+            if (last_hour_timestamp == 0) {
+                usart_debug("DERIV INIT TS=%i\r\n", current_timestamp);
+            } else {
+
+                usart_debug("DERIV TS=%lld Excepted=%lld Delta=%lld\r\n",
+                    current_timestamp,
+                    last_hour_timestamp + 3600000,
+                    last_hour_timestamp + 3600000 - current_timestamp
+                );
+            }
+
+            last_hour_timestamp = timestamp_now();
+
+            t_gps_hours_handeled = 1;
+        }
+
+        if (gps_time.tm_sec != 0) {
+            t_gps_hours_handeled = 0;
         }
 
         vTaskDelay(100 / portTICK_RATE_MS);
