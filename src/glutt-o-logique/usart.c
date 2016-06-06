@@ -39,6 +39,10 @@ const uint16_t GPIOA_PIN_USART2_TX = GPIO_Pin_2;
 #include "../common/includes/GPIO/usart.h"
 
 
+void USART2_IRQHandler(void);
+void USART3_IRQHandler(void);
+
+
 void usart_init() {
     // ============== PC DEBUG USART ===========
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);

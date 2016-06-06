@@ -43,5 +43,9 @@ send_command(0x05, m);
 /* Print a string to the OpenOCD console */
 void debug_print(const char* str);
 
+
+void debug_send_command(int, void*);
+void put_char(char);
+
 #endif // __DEBUG_H_
 

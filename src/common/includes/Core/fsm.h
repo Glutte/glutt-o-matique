@@ -25,6 +25,8 @@
 #ifndef _FSM_H_
 #define _FSM_H_
 
+#include <stdint.h>
+
 // List of all states the FSM of the relay can be in
 enum fsm_state_e {
     FSM_OISIF = 0,       // Idle
@@ -88,10 +90,10 @@ struct fsm_output_signals_t {
 };
 
 // Initialise local structures
-void fsm_init();
+void fsm_init(void);
 
 // Call the FSM once and update the internal state
-void fsm_update();
+void fsm_update(void);
 
 // Setter for inputs
 void fsm_update_inputs(struct fsm_input_signals_t* inputs);
@@ -101,6 +103,10 @@ void fsm_get_outputs(struct fsm_output_signals_t* out);
 
 // Announce a state change
 void fsm_state_switched(const char *new_state);
+
+uint64_t fsm_current_state_time_ms(void);
+uint64_t fsm_current_state_time_s(void);
+const char* fsm_select_letter(void);
 
 #endif // _FSM_H_
 

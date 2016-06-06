@@ -29,7 +29,7 @@
 
 static void audio_write_register(uint8_t address, uint8_t value);
 
-void audio_initialize_platform(int plln, int pllr, int i2sdiv, int i2sodd, int rate) {
+void audio_initialize_platform(int plln, int pllr, int i2sdiv, int i2sodd, int __attribute__ ((unused)) rate) {
 
     GPIO_InitTypeDef  GPIO_InitStructure;
 

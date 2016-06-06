@@ -37,8 +37,10 @@
 #include "Audio/cw.h"
 #include "Core/common.h"
 #include "Audio/audio.h"
+#include <string.h>
 
 #ifdef SIMULATOR
+#include <math.h>
 #define arm_cos_f32 cosf
 #define arm_sin_f32 sinf
 #else
@@ -461,7 +463,7 @@ static struct cw_message_s cw_fill_msg_current;
 // Routine to generate CW audio
 static float cw_generate_audio_ampl = 0.0f;
 static float cw_generate_audio_nco = 0.0f;
-static int16_t cw_generate_audio(float omega, int i, int t)
+static int16_t cw_generate_audio(float omega, int i, int __attribute__ ((unused))t)
 {
     int16_t s = 0;
     // Remove clicks from CW
@@ -516,7 +518,7 @@ static int16_t psk31_generate_audio(float omega, int i, int t, int samples_per_s
 }
 #endif
 
-static void cw_psk31_task(void *pvParameters)
+static void cw_psk31_task(void __attribute__ ((unused))*pvParameters)
 {
     int     buf_pos = 0;
 

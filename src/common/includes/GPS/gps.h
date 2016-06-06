@@ -35,10 +35,10 @@
  */
 
 // Setup communication and GPS receiver
-void gps_init();
+void gps_init(void);
 
 // Return 1 of the GPS is receiving time
-int gps_locked();
+int gps_locked(void);
 
 // Get current time from GPS
 // Returns 1 if time is valid, 0 otherwise

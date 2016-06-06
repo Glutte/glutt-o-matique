@@ -290,6 +290,10 @@ uint8_t TM_OneWire_CRC8(uint8_t* addr, uint8_t len);
 /**
  * @}
  */
+
+int TM_OneWire_Verify(TM_OneWire_t*);
+void TM_OneWire_TargetSetup(TM_OneWire_t*, uint8_t);
+void TM_OneWire_FamilySkipSetup(TM_OneWire_t*);
  
 /* C++ detection */
 #ifdef __cplusplus

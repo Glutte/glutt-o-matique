@@ -26,6 +26,8 @@
 
 #include "leds.h"
 
+void init(void);
+
 void init() {
     /* Initialise the onboard peripherals
      * Four LEDs and one push-button

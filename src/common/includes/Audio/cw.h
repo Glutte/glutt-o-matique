@@ -47,5 +47,7 @@ int cw_psk31_busy(void);
 
 void cw_message_sent(const char*);
 
+size_t cw_symbol(uint8_t, uint8_t *, size_t);
+
 #endif // __CW_H_
 

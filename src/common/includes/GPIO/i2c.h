@@ -28,7 +28,7 @@
 #include <stdint.h>
 
 /* Initialise I2C on the board for both the audio codec and the GPS receiver */
-void i2c_init();
+void i2c_init(void);
 
 /* Do an I2C write, return 1 on success, 0 on failure */
 int i2c_write(uint8_t device, const uint8_t *txbuf, int len);

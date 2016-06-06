@@ -125,7 +125,7 @@ void pio_set_fsm_signals(struct fsm_input_signals_t* sig)
     *sig = pio_signals;
 }
 
-void read_fsm_input_task(void *pvParameters)
+void read_fsm_input_task(void __attribute__ ((unused))*pvParameters)
 {
     while (1) {
         pio_signals.qrp =

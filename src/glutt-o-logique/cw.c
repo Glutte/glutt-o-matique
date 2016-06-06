@@ -23,6 +23,7 @@
 */
 
 #include "GPIO/usart.h"
+#include "Audio/cw.h"
 
 // Function to display message in GUI, unused on STM32 firmware
 void cw_message_sent(const char* str) {

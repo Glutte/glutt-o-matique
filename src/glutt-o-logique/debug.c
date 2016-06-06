@@ -69,9 +69,10 @@ void debug_print(const char* str)
 }
 
 #else
-void debug_send_command(int command, void *message) { }
-void put_char(char c) { }
-void debug_print(const char* str) { }
+void USART3_IRQHandler(void);
+void debug_send_command(int __attribute__ ((unused))command, void __attribute__ ((unused))*message) { }
+void put_char(char __attribute__ ((unused))c) { }
+void debug_print(const char __attribute__ ((unused))*str) { }
 
 #endif
 

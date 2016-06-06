@@ -24,6 +24,7 @@
 
 #include <stm32f4xx.h>
 #include "GPIO/usart.h"
+#include "Core/common.h"
 
 void hard_fault_handler_c(uint32_t *hardfault_args)
 {

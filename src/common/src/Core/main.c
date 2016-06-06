@@ -64,9 +64,9 @@ static void launcher_task(void *pvParameters);
 // Audio callback function
 static void audio_callback(void* context, int select_buffer);
 
-void vApplicationStackOverflowHook( TaskHandle_t xTask,
-                                    signed char *pcTaskName )
-{
+void vApplicationStackOverflowHook(TaskHandle_t, signed char *);
+
+void vApplicationStackOverflowHook(TaskHandle_t __attribute__ ((unused)) xTask, signed char *pcTaskName) {
     usart_debug("TASK OVERFLOW %s\r\n", pcTaskName);
     while (1) {};
 }
@@ -107,7 +107,7 @@ int main(void) {
 }
 
 
-static void test_task(void *pvParameters) {
+static void test_task(void __attribute__ ((unused))*pvParameters) {
 
     int i = 0;
 
@@ -129,7 +129,7 @@ static void test_task(void *pvParameters) {
 
 // Launcher task is here to make sure the scheduler is
 // already running when calling the init functions.
-static void launcher_task(void *pvParameters)
+static void launcher_task(void __attribute__ ((unused))*pvParameters)
 {
     usart_debug_puts("CW init\r\n");
     cw_psk31_init(16000);
@@ -227,7 +227,7 @@ static void launcher_task(void *pvParameters)
 }
 
 
-static void detect_button_press(void *pvParameters)
+static void detect_button_press(void __attribute__ ((unused))*pvParameters)
 {
     int pin_high_count = 0;
     int last_pin_high_count = 0;
@@ -270,7 +270,7 @@ static void detect_button_press(void *pvParameters)
     }
 }
 
-static void audio_callback(void* context, int select_buffer) {
+static void audio_callback(void __attribute__ ((unused))*context, int select_buffer) {
     static int16_t audio_buffer0[AUDIO_BUF_LEN];
     static int16_t audio_buffer1[AUDIO_BUF_LEN];
     int16_t *samples;
@@ -300,7 +300,7 @@ static void audio_callback(void* context, int select_buffer) {
 }
 
 static struct tm gps_time;
-static void gps_monit_task(void *pvParameters) {
+static void gps_monit_task(void __attribute__ ((unused))*pvParameters) {
 
     leds_turn_on(LED_BLUE);
 
@@ -355,7 +355,7 @@ static void gps_monit_task(void *pvParameters) {
 }
 
 static struct fsm_input_signals_t fsm_input;
-static void exercise_fsm(void *pvParameters)
+static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
 {
     int cw_last_trigger = 0;
     int last_tm_trigger = 0;

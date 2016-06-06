@@ -42,6 +42,11 @@ const TickType_t _temperature_delay = 60000 / portTICK_PERIOD_MS; // 60s
 static TM_OneWire_t tm_onewire;
 
 
+void ds18b20_init(void);
+int ds18b20_gettemp(float*);
+int ds18b20_gettemp_one(float*);
+
+
 
 void ds18b20_init() {
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
@@ -97,7 +102,7 @@ int ds18b20_gettemp(float *temperature) {
     return status;
 }
 
-void temperature_task(void *pvParameters) {
+void temperature_task(void __attribute__ ((unused))*pvParameters) {
 
     while (1) {
 

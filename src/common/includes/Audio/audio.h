@@ -59,4 +59,6 @@ void audio_stop(void);
 void audio_provide_buffer(void *samples,int numsamples);
 bool audio_provide_buffer_without_blocking(void *samples,int numsamples);
 
+void DMA1_Stream7_IRQHandler(void);
+
 #endif

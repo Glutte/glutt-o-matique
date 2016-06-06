@@ -23,6 +23,7 @@
 */
 
 #include <string.h>
+#include <stdint.h>
 #include "Core/common.h"
 #include "Core/fsm.h"
 #include "GPIO/usart.h"

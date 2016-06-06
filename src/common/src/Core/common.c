@@ -161,7 +161,7 @@ void common_init(void)
     lfsr = lfsr_start_state;
 }
 
-static void common_increase_timestamp(TimerHandle_t t)
+static void common_increase_timestamp(TimerHandle_t __attribute__ ((unused))t)
 {
 
 #ifdef SIMULATOR

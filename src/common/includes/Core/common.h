@@ -58,6 +58,11 @@ int random_bool(void);
 #define FAULT_SOURCE_USART 4
 void trigger_fault(int source);
 
+
+int find_last_sunday(const struct tm*);
+
 #ifdef SIMULATOR
 void __disable_irq(void);
+#else
+void hard_fault_handler_c(uint32_t *);
 #endif

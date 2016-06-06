@@ -29,12 +29,12 @@ extern float _temperature_last_value;
 extern int _temperature_valid;
 
 // Setup communication and temperature
-void temperature_init();
+void temperature_init(void);
 
 // Return 1 if the temperature is valid
-int temperature_valid();
+int temperature_valid(void);
 
 // Get current temperature
-float temperature_get();
+float temperature_get(void);
 
 void temperature_task(void *);

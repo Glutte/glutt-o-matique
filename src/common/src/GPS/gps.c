@@ -65,7 +65,7 @@ int gps_utctime(struct tm *timeutc) {
 #define RXBUF_LEN MAX_NMEA_SENTENCE_LEN
 static char rxbuf[RXBUF_LEN];
 
-static void gps_task(void *pvParameters) {
+static void gps_task(void __attribute__ ((unused))*pvParameters) {
     // Periodically reinit the GPS
     while (1) {
         taskYIELD();
