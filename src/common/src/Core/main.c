@@ -202,9 +202,6 @@ static void launcher_task(void __attribute__ ((unused))*pvParameters)
     usart_debug_puts("Audio set callback\r\n");
     audio_play_with_callback(audio_callback, NULL);
 
-    // By default, let's the audio off to save power
-    audio_off();
-
     usart_debug_puts("Init done.\r\n");
 
     xTaskCreate(
@@ -398,8 +395,6 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
     fsm_input.swr_high = 0;
     fsm_input.sstv_mode = 0;
     fsm_input.wind_generator_ok = 1;
-
-    audio_on();
 
     while (1) {
         vTaskDelay(10 / portTICK_RATE_MS);
