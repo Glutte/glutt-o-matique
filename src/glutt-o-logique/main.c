@@ -23,12 +23,10 @@
 */
 
 #include "stm32f4xx_conf.h"
-
 #include "leds.h"
 
-void init(void);
-
-void init() {
+void init()
+{
     /* Initialise the onboard peripherals
      * Four LEDs and one push-button
      */

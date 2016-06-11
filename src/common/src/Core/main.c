@@ -52,8 +52,8 @@
 static int tm_trigger_button = 0;
 static int tm_trigger = 0;
 
-// Private function prototypes
-void init();
+// Platform specific init function
+void init(void);
 
 // Tasks
 static void detect_button_press(void *pvParameters);
