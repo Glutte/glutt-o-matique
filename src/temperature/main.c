@@ -73,7 +73,7 @@ static void detect_button_press(void *pvParameters)
         if (GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_0)>0) {
 
             while (GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_0) > 0) {
-                vTaskDelay(100 / portTICK_RATE_MS); /* Button Debounce Delay */
+                vTaskDelay(pdMS_TO_TICKS(100)); /* Button Debounce Delay */
             }
 
             GPIO_ResetBits(GPIOD, GPIO_Pin_12);
@@ -90,7 +90,7 @@ static void detect_button_press(void *pvParameters)
             GPIO_SetBits(GPIOD, GPIO_Pin_12);
 
             while (GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_0) == 0) {
-                vTaskDelay(100 / portTICK_RATE_MS); /* Button Debounce Delay */
+                vTaskDelay(pdMS_TO_TICKS(100)); /* Button Debounce Delay */
             }
         }
         taskYIELD();
@@ -102,7 +102,7 @@ static void update_temperature(void *pvParameters)
 
     while (1) {
 
-        vTaskDelay(1000 / portTICK_RATE_MS);
+        vTaskDelay(pdMS_TO_TICKS(1000));
 
         GPIO_SetBits(GPIOD, GPIO_Pin_13);
         temperature_update();

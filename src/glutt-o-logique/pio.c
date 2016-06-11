@@ -149,7 +149,7 @@ void read_fsm_input_task(void __attribute__ ((unused))*pvParameters)
         pio_signals.sstv_mode =
             GPIO_ReadInputDataBit(GPIOC, GPIO_PIN_FAX) ? 1 : 0;
 
-        vTaskDelay(100 / portTICK_RATE_MS);
+        vTaskDelay(pdMS_TO_TICKS(100));
     }
 }
 

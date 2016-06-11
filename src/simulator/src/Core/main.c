@@ -76,7 +76,7 @@ int gui_gps_custom_year_len;
 static void thread_gui_gps(void __attribute__ ((unused))*arg) {
 
     while(1) {
-        vTaskDelay(1000 / portTICK_RATE_MS);
+        vTaskDelay(pdMS_TO_TICKS(1000));
 
         if (gui_gps_send_frame) {
 

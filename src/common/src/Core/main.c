@@ -186,7 +186,7 @@ static void launcher_task(void __attribute__ ((unused))*pvParameters)
 
     while(1) {
         int i = 0;
-        vTaskDelay(1000 / portTICK_RATE_MS);
+        vTaskDelay(pdMS_TO_TICKS(1000));
 
         if (i == 0) {
             i = 1;
@@ -217,7 +217,7 @@ static void detect_button_press(void __attribute__ ((unused))*pvParameters)
             }
         }
 
-        vTaskDelay(10 / portTICK_RATE_MS); /* Debounce Delay */
+        vTaskDelay(pdMS_TO_TICKS(10)); /* Debounce Delay */
 
         if (pin_high_count == pin_high_thresh &&
                 last_pin_high_count != pin_high_count) {
@@ -345,7 +345,7 @@ static void gps_monit_task(void __attribute__ ((unused))*pvParameters) {
             t_gps_hours_handeled = 0;
         }
 
-        vTaskDelay(100 / portTICK_RATE_MS);
+        vTaskDelay(pdMS_TO_TICKS(100));
 
         // Reload watchdog
 #ifndef SIMULATOR
@@ -373,7 +373,7 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
     fsm_input.wind_generator_ok = 1;
 
     while (1) {
-        vTaskDelay(10 / portTICK_RATE_MS);
+        vTaskDelay(pdMS_TO_TICKS(10));
 
         pio_set_fsm_signals(&fsm_input);
 
