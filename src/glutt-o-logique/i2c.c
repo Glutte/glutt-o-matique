@@ -77,7 +77,7 @@ static void i2c_recover_from_lockup(void)
     GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
     GPIO_Init(GPIOB, &GPIO_InitStructure);
 
-    const TickType_t delay = 5 / portTICK_PERIOD_MS;
+    const TickType_t delay = pdMS_TO_TICKS(5);
 
     GPIO_SetBits(GPIOB, GPIOB_PIN_SDA | GPIOB_PIN_SCL);
     vTaskDelay(delay);
@@ -153,7 +153,7 @@ void i2c_init()
 
 static int i2c_check_busy_flag(void)
 {
-    const TickType_t i2c_timeout = 1000ul / portTICK_PERIOD_MS;
+    const TickType_t i2c_timeout = pdMS_TO_TICKS(1000);
     const TickType_t time_start = xTaskGetTickCount();
 
     while (I2C_GetFlagStatus(I2Cx, I2C_FLAG_BUSY)) {
@@ -170,7 +170,7 @@ static int i2c_check_busy_flag(void)
 
 static int i2c_check_event(uint32_t event)
 {
-    const TickType_t i2c_timeout = 1000ul / portTICK_PERIOD_MS;
+    const TickType_t i2c_timeout = pdMS_TO_TICKS(1000);
     const TickType_t time_start = xTaskGetTickCount();
 
     while (!I2C_CheckEvent(I2Cx, event)) {
