@@ -35,6 +35,8 @@ void audio_stop_dma(void);
 void audio_initialize(int plln,int pllr,int i2sdiv,int i2sodd, int rate);
 
 // Power up and down the audio hardware.
+void audio_put_codec_in_reset(void);
+void audio_reinit_codec(void);
 void audio_on(void);
 void audio_off(void);
 

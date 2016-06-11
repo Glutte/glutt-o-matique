@@ -72,8 +72,33 @@ void audio_initialize_platform(int plln, int pllr, int i2sdiv, int i2sodd, int _
 
     GPIO_PinAFConfig(GPIOA, GPIO_PinSource4, GPIO_AF_SPI3);
 
-    // Reset the codec.
+    audio_reinit_codec();
+
+    // Disable I2S.
+    SPI3 ->I2SCFGR = 0;
+
+    // I2S clock configuration
+    RCC ->CFGR &= ~RCC_CFGR_I2SSRC; // PLLI2S clock used as I2S clock source.
+    RCC ->PLLI2SCFGR = (pllr << 28) | (plln << 6);
+
+    // Enable PLLI2S and wait until it is ready.
+    RCC ->CR |= RCC_CR_PLLI2SON;
+    while (!(RCC ->CR & RCC_CR_PLLI2SRDY ))
+        ;
+
+    // Configure I2S.
+    SPI3 ->I2SPR = i2sdiv | (i2sodd << 8) | SPI_I2SPR_MCKOE;
+    SPI3 ->I2SCFGR = SPI_I2SCFGR_I2SMOD | SPI_I2SCFGR_I2SCFG_1
+        | SPI_I2SCFGR_I2SE; // Master transmitter, Phillips mode, 16 bit values, clock polarity low, enable.
+
+}
+
+void audio_put_codec_in_reset(void) {
     GPIO_ResetBits(GPIOD, GPIO_Pin_4);
+}
+
+void audio_reinit_codec(void) {
+    audio_put_codec_in_reset();
     for (volatile int i = 0; i < 0x4fff; i++) {
         __asm__ volatile("nop");
     }
@@ -98,24 +123,6 @@ void audio_initialize_platform(int plln, int pllr, int i2sdiv, int i2sodd, int _
 
     audio_write_register(0x1a, 0x0a); // Adjust PCM volume level.
     audio_write_register(0x1b, 0x0a);
-
-    // Disable I2S.
-    SPI3 ->I2SCFGR = 0;
-
-    // I2S clock configuration
-    RCC ->CFGR &= ~RCC_CFGR_I2SSRC; // PLLI2S clock used as I2S clock source.
-    RCC ->PLLI2SCFGR = (pllr << 28) | (plln << 6);
-
-    // Enable PLLI2S and wait until it is ready.
-    RCC ->CR |= RCC_CR_PLLI2SON;
-    while (!(RCC ->CR & RCC_CR_PLLI2SRDY ))
-        ;
-
-    // Configure I2S.
-    SPI3 ->I2SPR = i2sdiv | (i2sodd << 8) | SPI_I2SPR_MCKOE;
-    SPI3 ->I2SCFGR = SPI_I2SCFGR_I2SMOD | SPI_I2SCFGR_I2SCFG_1
-        | SPI_I2SCFGR_I2SE; // Master transmitter, Phillips mode, 16 bit values, clock polarity low, enable.
-
 }
 
 void audio_on() {

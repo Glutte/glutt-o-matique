@@ -24,6 +24,7 @@
 
 #include "GPIO/i2c.h"
 #include "Core/common.h"
+#include "Audio/audio.h"
 
 #include "stm32f4xx_conf.h"
 #include "stm32f4xx_i2c.h"
@@ -61,37 +62,26 @@ static void i2c_device_init(void);
  * pulses. The device that held the bus LOW should release it sometime within
  * those nine clocks. If not, then use the HW reset or cycle power to clear the
  * bus.
+ *
+ * The only device on the i2c bus is the audio codec.
  */
+static int i2c_recover_count;
 static void i2c_recover_from_lockup(void)
 {
     usart_debug_puts("ERROR: I2C lockup\r\n");
 
-    I2C_SoftwareResetCmd(I2Cx, ENABLE);
-
-    // Configure I2C SCL and SDA pins.
-    GPIO_InitTypeDef  GPIO_InitStructure;
-    GPIO_InitStructure.GPIO_Pin = GPIOB_PIN_SCL | GPIOB_PIN_SDA;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
-    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-    GPIO_Init(GPIOB, &GPIO_InitStructure);
-
-    const TickType_t delay = pdMS_TO_TICKS(5);
-
-    GPIO_SetBits(GPIOB, GPIOB_PIN_SDA | GPIOB_PIN_SCL);
-    vTaskDelay(delay);
-
-    for (int i = 0; i < 10; i++) {
-        GPIO_ResetBits(GPIOB, GPIOB_PIN_SCL);
-        vTaskDelay(delay);
-        GPIO_SetBits(GPIOB, GPIOB_PIN_SCL);
-        vTaskDelay(delay);
+    i2c_recover_count++;
+    if (i2c_recover_count > 3) {
+        trigger_fault(FAULT_SOURCE_I2C);
     }
 
+    I2C_SoftwareResetCmd(I2Cx, ENABLE);
+    audio_put_codec_in_reset();
+    for (int i = 0; i < 0x4fff; i++) {
+        __asm__ volatile("nop");
+    }
     I2C_SoftwareResetCmd(I2Cx, DISABLE);
-
-    i2c_device_init();
+    audio_reinit_codec();
 }
 
 static void i2c_device_init(void)
@@ -127,6 +117,8 @@ static void i2c_device_init(void)
 
     // enable I2C1
     I2C_Cmd(I2C1, ENABLE);
+
+    i2c_recover_count = 0;
 }
 
 void i2c_init()
