@@ -68,7 +68,7 @@ void vApplicationStackOverflowHook(TaskHandle_t, signed char *);
 
 void vApplicationStackOverflowHook(TaskHandle_t __attribute__ ((unused)) xTask, signed char *pcTaskName) {
     usart_debug("TASK OVERFLOW %s\r\n", pcTaskName);
-    while (1) {};
+    trigger_fault(FAULT_SOURCE_TASK_OVERFLOW);
 }
 
 int main(void) {
