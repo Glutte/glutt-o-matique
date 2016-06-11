@@ -107,26 +107,6 @@ int main(void) {
 }
 
 
-static void test_task(void __attribute__ ((unused))*pvParameters) {
-
-    int i = 0;
-
-    while(1) {
-        vTaskDelay(1000 / portTICK_RATE_MS);
-
-        if (i == 0) {
-            i = 1;
-            leds_turn_on(LED_GREEN);
-
-        } else {
-            i = 0;
-            leds_turn_off(LED_GREEN);
-        }
-
-    }
-
-}
-
 // Launcher task is here to make sure the scheduler is
 // already running when calling the init functions.
 static void launcher_task(void __attribute__ ((unused))*pvParameters)
@@ -204,22 +184,18 @@ static void launcher_task(void __attribute__ ((unused))*pvParameters)
 
     usart_debug_puts("Init done.\r\n");
 
-    xTaskCreate(
-            test_task,
-            "Test task",
-            4*configMINIMAL_STACK_SIZE,
-            (void*) NULL,
-            tskIDLE_PRIORITY + 2UL,
-            &task_handle);
+    while(1) {
+        int i = 0;
+        vTaskDelay(1000 / portTICK_RATE_MS);
 
-    /* We are done now, suspend this task
-     * With FreeDOS' heap_1.c, we cannot delete it.
-     * See freertos.org -> More Advanced... -> Memory Management
-     * for more info.
-     */
+        if (i == 0) {
+            i = 1;
+            leds_turn_on(LED_GREEN);
 
-    while (1) {
-        vTaskSuspend(NULL);
+        } else {
+            i = 0;
+            leds_turn_off(LED_GREEN);
+        }
     }
 }
 
