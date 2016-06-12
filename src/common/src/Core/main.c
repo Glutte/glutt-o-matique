@@ -209,9 +209,6 @@ static void launcher_task(void __attribute__ ((unused))*pvParameters)
 
             pio_set_qrp(qrp);
         }
-
-        const float supply_voltage = analog_measure_12v();
-        usart_debug("12V monitor %dmV\r\n", (int32_t)(supply_voltage * 1000.0f));
     }
 }
 

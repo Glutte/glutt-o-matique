@@ -23,10 +23,13 @@
 */
 
 #include <string.h>
+#include <stdio.h>
 #include <stdint.h>
 #include "Core/common.h"
 #include "Core/fsm.h"
 #include "GPIO/usart.h"
+#include "GPIO/temperature.h"
+#include "GPIO/analog.h"
 
 static struct fsm_input_signals_t fsm_in;
 static struct fsm_output_signals_t fsm_out;
@@ -36,6 +39,11 @@ static fsm_state_t current_state;
 // Keep track of when we last entered a given state, measured
 // in ms using the timestamp_now() function
 static uint64_t timestamp_state[_NUM_FSM_STATES];
+
+static int last_supply_voltage_decivolts = 0;
+
+#define CW_MESSAGE_BALISE_LEN 64
+static char cw_message_balise[CW_MESSAGE_BALISE_LEN];
 
 void fsm_init() {
     memset(&fsm_in, 0, sizeof(fsm_in));
@@ -207,7 +215,7 @@ void fsm_update() {
         case FSM_ANTI_BAVARD:
             fsm_out.tx_on = 1;
             // No modulation!
-            fsm_out.msg = "HI HI";
+            fsm_out.msg = " HI HI";
             fsm_out.cw_psk31_trigger = 1;
 
             if (fsm_in.cw_psk31_done) {
@@ -226,7 +234,7 @@ void fsm_update() {
             fsm_out.modulation = 1;
             fsm_out.msg_frequency    = 696;
             fsm_out.cw_dit_duration = 70;
-            fsm_out.msg = "73";
+            fsm_out.msg = " 73";
             fsm_out.cw_psk31_trigger = 1;
 
             if (fsm_in.sq) {
@@ -242,7 +250,7 @@ void fsm_update() {
             fsm_out.modulation = 1;
             fsm_out.msg_frequency   = 696;
             fsm_out.cw_dit_duration = 70;
-            fsm_out.msg = "HB9G";
+            fsm_out.msg = " HB9G";
             fsm_out.cw_psk31_trigger = 1;
 
             if (fsm_in.sq) {
@@ -261,10 +269,10 @@ void fsm_update() {
             fsm_out.cw_dit_duration = 70;
 
             if (random_bool()) {
-                fsm_out.msg = "HB9G 1628M";
+                fsm_out.msg = " HB9G 1628M";
             }
             else {
-                fsm_out.msg = "HB9G JN36BK";
+                fsm_out.msg = " HB9G JN36BK";
             }
             fsm_out.cw_psk31_trigger = 1;
 
@@ -282,19 +290,51 @@ void fsm_update() {
             fsm_out.cw_dit_duration = 110;
             fsm_out.ack_start_tm    = 1;
 
-            // TODO transmit humidity
-            // TODO read voltage
-            if (fsm_in.wind_generator_ok) {
-                fsm_out.msg = "HB9G JN36BK 1628M U 10V5 =  T 11  73";
+            {
+                const float supply_voltage = round_float_to_half_steps(analog_measure_12v());
+                const int supply_decivolts = supply_voltage * 10.0f;
+
+                char *eol_info = "73";
+                if (!fsm_in.wind_generator_ok) {
+                    eol_info = "\\";
+                    // The backslash is the SK digraph
+                }
+
+                char supply_trend = '=';
                 // = means same voltage as previous
                 // + means higher
                 // - means lower
+                if (last_supply_voltage_decivolts < supply_decivolts) {
+                    supply_trend = '+';
+                }
+                else if (last_supply_voltage_decivolts > supply_decivolts) {
+                    supply_trend = '-';
+                }
+
+                if (temperature_valid()) {
+                    snprintf(cw_message_balise, CW_MESSAGE_BALISE_LEN-1,
+                            "  HB9G JN36BK 1628M U %dV%01d %c  T %d  %s",
+                            supply_decivolts / 10,
+                            supply_decivolts % 10,
+                            supply_trend,
+                            (int)(round_float_to_half_steps(temperature_get())),
+                            eol_info);
+                }
+                else {
+                    snprintf(cw_message_balise, CW_MESSAGE_BALISE_LEN-1,
+                            "  HB9G JN36BK 1628M U %dV%01d %c  %s",
+                            supply_decivolts / 10,
+                            supply_decivolts % 10,
+                            supply_trend,
+                            eol_info);
+                }
+
+                fsm_out.msg = cw_message_balise;
+
+                last_supply_voltage_decivolts = supply_decivolts;
+
+                fsm_out.cw_psk31_trigger = 1;
             }
-            else {
-                fsm_out.msg = "HB9G JN36BK 1628M U 10V5 =  T 11  #";
-                // The # is the SK digraph
-            }
-            fsm_out.cw_psk31_trigger = 1;
 
             if (fsm_in.cw_psk31_done) {
                 next_state = FSM_OISIF;
@@ -307,14 +347,26 @@ void fsm_update() {
             fsm_out.cw_dit_duration = 70;
             fsm_out.ack_start_tm    = 1;
 
-            // TODO read voltage
-            if (fsm_in.wind_generator_ok) {
-                fsm_out.msg = "HB9G U 10V5 73";
+            {
+                const float supply_voltage = round_float_to_half_steps(analog_measure_12v());
+                const int supply_decivolts = supply_voltage * 10.0f;
+
+                char *eol_info = "73";
+                if (!fsm_in.wind_generator_ok) {
+                    eol_info = "\\";
+                    // The backslash is the SK digraph
+                }
+
+                snprintf(cw_message_balise, CW_MESSAGE_BALISE_LEN-1,
+                        "  HB9G U %dV%01d %s",
+                        supply_decivolts / 10,
+                        supply_decivolts % 10,
+                        eol_info);
+
+                fsm_out.msg = cw_message_balise;
+
+                fsm_out.cw_psk31_trigger = 1;
             }
-            else {
-                fsm_out.msg = "HB9G U 10V5 #"; // The # is the SK digraph
-            }
-            fsm_out.cw_psk31_trigger = 1;
 
             if (fsm_in.cw_psk31_done) {
                 next_state = FSM_OISIF;
@@ -331,16 +383,16 @@ void fsm_update() {
                 int rand = random_bool() * 2 + random_bool();
 
                 if (rand == 0) {
-                    fsm_out.msg = "HB9G";
+                    fsm_out.msg = "  HB9G";
                 }
                 else if (rand == 1) {
-                    fsm_out.msg = "HB9G JN36BK";
+                    fsm_out.msg = "  HB9G JN36BK";
                 }
                 else if (rand == 2) {
-                    fsm_out.msg = "HB9G 1628M";
+                    fsm_out.msg = "  HB9G 1628M";
                 }
                 else {
-                    fsm_out.msg = "HB9G JN36BK 1628M";
+                    fsm_out.msg = "  HB9G JN36BK 1628M";
                 }
             }
             fsm_out.cw_psk31_trigger = 1;

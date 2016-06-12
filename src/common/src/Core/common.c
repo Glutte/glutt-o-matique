@@ -28,7 +28,7 @@
 #include "timers.h"
 #include "GPS/gps.h"
 #include <time.h>
-
+#include <math.h>
 
 static uint64_t common_timestamp = 0; // milliseconds since startup
 static TimerHandle_t common_timer;
@@ -209,5 +209,10 @@ void trigger_fault(int source)
     faultsource = source;
 
     while (1) {}
+}
+
+float round_float_to_half_steps(float value)
+{
+    return 0.5f * roundf(value * 2.0f);
 }
 

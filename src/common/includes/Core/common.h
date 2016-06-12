@@ -66,3 +66,6 @@ void __disable_irq(void);
 #else
 void hard_fault_handler_c(uint32_t *);
 #endif
+
+// Round a value to the nearest 0.5
+float round_float_to_half_steps(float value);
