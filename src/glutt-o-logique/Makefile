@@ -36,9 +36,10 @@ BINHEX=outp.hex
 ###
 # MCU FLAGS
 MCFLAGS=-mcpu=cortex-m4 -mthumb -mlittle-endian \
--mfpu=fpv4-sp-d16 -mfloat-abi=softfp -mthumb-interwork
+	-mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb-interwork \
+	-include stm32f4xx.h
 # COMPILE FLAGS
-DEFS=-DUSE_STDPERIPH_DRIVER -DSTM32F4XX -DARM_MATH_CM4 -D__FPU_PRESENT=1
+DEFS=-DUSE_STDPERIPH_DRIVER -DSTM32F4XX -DARM_MATH_CM4
 
 CWARNS += -Wextra
 CWARNS += -Wformat

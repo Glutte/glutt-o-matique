@@ -25,6 +25,28 @@
 #include "stm32f4xx_conf.h"
 #include "leds.h"
 
+// This is a set of guards to make sure the FPU compile configuration
+// is correct
+#ifndef __FPU_USED
+#  error "no __FPU_USED"
+#endif
+
+#ifndef __FPU_PRESENT
+#  error "No __FPU_PRESENT"
+#endif
+
+#ifndef __GNUC__
+#  error "No __GNUC__"
+#endif
+
+#ifndef __VFP_FP__
+#  error "No VFP_FP"
+#endif
+
+#if defined(__SOFTFP__)
+#  error  "SOFTFP"
+#endif
+
 void init(void);
 
 void init()

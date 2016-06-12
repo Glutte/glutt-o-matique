@@ -92,7 +92,7 @@ int main(void) {
     xTaskCreate(
             launcher_task,
             "Launcher",
-            configMINIMAL_STACK_SIZE,
+            2*configMINIMAL_STACK_SIZE,
             (void*) NULL,
             tskIDLE_PRIORITY + 2UL,
             &task_handle);
@@ -200,6 +200,9 @@ static void launcher_task(void __attribute__ ((unused))*pvParameters)
             i = 0;
             leds_turn_off(LED_GREEN);
         }
+
+        const float supply_voltage = analog_measure_12v();
+        usart_debug("12V monitor %dmV\r\n", (int32_t)(supply_voltage * 1000.0f));
     }
 }
 
@@ -237,9 +240,6 @@ static void detect_button_press(void __attribute__ ((unused))*pvParameters)
             } else {
                 usart_debug_puts("No temp\r\n");
             }
-
-            const float supply_voltage = analog_measure_12v();
-            usart_debug("12V monitor %f\r\n", supply_voltage);
         }
         else if (pin_high_count == 0 &&
                 last_pin_high_count != pin_high_count) {
