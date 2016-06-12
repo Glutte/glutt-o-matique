@@ -82,9 +82,8 @@ float analog_measure_12v(void)
 
     // Voltage divider 22k / (82k + 22k) must be inverted here
     // Also, we round to steps of 0.5
-    float temp = raw_value * (2.0f * 104.0f / 22.0f);
-    temp = roundf(temp);
-    temp = sqrtf(temp);
-    temp = temp / 2.0f;
-    return temp;
+    float voltage = raw_value * (2.0f * 104.0f / 22.0f);
+    voltage = roundf(voltage);
+    voltage = voltage / 2.0f;
+    return voltage;
 }
