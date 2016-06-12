@@ -117,13 +117,14 @@ debug: CFLAGS+=-g
 debug: LDFLAGS+=-g
 debug: release
 
+
 $(BINDIR)/$(BINHEX): $(BINDIR)/$(BINELF)
 	@$(CP) -O ihex $< $@
 	@echo "[CP] $@"
 	@echo "[:)] Happiness :)"
 
 $(BINDIR)/$(BINELF): vc.h $(OBJECTS)
-	@$(CC) $(LDFLAGS) $(OBJECTS) -o $@
+	@$(CC) $(LDFLAGS) $(OBJECTS) -o $@ -lm
 	@echo "[CC] $@"
 	@$(SIZE) $(BINDIR)/$(BINELF)
 

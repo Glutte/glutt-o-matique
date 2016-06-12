@@ -45,6 +45,7 @@
 #include "Core/delay.h"
 #include "GPIO/temperature.h"
 #include "GPIO/leds.h"
+#include "GPIO/analog.h"
 #include "vc.h"
 
 
@@ -116,6 +117,9 @@ static void launcher_task(void __attribute__ ((unused))*pvParameters)
 
     usart_debug_puts("PIO init\r\n");
     pio_init();
+
+    usart_debug_puts("Analog init\r\n");
+    analog_init();
 
     usart_debug_puts("I2C init\r\n");
     i2c_init();
@@ -233,6 +237,9 @@ static void detect_button_press(void __attribute__ ((unused))*pvParameters)
             } else {
                 usart_debug_puts("No temp\r\n");
             }
+
+            const float supply_voltage = analog_measure_12v();
+            usart_debug("12V monitor %f\r\n", supply_voltage);
         }
         else if (pin_high_count == 0 &&
                 last_pin_high_count != pin_high_count) {
