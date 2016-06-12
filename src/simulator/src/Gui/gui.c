@@ -155,8 +155,6 @@ int gui_in_replie_n = 1;
 static const char *replie_status[] = {"Replié", "In vent"};
 int gui_in_fax_n = 1;
 
-
-
 int in_button = 0;
 int in_qrp_n = 1;
 int in_1750_n = 1;
@@ -165,8 +163,18 @@ int in_u = 0;
 int in_d = 0;
 int in_fax_n = 1;
 
+
+/**
+ * FSM
+ **/
 const char * gui_last_fsm_states[] = {"", "", "", "", "", "", "", "", "", ""};
 int gui_last_fsm_states_timestamps[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+
+/**
+ * Voltage
+ **/
+float gui_measured_voltage = 12.0f;
 
 
 int auto_scroll_uart = 1;
@@ -680,7 +688,7 @@ void main_gui() {
             }
             nk_end(ctx);
 
-            if (nk_begin(ctx, &layout, "Input", nk_rect(670, 50, 200, 320), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
+            if (nk_begin(ctx, &layout, "Input", nk_rect(670, 50, 200, 330), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
 
                 nk_layout_row_dynamic(ctx, 25, 3);
 
@@ -803,7 +811,9 @@ void main_gui() {
                 nk_layout_row_dynamic(ctx, 18, 2);
                 nk_label_colored(ctx, "REPLIE_n", NK_TEXT_LEFT, c);
                 gui_in_replie_n = nk_combo(ctx, replie_status, LEN(replie_status), gui_in_replie_n, 30);
-                nk_label(ctx, "", NK_TEXT_LEFT);
+
+                nk_label_colored(ctx, "Voltage", NK_TEXT_LEFT, c);
+                nk_property_float(ctx, "V", 0.0f, &gui_measured_voltage, 24.0f, 0.5f, 0.5f);
 
 
             }

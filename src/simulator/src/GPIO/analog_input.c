@@ -25,7 +25,7 @@
 #include "GPIO/analog.h"
 #include <math.h>
 
-float measured_voltage = 12.045f;
+extern float gui_measured_voltage;
 
 void analog_init(void)
 {
@@ -33,8 +33,5 @@ void analog_init(void)
 
 float analog_measure_12v(void)
 {
-    float voltage = 2.0f * measured_voltage;
-    voltage = roundf(voltage);
-    voltage = voltage / 2.0f;
-    return voltage;
+    return gui_measured_voltage;
 }
