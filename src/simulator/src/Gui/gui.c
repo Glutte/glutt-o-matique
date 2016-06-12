@@ -836,7 +836,7 @@ void main_gui() {
             }
             nk_end(ctx);
 
-            if (nk_begin(ctx, &layout, "FSM", nk_rect(880, 200, 200, 350), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
+            if (nk_begin(ctx, &layout, "FSM", nk_rect(880, 200, 200, 350), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_SCALABLE|NK_WINDOW_TITLE)) {
 
                 nk_layout_row_dynamic(ctx, 25, 2);
 
