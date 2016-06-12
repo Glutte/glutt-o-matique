@@ -74,7 +74,6 @@ struct fsm_input_signals_t {
 // All signals the FSM has to control
 struct fsm_output_signals_t {
     /* Signals to the repeater electronics */
-    int qrp;               // Place the repeater in QRP mode // TODO move out of FSM
     int tx_on;             // Enable TX circuitry
     int modulation;        // Enable repeater RX to TX modulation
 

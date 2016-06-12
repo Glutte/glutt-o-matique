@@ -38,6 +38,7 @@ const uint16_t GPIOA_PIN_USART2_TX = GPIO_Pin_2;
 
 #include "../common/includes/GPIO/usart.h"
 
+#define USART2_RECEIVE_ENABLE 0 // TODO something is not working
 
 void USART2_IRQHandler(void);
 void USART3_IRQHandler(void);

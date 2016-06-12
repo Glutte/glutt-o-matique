@@ -30,3 +30,8 @@ void analog_init(void);
  * Returns 0.0f in case of error */
 float analog_measure_12v(void);
 
+/* Keep an average of measurements, and decide if the repeater should enter
+ * QRP. Returns 1 if low power must be activated
+ */
+int analog_supply_too_low(void);
+

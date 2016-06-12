@@ -39,7 +39,7 @@ void analog_init(void)
     GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-    GPIO_Init(GPIOC, &GPIO_InitStructure);
+    GPIO_Init(GPIOA, &GPIO_InitStructure);
 
     // Init ADC1 for supply measurement
     ADC_CommonInitTypeDef ADC_CommonInitStruct;
@@ -78,12 +78,15 @@ float analog_measure_12v(void)
     // TODO add timeout
     while (ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC) == RESET);
 
-    const float raw_value = ADC_GetConversionValue(ADC1);
+    const uint16_t raw_value = ADC_GetConversionValue(ADC1);
 
-    // Voltage divider 22k / (82k + 22k) must be inverted here
-    // Also, we round to steps of 0.5
-    float voltage = raw_value * (2.0f * 104.0f / 22.0f);
-    voltage = roundf(voltage);
-    voltage = voltage / 2.0f;
-    return voltage;
+    const float adc_max_value = (1 << 12);
+    const float v_ref = 2.965f;
+
+    // Convert ADC measurement to voltage
+    float voltage = ((float)raw_value*v_ref/adc_max_value);
+
+    // Compensate resistor divider on board (see schematic)
+    return voltage * 202.0f / 22.0f;
 }
+

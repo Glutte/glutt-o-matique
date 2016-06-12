@@ -188,6 +188,7 @@ static void launcher_task(void __attribute__ ((unused))*pvParameters)
 
     usart_debug_puts("Init done.\r\n");
 
+    int last_qrp = 0;
     while(1) {
         int i = 0;
         vTaskDelay(pdMS_TO_TICKS(1000));
@@ -199,6 +200,14 @@ static void launcher_task(void __attribute__ ((unused))*pvParameters)
         } else {
             i = 0;
             leds_turn_off(LED_GREEN);
+        }
+
+        const int qrp = analog_supply_too_low();
+        if (qrp != last_qrp) {
+            usart_debug("QRP should be %d\r\n", qrp);
+            last_qrp = qrp;
+
+            pio_set_qrp(qrp);
         }
 
         const float supply_voltage = analog_measure_12v();
@@ -232,10 +241,10 @@ static void detect_button_press(void __attribute__ ((unused))*pvParameters)
             usart_debug_puts("Bouton bleu\r\n");
 
             if (temperature_valid()) {
-
                 float temp = temperature_get();
+                int temp_decidegrees = temp * 10.0f;
 
-                usart_debug("Temperature %f\r\n", temp);
+                usart_debug("Temperature %d.%01d\r\n", temp_decidegrees / 10, temp_decidegrees % 10);
 
             } else {
                 usart_debug_puts("No temp\r\n");
@@ -434,7 +443,6 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
 
         pio_set_tx(fsm_out.tx_on);
         pio_set_mod_off(!fsm_out.modulation);
-        pio_set_qrp(fsm_out.qrp); // TODO move out of FSM
 
         // Add message to CW generator only on rising edge of trigger
         if (fsm_out.cw_psk31_trigger && !cw_last_trigger) {

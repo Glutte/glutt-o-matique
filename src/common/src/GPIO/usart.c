@@ -28,6 +28,7 @@
 #include <inttypes.h>
 #include "Core/common.h"
 #include "GPIO/usart.h"
+#include "GPIO/analog.h"
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
@@ -128,11 +129,15 @@ static void usart_clear_nmea_buffer(void) {
 void usart_process_char(char c) {
 
     if (c == 'h') {
-        usart_debug_puts("help: no commands supported yet!\r\n");
-    } else {
+        usart_debug_puts("help: commands: [v]oltage.\r\n");
+    }
+    else if (c == 'v') {
+        const float supply_voltage = analog_measure_12v();
+        usart_debug("12V monitor %dmV\r\n", (int32_t)(supply_voltage * 1000.0f));
+    }
+    else {
         usart_debug("Unknown command %c\r\n", c);
     }
-
 }
 
 void usart_gps_process_char(char c) {

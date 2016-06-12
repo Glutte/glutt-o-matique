@@ -1,3 +1,4 @@
+src/GPIO/analog.c
 src/GPIO/usart.c
 src/GPIO/temperature.c
 src/GPS/gps.c
