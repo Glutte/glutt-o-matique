@@ -22,9 +22,9 @@ Connexions Relais
 TODO Analog signals
 -------------------
 -       in   f_0 deviation
--       in   SWR forward
--       in   SWR reflected
--       in   Vcc 12V measurement
+-       in   SWR forward        PA6 (ADC12 IN6)
+-       in   SWR reflected      PA7 (ADC12 IN7)
+-       in   Vcc 12V            PA5 (ADC12 IN5)
 
 u-blox NEO-M8N GPS module connection
 ------------------------------------

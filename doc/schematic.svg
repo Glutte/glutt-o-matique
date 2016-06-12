@@ -146,9 +146,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.6190039"
-     inkscape:cx="727.20564"
-     inkscape:cy="147.93947"
+     inkscape:zoom="2.6266061"
+     inkscape:cx="717.91141"
+     inkscape:cy="142.83629"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -4593,7 +4593,7 @@
          sodipodi:role="line"
          x="718.53662"
          y="983.32874"
-         id="tspan29929">2016-05-30 HB9EGM</tspan></text>
+         id="tspan29929">2016-06-12 HB9EGM</tspan></text>
     <g
        transform="matrix(0.5,0,0,0.5,85,251.18111)"
        id="g26374-6">
@@ -5028,7 +5028,7 @@
            y="540.51709"
            x="373.32974"
            id="tspan25988-2"
-           sodipodi:role="line">P???</tspan></text>
+           sodipodi:role="line">PA7</tspan></text>
     </g>
     <path
        inkscape:connector-curvature="0"
@@ -5066,7 +5066,7 @@
            id="tspan26000-8"
            x="373.32974"
            y="540.51709"
-           style="font-size:7.5px;stroke-width:0.80000001;stroke-miterlimit:4;stroke-dasharray:none">P???</tspan></text>
+           style="font-size:7.5px;stroke-width:0.80000001;stroke-miterlimit:4;stroke-dasharray:none">PA6</tspan></text>
     </g>
     <path
        inkscape:connector-curvature="0"
@@ -5456,7 +5456,7 @@
            id="tspan5517"
            x="373.32974"
            y="540.51709"
-           style="font-size:7.5px;stroke-width:0.80000001;stroke-miterlimit:4;stroke-dasharray:none">P???</tspan></text>
+           style="font-size:7.5px;stroke-width:0.80000001;stroke-miterlimit:4;stroke-dasharray:none">PA5</tspan></text>
     </g>
     <path
        inkscape:connector-curvature="0"
@@ -7422,5 +7422,52 @@
          d="m 237.40157,1009.8425 35.43308,0"
          style="fill:none;stroke:#000000;stroke-width:7.11111116;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     </g>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:6.25px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="520"
+       y="807.36218"
+       id="text5424"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan5426"
+         x="520"
+         y="807.36218" /></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:7px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.80000001;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       x="517"
+       y="804.36218"
+       id="text5515-3"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan5517-7"
+         x="517"
+         y="804.36218"
+         style="font-size:3.75px;stroke-width:0.80000001;stroke-miterlimit:4;stroke-dasharray:none">ADC12 IN5</tspan></text>
+    <text
+       sodipodi:linespacing="125%"
+       id="text5446"
+       y="784.36218"
+       x="517"
+       style="font-style:normal;font-weight:normal;font-size:7px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.80000001;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       xml:space="preserve"><tspan
+         style="font-size:3.75px;stroke-width:0.80000001;stroke-miterlimit:4;stroke-dasharray:none"
+         y="784.36218"
+         x="517"
+         id="tspan5448"
+         sodipodi:role="line">ADC12 IN6</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:7px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.80000001;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       x="517"
+       y="773.36218"
+       id="text5450"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan5452"
+         x="517"
+         y="773.36218"
+         style="font-size:3.75px;stroke-width:0.80000001;stroke-miterlimit:4;stroke-dasharray:none">ADC12 IN7</tspan></text>
   </g>
 </svg>
