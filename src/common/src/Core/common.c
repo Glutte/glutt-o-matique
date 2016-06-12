@@ -150,7 +150,7 @@ int local_time(struct tm *time) {
 void common_init(void)
 {
     common_timer = xTimerCreate("Timer",
-            pdMS_TO_TICKS(10),
+            pdMS_TO_TICKS(8),
             pdTRUE, // Auto-reload
             NULL,   // No unique id
             common_increase_timestamp
@@ -176,7 +176,7 @@ static void common_increase_timestamp(TimerHandle_t __attribute__ ((unused))t)
     }
 
 #else
-    common_timestamp += 10;
+    common_timestamp += 8;
 #endif
 }
 
