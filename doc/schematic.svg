@@ -146,9 +146,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.6266061"
-     inkscape:cx="717.91141"
-     inkscape:cy="142.83629"
+     inkscape:zoom="2.8644597"
+     inkscape:cx="400.89742"
+     inkscape:cy="267.30577"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -5388,7 +5388,7 @@
            y="887.36218"
            x="288.39352"
            id="tspan26781-5"
-           sodipodi:role="line">82k</tspan></text>
+           sodipodi:role="line">180k</tspan></text>
     </g>
     <g
        id="g5493"
@@ -5479,7 +5479,7 @@
          sodipodi:role="line"
          x="365"
          y="857.36218"
-         id="tspan5527">env. 2mW à 15V</tspan></text>
+         id="tspan5527">env. 1mW à 15V</tspan></text>
     <g
        transform="translate(119.69561,4.9999947)"
        id="g5529">
@@ -5610,7 +5610,7 @@
          sodipodi:role="line"
          x="400"
          y="848.61218"
-         id="tspan6003">22k / (22k + 82k)</tspan></text>
+         id="tspan6003">22k / (22k + 180k)</tspan></text>
     <flowRoot
        xml:space="preserve"
        id="flowRoot5737"
