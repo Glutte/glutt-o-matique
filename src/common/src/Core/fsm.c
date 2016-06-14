@@ -45,6 +45,8 @@ static int last_supply_voltage_decivolts = 0;
 #define CW_MESSAGE_BALISE_LEN 64
 static char cw_message_balise[CW_MESSAGE_BALISE_LEN];
 
+static int short_balise_got_sq = 0;
+
 void fsm_init() {
     memset(&fsm_in, 0, sizeof(fsm_in));
     memset(&fsm_out, 0, sizeof(fsm_out));
@@ -122,12 +124,14 @@ void fsm_update() {
                     next_state = FSM_BALISE_SPECIALE;
                 }
                 else {
-                    next_state = FSM_BALISE_LONGUE;
+                    next_state = FSM_BALISE_COURTE;
                 }
             }
             else if (!fsm_in.qrp && fsm_current_state_time_s() > 20 * 60) {
                 next_state = FSM_BALISE_COURTE;
             }
+
+            short_balise_got_sq = 0;
             break;
 
         case FSM_OPEN1:
@@ -404,10 +408,22 @@ void fsm_update() {
             fsm_out.cw_psk31_trigger = 1;
 
             if (fsm_in.sq) {
-                next_state = FSM_OPEN2;
+                short_balise_got_sq = 1;
             }
-            else if (fsm_in.cw_psk31_done) {
-                next_state = FSM_OISIF;
+
+            if (fsm_in.cw_psk31_done) {
+
+                if (short_balise_got_sq) {
+
+                    if (fsm_in.sq) {
+                        next_state = FSM_OPEN1;
+                    } else {
+                        next_state = FSM_OPEN2;
+                    }
+
+                } else {
+                    next_state = FSM_OISIF;
+                }
             }
             break;
         default:
