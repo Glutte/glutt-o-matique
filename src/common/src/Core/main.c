@@ -256,6 +256,9 @@ static void detect_button_press(void __attribute__ ((unused))*pvParameters)
     }
 }
 
+int only_zero_in_audio_buffer = 1;
+int count_zero_audio_buffer = 0;
+
 static void audio_callback(void __attribute__ ((unused))*context, int select_buffer) {
     static int16_t audio_buffer0[AUDIO_BUF_LEN];
     static int16_t audio_buffer1[AUDIO_BUF_LEN];
@@ -279,6 +282,15 @@ static void audio_callback(void __attribute__ ((unused))*context, int select_buf
         }
 
         samples_len = AUDIO_BUF_LEN;
+
+        if (count_zero_audio_buffer < 2) {
+            count_zero_audio_buffer++;
+        } else {
+            only_zero_in_audio_buffer = 1;
+        }
+    } else {
+        only_zero_in_audio_buffer = 0;
+        count_zero_audio_buffer = 0;
     }
 
     audio_provide_buffer_without_blocking(samples, samples_len);
@@ -450,10 +462,14 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
 
         int cw_done = !cw_psk31_busy();
         if (last_cw_done != cw_done) {
-            usart_debug("In CW done %d\r\n", cw_done);
-            last_cw_done = cw_done;
 
-            fsm_input.cw_psk31_done = cw_done;
+            // On fait le switch du cw_done vers 1 QUE si les buffers audio ont été flusés
+            if (!cw_done || only_zero_in_audio_buffer) {
+                usart_debug("In CW done %d\r\n", cw_done);
+                last_cw_done = cw_done;
+
+                fsm_input.cw_psk31_done = cw_done;
+            }
         }
         else {
             fsm_input.cw_psk31_done = 0;
