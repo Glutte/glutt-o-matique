@@ -36,7 +36,7 @@ TickType_t gps_timeutc_last_updated = 0;
 static struct tm gps_timeutc;
 static int gps_timeutc_valid;
 
-const TickType_t gps_data_validity_timeout = 10000ul / portTICK_PERIOD_MS;
+const TickType_t gps_data_validity_timeout = GPS_MS_TIMEOUT / portTICK_PERIOD_MS;
 
 static void gps_task(void *pvParameters);
 

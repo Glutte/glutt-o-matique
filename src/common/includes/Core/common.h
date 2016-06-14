@@ -48,6 +48,10 @@ uint64_t timestamp_now(void);
 // regardless of return value.
 int local_time(struct tm *time);
 
+// Try to calculate local time, based on a past valid local time and the current timestamp
+// Return 1 on success, 0 on failure
+int local_derived_time(struct tm *time);
+
 // Return either 0 or 1, somewhat randomly
 int random_bool(void);
 
@@ -69,3 +73,5 @@ void hard_fault_handler_c(uint32_t *);
 
 // Round a value to the nearest 0.5
 float round_float_to_half_steps(float value);
+
+#define GPS_MS_TIMEOUT 2000ul

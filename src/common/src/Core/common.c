@@ -39,6 +39,11 @@ static uint16_t lfsr;
 
 static void common_increase_timestamp(TimerHandle_t t);
 
+struct tm last_derived_time;
+static uint64_t last_derived_time_timestamp = 0;
+int last_derived_time_valid = 0;
+int last_derived_time_delta_applied = 0;
+
 
 #ifdef SIMULATOR
 long timestamp_delta = 0;
@@ -141,9 +146,43 @@ int local_time(struct tm *time) {
             valid = 0;
         }
 
+        if (valid) {
+            last_derived_time = *time;
+            last_derived_time_timestamp = timestamp_now();
+            last_derived_time_valid = 1;
+            last_derived_time_delta_applied = 0;
+        }
+
     }
 
     return valid;
+}
+
+int local_derived_time(struct tm *time) {
+
+    if (last_derived_time_valid == 0) {
+        return 0;
+    }
+
+    // As there is a GPS timeout, local_time will think he has valid GPS data for GPS_MS_TIMEOUT. We need to remove it for better calculations.
+    if (last_derived_time_delta_applied == 0) {
+        last_derived_time_delta_applied = 1;
+        last_derived_time_timestamp -= GPS_MS_TIMEOUT;
+    }
+
+    uint64_t new_timestamp = timestamp_now();
+
+    while (new_timestamp - last_derived_time_timestamp > 1000) {
+        last_derived_time.tm_sec += 1;
+        last_derived_time_timestamp += 1000;
+    }
+
+    mktime(&last_derived_time);
+
+    *time = last_derived_time;
+
+    return 1;
+
 }
 
 

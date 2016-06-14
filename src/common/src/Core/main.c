@@ -298,6 +298,7 @@ static void gps_monit_task(void __attribute__ ((unused))*pvParameters) {
     while (1) {
         struct tm time;
         int time_valid = local_time(&time);
+        int derived_mode = 0;
 
         if (time_valid) {
             if (time.tm_sec % 4 >= 2) {
@@ -309,37 +310,70 @@ static void gps_monit_task(void __attribute__ ((unused))*pvParameters) {
 
             // Even hours: tm_trigger=1, odd hours: tm_trigger=0
             tm_trigger = (time.tm_hour + 1) % 2;
+
+            derived_mode = 0;
+
+        } else {
+
+            time_valid = local_derived_time(&time);
+
+            if (time_valid) {
+                if (time.tm_sec % 2) {
+                    leds_turn_on(LED_BLUE);
+                }
+                else {
+                    leds_turn_off(LED_BLUE);
+                }
+
+                derived_mode = 1;
+            }
+
+        }
+
+        if (time_valid) {
+            // Even hours: tm_trigger=1, odd hours: tm_trigger=0
+            tm_trigger = (time.tm_hour + 1) % 2;
         }
 
         gps_utctime(&gps_time);
 
-        if (gps_time.tm_sec % 30 == 0 && t_gps_print_latch == 0) {
+        if (time.tm_sec % 30 == 0 && t_gps_print_latch == 0) {
             usart_debug("T_GPS %04d-%02d-%02d %02d:%02d:%02d\r\n",
-                    gps_time.tm_year, gps_time.tm_mon, gps_time.tm_mday,
-                    gps_time.tm_hour, gps_time.tm_min, gps_time.tm_sec);
+                gps_time.tm_year, gps_time.tm_mon, gps_time.tm_mday,
+                gps_time.tm_hour, gps_time.tm_min, gps_time.tm_sec);
 
-            usart_debug("TIME  %04d-%02d-%02d %02d:%02d:%02d\r\n",
+            char * mode;
+
+            if (derived_mode) {
+                mode = "Derived";
+            } else {
+                mode = "GPS";
+            }
+
+            usart_debug("TIME  %04d-%02d-%02d %02d:%02d:%02d [%s]\r\n",
 #ifdef SIMULATOR
-                    time.tm_year + 1900,
+                time.tm_year + 1900,
 #else
-                    time.tm_year,
+                time.tm_year,
 #endif
-                    time.tm_mon, time.tm_mday,
-                    time.tm_hour, time.tm_min, time.tm_sec);
+                time.tm_mon, time.tm_mday,
+                time.tm_hour, time.tm_min, time.tm_sec,
+                mode);
 
 
             t_gps_print_latch = 1;
         }
-        if (gps_time.tm_sec % 30 > 0) {
+
+        if (time.tm_sec % 30 > 0) {
             t_gps_print_latch = 0;
         }
 
-        if (time_valid && gps_time.tm_sec == 0 && gps_time.tm_min == 0 && t_gps_hours_handeled == 0) {
+        if (time_valid && derived_mode == 0 && gps_time.tm_sec == 0 && gps_time.tm_min == 0 && t_gps_hours_handeled == 0) {
 
             uint64_t current_timestamp = timestamp_now();
 
             if (last_hour_timestamp == 0) {
-                usart_debug("DERIV INIT TS=%i\r\n", current_timestamp);
+                usart_debug("DERIV INIT TS=%lld\r\n", current_timestamp);
             } else {
 
                 usart_debug("DERIV TS=%lld Excepted=%lld Delta=%lld\r\n",
