@@ -106,8 +106,14 @@ void fsm_update() {
     fsm_out.msg_frequency = 960;
     // other output signals keep their value
 
+    // Clear the ack flag if the start_tm has been cleared
+    if (!fsm_in.start_tm && fsm_out.ack_start_tm) {
+        fsm_out.ack_start_tm = 0;
+    }
+
     switch (current_state) {
         case FSM_OISIF:
+
             if (fsm_in.tone_1750 && fsm_in.sq) {
                 next_state = FSM_OPEN1;
             }
@@ -460,5 +466,3 @@ void fsm_get_outputs(struct fsm_output_signals_t* out)
 {
     *out = fsm_out;
 }
-
-
