@@ -46,6 +46,24 @@ static int last_supply_voltage_decivolts = 0;
 static char cw_message_balise[CW_MESSAGE_BALISE_LEN];
 
 
+// Each 20 minutes, send a SHORT_BEACON
+#define SHORT_BEACON_MAX (60 * 20)
+// Send a SHORT_BEACON only if a qso occured 2 hours ago
+#define SHORT_BEACON_QSO_AGO (60 * 60 * 2)
+// Reset the counter if the QSO was 10m too long
+#define SHORT_BEACON_RESET_IF_QSO (60 * 10)
+
+// The counter (up to 20 minutes) for the short balise
+static int short_beacon_counter_s = 0;
+static uint64_t short_beacon_counter_last_update = 0;
+
+// The last timestamp when a qso occured
+static uint64_t last_qso_timestamp = 0;
+
+// The last start of the last qso
+static uint64_t last_qso_start_timestamp = 0;
+
+
 void fsm_init() {
     memset(&fsm_in, 0, sizeof(fsm_in));
     memset(&fsm_out, 0, sizeof(fsm_out));
@@ -115,6 +133,22 @@ void fsm_update() {
     switch (current_state) {
         case FSM_OISIF:
 
+            if (last_qso_start_timestamp != 0) {
+
+                if ((timestamp_now() - last_qso_start_timestamp) > 1000 * SHORT_BEACON_RESET_IF_QSO) {
+                    short_beacon_counter_s = 0;
+                }
+
+                last_qso_start_timestamp = 0;
+            }
+
+            if (short_beacon_counter_s < SHORT_BEACON_MAX) {
+                while(short_beacon_counter_s < SHORT_BEACON_MAX && (fsm_current_state_time_s() - short_beacon_counter_last_update > 1)) {
+                    short_beacon_counter_last_update++;
+                    short_beacon_counter_s++;
+                }
+            }
+
             if (fsm_in.tone_1750 && fsm_in.sq) {
                 next_state = FSM_OPEN1;
             }
@@ -126,7 +160,8 @@ void fsm_update() {
                     next_state = FSM_BALISE_LONGUE;
                 }
             }
-            else if (!fsm_in.qrp && fsm_current_state_time_s() > 20 * 60) {
+            else if (!fsm_in.qrp && short_beacon_counter_s == SHORT_BEACON_MAX && (last_qso_timestamp + 1000 * SHORT_BEACON_QSO_AGO) > timestamp_now()) {
+                short_beacon_counter_s = 0;
                 next_state = FSM_BALISE_COURTE;
             }
 
@@ -211,6 +246,12 @@ void fsm_update() {
         case FSM_QSO:
             fsm_out.tx_on = 1;
             fsm_out.modulation = 1;
+
+            if (last_qso_start_timestamp == 0) {
+                last_qso_start_timestamp = timestamp_now();
+            }
+
+            last_qso_timestamp = timestamp_now();
 
             if (!fsm_in.sq) {
                 next_state = FSM_LETTRE;
@@ -440,6 +481,9 @@ void fsm_update() {
 
     if (next_state != current_state) {
         timestamp_state[next_state] = timestamp_now();
+
+        short_beacon_counter_last_update = 0;
+
         switch (next_state) {
             case FSM_OISIF:
                 fsm_state_switched("FSM_OISIF"); break;
