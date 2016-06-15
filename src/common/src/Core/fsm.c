@@ -133,6 +133,7 @@ void fsm_update() {
     switch (current_state) {
         case FSM_OISIF:
 
+            // Check the lenght of the last QSO, and reset the SHORT_BEACON counter if needed
             if (last_qso_start_timestamp != 0) {
 
                 if ((timestamp_now() - last_qso_start_timestamp) > 1000 * SHORT_BEACON_RESET_IF_QSO) {
@@ -142,6 +143,7 @@ void fsm_update() {
                 last_qso_start_timestamp = 0;
             }
 
+            // Increment the SHORT_BEACON counter based on  time spent in the state
             if (short_beacon_counter_s < SHORT_BEACON_MAX) {
                 while(short_beacon_counter_s < SHORT_BEACON_MAX && (fsm_current_state_time_s() - short_beacon_counter_last_update > 1)) {
                     short_beacon_counter_last_update++;
@@ -247,6 +249,7 @@ void fsm_update() {
             fsm_out.tx_on = 1;
             fsm_out.modulation = 1;
 
+            // Save the starting timestamp, if there is none
             if (last_qso_start_timestamp == 0) {
                 last_qso_start_timestamp = timestamp_now();
             }
