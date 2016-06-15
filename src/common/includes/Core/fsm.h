@@ -44,6 +44,7 @@ enum fsm_state_e {
     FSM_BALISE_LONGUE,   // Full-length 2-hour beacon
     FSM_BALISE_SPECIALE, // 2-hour beacon when in QRP or with high power return mode
     FSM_BALISE_COURTE,   // Short intermittent beacon
+    FSM_BALISE_COURTE_OPEN,   // Short intermittent beacon, need to switch to OPEN
     _NUM_FSM_STATES      // Dummy state to count the number of states
 };
 
