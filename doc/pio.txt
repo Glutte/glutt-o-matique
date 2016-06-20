@@ -14,8 +14,7 @@ Connexions Relais
 -       in   D                  PC11
 -       in   REPLIE_n           PC13
 -       in   FAX_n              PC14
-
--       i/o  ?                  PC15
+-       out  GPS EPPS           PC15
 
 -       i/o  Dallas 1-wire      PA1
 

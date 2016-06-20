@@ -25,9 +25,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.98994949"
-     inkscape:cx="545.74296"
-     inkscape:cy="291.88396"
+     inkscape:zoom="1.979899"
+     inkscape:cx="516.04935"
+     inkscape:cy="383.27846"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -417,29 +417,6 @@
          x="582.43817"
          sodipodi:role="line"
          style="-inkscape-font-specification:'Sans Italic';font-family:Sans;font-weight:normal;font-style:italic;font-stretch:normal;font-variant:normal">Température</tspan></text>
-    <path
-       sodipodi:nodetypes="ccc"
-       inkscape:connector-curvature="0"
-       id="path6803"
-       d="m 418.11024,659.05513 28.34646,-38.97638 81.49606,0"
-       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
-    <text
-       sodipodi:linespacing="125%"
-       id="text6805"
-       y="618.66144"
-       x="439.37009"
-       style="font-style:normal;font-weight:normal;font-size:10px;line-height:125%;font-family:Sans;text-align:start;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       xml:space="preserve"><tspan
-         y="618.66144"
-         x="439.37009"
-         id="tspan6807"
-         sodipodi:role="line">13,14 ?→PCB bleu</tspan></text>
-    <path
-       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 421.65354,666.14174 -21.25984,0 31.88977,-46.06299 74.40945,0"
-       id="path6809"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cccc" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="m 435.82677,666.14174 -17.71654,24.80315 -113.38582,0"
@@ -1020,23 +997,6 @@
     <path
        sodipodi:nodetypes="ccc"
        inkscape:connector-curvature="0"
-       id="path6965"
-       d="m 701.57481,659.05513 -17.71654,-24.80315 -56.69291,-2e-5"
-       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
-    <text
-       sodipodi:linespacing="125%"
-       id="text6967"
-       y="632.12604"
-       x="627.16534"
-       style="font-style:normal;font-weight:normal;font-size:10px;line-height:125%;font-family:Sans;text-align:start;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       xml:space="preserve"><tspan
-         y="632.12604"
-         x="627.16534"
-         id="tspan6969"
-         sodipodi:role="line">5 START TM</tspan></text>
-    <path
-       sodipodi:nodetypes="ccc"
-       inkscape:connector-curvature="0"
        id="path6971"
        d="m 651.9685,666.14174 38.97638,60.23622 67.32283,0"
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
@@ -1509,7 +1469,7 @@
          sodipodi:role="line"
          x="721.6897"
          y="980.48785"
-         id="tspan29929">2016-06-16 HB9EGM</tspan></text>
+         id="tspan29929">2016-06-20 HB9EGM</tspan></text>
     <text
        sodipodi:linespacing="125%"
        id="text7074"
