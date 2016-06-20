@@ -300,7 +300,7 @@ static void audio_callback(void __attribute__ ((unused))*context, int select_buf
 static struct tm gps_time;
 static void gps_monit_task(void __attribute__ ((unused))*pvParameters) {
 
-    leds_turn_on(LED_BLUE);
+    pio_set_gps_epps(1);
 
     int t_gps_print_latch = 0;
     int t_gps_hours_handeled = 0;
@@ -313,11 +313,11 @@ static void gps_monit_task(void __attribute__ ((unused))*pvParameters) {
         int derived_mode = 0;
 
         if (time_valid) {
-            if (time.tm_sec % 4 >= 2) {
-                leds_turn_on(LED_BLUE);
+            if (time.tm_sec % 2) {
+                pio_set_gps_epps(1);
             }
             else {
-                leds_turn_off(LED_BLUE);
+                pio_set_gps_epps(0);
             }
 
             // Even hours: tm_trigger=1, odd hours: tm_trigger=0
@@ -325,16 +325,17 @@ static void gps_monit_task(void __attribute__ ((unused))*pvParameters) {
 
             derived_mode = 0;
 
-        } else {
+        }
+        else {
 
             time_valid = local_derived_time(&time);
 
             if (time_valid) {
-                if (time.tm_sec % 2) {
-                    leds_turn_on(LED_BLUE);
+                if (time.tm_sec % 4 >= 2) {
+                    pio_set_gps_epps(1);
                 }
                 else {
-                    leds_turn_off(LED_BLUE);
+                    pio_set_gps_epps(0);
                 }
 
                 derived_mode = 1;
@@ -358,7 +359,8 @@ static void gps_monit_task(void __attribute__ ((unused))*pvParameters) {
 
             if (derived_mode) {
                 mode = "Derived";
-            } else {
+            }
+            else {
                 mode = "GPS";
             }
 
@@ -386,8 +388,8 @@ static void gps_monit_task(void __attribute__ ((unused))*pvParameters) {
 
             if (last_hour_timestamp == 0) {
                 usart_debug("DERIV INIT TS=%lld\r\n", current_timestamp);
-            } else {
-
+            }
+            else {
                 usart_debug("DERIV TS=%lld Excepted=%lld Delta=%lld\r\n",
                     current_timestamp,
                     last_hour_timestamp + 3600000,

@@ -53,6 +53,10 @@ void pio_set_qrp(int on) {
     gui_out_qrp = on;
 }
 
+void pio_set_gps_epps(int on) {
+    // TODO
+}
+
 void pio_set_fsm_signals(struct fsm_input_signals_t* sig) {
 
     sig->qrp = gui_in_qrp_n ? 0 : 1;

@@ -38,12 +38,14 @@
 #define GPIO_PIN_D        GPIO_Pin_11
 #define GPIO_PIN_REPLIE_n GPIO_Pin_13
 #define GPIO_PIN_FAX      GPIO_Pin_14
+#define GPIO_PIN_GPS_EPPS GPIO_Pin_15
 
 
 #define GPIOC_OUTPUT_PINS ( \
                            GPIO_PIN_TX | \
                            GPIO_PIN_MOD_OFF | \
                            GPIO_PIN_QRP_out | \
+                           GPIO_PIN_GPS_EPPS | \
                            0)
 
 #undef GPIOC_OPENDRAIN_PINS
@@ -186,3 +188,14 @@ void pio_set_mod_off(int mod_off)
 int pio_read_button() {
     return GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_0) == Bit_SET;
 }
+
+void pio_set_gps_epps(int on)
+{
+    if (on) {
+        GPIO_SetBits(GPIOC, GPIO_PIN_GPS_EPPS);
+    }
+    else {
+        GPIO_ResetBits(GPIOC, GPIO_PIN_GPS_EPPS);
+    }
+}
+
