@@ -457,7 +457,12 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
         }
         last_tm_trigger_button = tm_trigger_button;
 
-        if (tm_trigger == 1 && last_tm_trigger == 0) {
+        /* Do not time-trigger BALISE if
+         * the trigger occurs in the first minute,
+         * or if we happen to start up in an even hour
+         */
+        if (    timestamp_now() > 60 * 1000 &&
+                tm_trigger == 1 && last_tm_trigger == 0) {
             fsm_input.start_tm = 1;
         }
         last_tm_trigger = tm_trigger;
@@ -465,7 +470,7 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
         int cw_done = !cw_psk31_busy();
         if (last_cw_done != cw_done) {
 
-            // On fait le switch du cw_done vers 1 QUE si les buffers audio ont été flusés
+            // On fait le switch du cw_done vers 1 QUE si les buffers audio ont été flushés
             if (!cw_done || only_zero_in_audio_buffer) {
                 usart_debug("In CW done %d\r\n", cw_done);
                 last_cw_done = cw_done;
