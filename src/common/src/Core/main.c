@@ -204,10 +204,18 @@ static void launcher_task(void __attribute__ ((unused))*pvParameters)
 
         const int qrp = analog_supply_too_low();
         if (qrp != last_qrp) {
-            usart_debug("QRP should be %d\r\n", qrp);
+            usart_debug("QRP = %d\r\n", qrp);
             last_qrp = qrp;
 
             pio_set_qrp(qrp);
+        }
+
+        struct fsm_output_signals_t fsm_out;
+        fsm_get_outputs(&fsm_out);
+        if (1) {
+        //if (fsm_out.tx_on) {
+            uint16_t swr_fwd, swr_refl;
+            analog_measure_swr(&swr_fwd, &swr_refl);
         }
     }
 }
