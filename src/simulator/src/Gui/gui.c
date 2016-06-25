@@ -178,6 +178,13 @@ int gui_last_fsm_states_timestamps[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 float gui_measured_voltage = 12.0f;
 
 
+/**
+ * SWR
+ **/
+int gui_swr_forward;
+int gui_swr_reflected;
+
+
 int auto_scroll_uart = 1;
 int auto_scroll_cw = 1;
 
@@ -885,6 +892,19 @@ void main_gui() {
 
                 }
 
+            }
+            nk_end(ctx);
+
+            if (nk_begin(ctx, &layout, "SWR", nk_rect(50, 555, 350, 155), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
+
+
+                    nk_layout_row_dynamic(ctx, 25, 2);
+
+                    nk_label(ctx, "Forward", NK_TEXT_LEFT);
+                    nk_property_int(ctx, "?", 0, &gui_swr_forward, 65536, 1, 1);
+
+                    nk_label(ctx, "Reflected", NK_TEXT_LEFT);
+                    nk_property_int(ctx, "??", 0, &gui_swr_reflected, 65536, 1, 1);
             }
             nk_end(ctx);
 

@@ -26,6 +26,8 @@
 #include <math.h>
 
 extern float gui_measured_voltage;
+extern int gui_swr_forward;
+extern int gui_swr_reflected;
 
 void analog_init(void)
 {
@@ -34,4 +36,12 @@ void analog_init(void)
 float analog_measure_12v(void)
 {
     return gui_measured_voltage;
+}
+
+int analog_measure_swr(uint16_t *forward, uint16_t* reflected)
+{
+    *forward = gui_swr_forward;
+    *reflected = gui_swr_reflected;
+
+    return 1;
 }
