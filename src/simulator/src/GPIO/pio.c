@@ -37,6 +37,7 @@ extern int gui_in_u;
 extern int gui_in_d;
 extern int gui_in_replie_n;
 extern int gui_in_fax_n;
+extern char led_gps;
 
 void pio_init(void) {
 }
@@ -54,7 +55,7 @@ void pio_set_qrp(int on) {
 }
 
 void pio_set_gps_epps(int on) {
-    // TODO
+    led_gps = on;
 }
 
 void pio_set_fsm_signals(struct fsm_input_signals_t* sig) {

@@ -85,6 +85,7 @@ char led_blue = 0;
 char led_green = 0;
 char led_orange = 0;
 char led_red = 0;
+char led_gps = 0;
 
 /**
  * GPS
@@ -393,7 +394,7 @@ void main_gui() {
             struct nk_panel layout;
             int nb_lines = 0;
 
-            if (nk_begin(ctx, &layout, "UART", nk_rect(50, 50, 400, 330), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_SCALABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
+            if (nk_begin(ctx, &layout, "UART", nk_rect(50, 50, 450, 330), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_SCALABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
 
 
                 nk_menubar_begin(ctx);
@@ -450,9 +451,9 @@ void main_gui() {
             nk_end(ctx);
 
 
-            if (nk_begin(ctx, &layout, "LEDs", nk_rect(50, 390, 100, 155), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
+            if (nk_begin(ctx, &layout, "LEDs", nk_rect(50, 390, 150, 155), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
 
-                nk_layout_row_static(ctx, 20, 20, 3);
+                nk_layout_row_static(ctx, 20, 20, 5);
 
                 struct nk_color color;
 
@@ -467,7 +468,12 @@ void main_gui() {
                 }
                 nk_button_color(ctx, color, NK_BUTTON_DEFAULT);
 
+
                 nk_text(ctx, "", 0, NK_TEXT_LEFT);
+                nk_text(ctx, "", 0, NK_TEXT_LEFT);
+                nk_text(ctx, "", 0, NK_TEXT_LEFT);
+
+                /**/
 
                 color.r = 0; color.g = 255; color.b = 0;
 
@@ -491,6 +497,19 @@ void main_gui() {
 
                 nk_text(ctx, "", 0, NK_TEXT_LEFT);
 
+                color.r = 0; color.g = 255; color.b = 255;
+
+                if (led_gps == 1) {
+                    color.a = 255;
+                } else {
+                    color.a = 30;
+                }
+                nk_button_color(ctx, color, NK_BUTTON_DEFAULT);
+
+                /**/
+
+                nk_text(ctx, "", 0, NK_TEXT_LEFT);
+
                 color.r = 0; color.g = 0; color.b = 255;
 
                 if (led_blue == 1) {
@@ -501,11 +520,13 @@ void main_gui() {
                 nk_button_color(ctx, color, NK_BUTTON_DEFAULT);
 
                 nk_text(ctx, "", 0, NK_TEXT_LEFT);
+                nk_text(ctx, "", 0, NK_TEXT_LEFT);
+                nk_text(ctx, "", 0, NK_TEXT_LEFT);
 
             }
             nk_end(ctx);
 
-            if (nk_begin(ctx, &layout, "Audio", nk_rect(160, 390, 100, 155), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
+            if (nk_begin(ctx, &layout, "Audio", nk_rect(210, 390, 100, 155), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
 
                 nk_layout_row_static(ctx, 20, 20, 3);
 
@@ -529,7 +550,7 @@ void main_gui() {
             nk_end(ctx);
 
 
-            if (nk_begin(ctx, &layout, "CW", nk_rect(270, 390, 180, 155), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_SCALABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
+            if (nk_begin(ctx, &layout, "CW", nk_rect(320, 390, 180, 155), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_SCALABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
 
                 nk_menubar_begin(ctx);
                 nk_layout_row_dynamic(ctx, 25, 2);
@@ -569,7 +590,7 @@ void main_gui() {
             }
             nk_end(ctx);
 
-            if (nk_begin(ctx, &layout, "GPS", nk_rect(460, 50, 200, 500), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
+            if (nk_begin(ctx, &layout, "GPS", nk_rect(510, 50, 200, 500), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
 
                 nk_layout_row_dynamic(ctx, 30, 1);
                 nk_checkbox_label(ctx, "Send frames", &gui_gps_send_frame);
@@ -646,7 +667,7 @@ void main_gui() {
             nk_end(ctx);
 
 
-            if (nk_begin(ctx, &layout, "Output", nk_rect(670, 380, 200, 170), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
+            if (nk_begin(ctx, &layout, "Output", nk_rect(720, 380, 200, 170), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
 
                 nk_layout_row_dynamic(ctx, 25, 2);
 
@@ -688,7 +709,7 @@ void main_gui() {
             }
             nk_end(ctx);
 
-            if (nk_begin(ctx, &layout, "Input", nk_rect(670, 50, 200, 330), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
+            if (nk_begin(ctx, &layout, "Input", nk_rect(720, 50, 200, 330), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
 
                 nk_layout_row_dynamic(ctx, 25, 3);
 
@@ -819,7 +840,7 @@ void main_gui() {
             }
             nk_end(ctx);
 
-            if (nk_begin(ctx, &layout, "Temperature", nk_rect(880, 50, 200, 140), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
+            if (nk_begin(ctx, &layout, "Temperature", nk_rect(930, 50, 200, 140), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
 
                 nk_layout_row_dynamic(ctx, 25, 1);
 
@@ -836,7 +857,7 @@ void main_gui() {
             }
             nk_end(ctx);
 
-            if (nk_begin(ctx, &layout, "FSM", nk_rect(880, 200, 200, 350), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_SCALABLE|NK_WINDOW_TITLE)) {
+            if (nk_begin(ctx, &layout, "FSM", nk_rect(930, 200, 200, 350), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_SCALABLE|NK_WINDOW_TITLE)) {
 
                 nk_layout_row_dynamic(ctx, 25, 2);
 
