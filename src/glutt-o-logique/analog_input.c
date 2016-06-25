@@ -25,6 +25,8 @@
 #include "analog_input.h"
 #include "stm32f4xx_adc.h"
 #include <math.h>
+#include "GPIO/usart.h"
+
 
 void analog_init(void)
 {
@@ -32,10 +34,10 @@ void analog_init(void)
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
 
-    // Set Pin PA5 to analog input
+    // Set analog input pins mode
     GPIO_InitTypeDef GPIO_InitStructure;
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AN;
-    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_5;
+    GPIO_InitStructure.GPIO_Pin   = PINS_ANALOG;
     GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
@@ -53,32 +55,37 @@ void analog_init(void)
     ADC_InitTypeDef ADC_InitStruct;
     ADC_InitStruct.ADC_Resolution = ADC_Resolution_12b;
     ADC_InitStruct.ADC_ScanConvMode = DISABLE;
-    ADC_InitStruct.ADC_ContinuousConvMode = ENABLE;
+    ADC_InitStruct.ADC_ContinuousConvMode = DISABLE;
     ADC_InitStruct.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None;
     ADC_InitStruct.ADC_ExternalTrigConv = ADC_ExternalTrigConv_T1_CC1;
     ADC_InitStruct.ADC_DataAlign = ADC_DataAlign_Right;
-    ADC_InitStruct.ADC_NbrOfConversion = 1;
+    ADC_InitStruct.ADC_NbrOfConversion = 3;
     ADC_Init(ADC1, &ADC_InitStruct);
-
-    // Configure ADC1 to use the converted 12V signal (see schematics)
-    const uint8_t rank = 1;
-    ADC_RegularChannelConfig(ADC1,
-            ADC_Channel_5,
-            rank,
-            ADC_SampleTime_480Cycles);
 
     // Enable ADC
     ADC_Cmd(ADC1, ENABLE);
 }
 
-float analog_measure_12v(void)
+static uint16_t analog_read_channel(uint8_t channel)
 {
-    ADC_SoftwareStartConv(ADC1); //Start the conversion
+    ADC_RegularChannelConfig(ADC1,
+            channel,
+            1,
+            ADC_SampleTime_480Cycles);
+
+    ADC_SoftwareStartConv(ADC1);
 
     // TODO add timeout
-    while (ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC) == RESET);
 
-    const uint16_t raw_value = ADC_GetConversionValue(ADC1);
+    /* wait for end of conversion */
+    while((ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC) == RESET));
+
+    return ADC_GetConversionValue(ADC1);
+}
+
+float analog_measure_12v(void)
+{
+    const uint16_t raw_value = analog_read_channel(ADC_CHANNEL_SUPPLY);
 
     const float adc_max_value = (1 << 12);
     const float v_ref = 2.965f;
@@ -88,5 +95,31 @@ float analog_measure_12v(void)
 
     // Compensate resistor divider on board (see schematic)
     return voltage * 202.0f / 22.0f;
+}
+
+
+int analog_measure_swr(uint16_t *forward, uint16_t* reflected)
+{
+    const uint16_t raw_swr_fwd_value = analog_read_channel(ADC_CHANNEL_SWR_FWD);
+    const uint16_t raw_swr_refl_value = analog_read_channel(ADC_CHANNEL_SWR_REFL);
+
+    *forward = raw_swr_fwd_value;
+    *reflected = raw_swr_refl_value;
+
+    const int supply_decivolts = analog_measure_12v() * 10.0f;
+
+    const float adc_max_value = (1 << 12);
+    const float v_ref = 2.965f;
+
+    // Convert ADC measurement to mV (includes times 100 amplifier)
+    const int swr_fwd = ((float)raw_swr_fwd_value*10.0f*v_ref/adc_max_value);
+    const int swr_refl = ((float)raw_swr_refl_value*10.0f*v_ref/adc_max_value);
+
+    usart_debug("RAW Meas %d dV - %d mV - %d mV\r\n",
+            supply_decivolts,
+            swr_fwd,
+            swr_refl);
+
+    return 1;
 }
 

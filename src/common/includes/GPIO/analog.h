@@ -23,12 +23,19 @@
 */
 
 #pragma once
+#include <stdint.h>
 
 void analog_init(void);
 
 /* Measure the 12V supply voltage, in 0.5V increments.
- * Returns 0.0f in case of error */
+ * Returns 0.0f in case of error
+ */
 float analog_measure_12v(void);
+
+/* Measure SWR, and return raw values.
+ * Returns 0 in case of error, 1 in case of success
+ */
+int analog_measure_swr(uint16_t *forward, uint16_t* reflected);
 
 /* Keep an average of measurements, and decide if the repeater should enter
  * QRP. Returns 1 if low power must be activated
