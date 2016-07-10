@@ -38,10 +38,10 @@ float analog_measure_12v(void)
     return gui_measured_voltage;
 }
 
-int analog_measure_swr(uint16_t *forward, uint16_t* reflected)
+int analog_measure_swr(int *forward_mv, int *reflected_mv)
 {
-    *forward = gui_swr_forward;
-    *reflected = gui_swr_reflected;
+    *forward_mv = gui_swr_forward;
+    *reflected_mv = gui_swr_reflected;
 
     return 1;
 }

@@ -98,15 +98,10 @@ float analog_measure_12v(void)
 }
 
 
-int analog_measure_swr(uint16_t *forward, uint16_t* reflected)
+int analog_measure_swr(int *forward_mv, int* reflected_mv)
 {
     const uint16_t raw_swr_fwd_value = analog_read_channel(ADC_CHANNEL_SWR_FWD);
     const uint16_t raw_swr_refl_value = analog_read_channel(ADC_CHANNEL_SWR_REFL);
-
-    *forward = raw_swr_fwd_value;
-    *reflected = raw_swr_refl_value;
-
-    const int supply_decivolts = analog_measure_12v() * 10.0f;
 
     const float adc_max_value = (1 << 12);
     const float v_ref = 2.965f;
@@ -115,8 +110,10 @@ int analog_measure_swr(uint16_t *forward, uint16_t* reflected)
     const int swr_fwd = ((float)raw_swr_fwd_value*10.0f*v_ref/adc_max_value);
     const int swr_refl = ((float)raw_swr_refl_value*10.0f*v_ref/adc_max_value);
 
-    usart_debug("RAW Meas %d dV - %d mV - %d mV\r\n",
-            supply_decivolts,
+    *forward_mv = swr_fwd;
+    *reflected_mv = swr_refl;
+
+    usart_debug("RAW Meas %d mV - %d mV\r\n",
             swr_fwd,
             swr_refl);
 

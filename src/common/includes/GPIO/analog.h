@@ -32,10 +32,10 @@ void analog_init(void);
  */
 float analog_measure_12v(void);
 
-/* Measure SWR, and return raw values.
+/* Measure SWR, and return voltages in mV.
  * Returns 0 in case of error, 1 in case of success
  */
-int analog_measure_swr(uint16_t *forward, uint16_t* reflected);
+int analog_measure_swr(int *forward_mv, int* reflected_mv);
 
 /* Keep an average of measurements, and decide if the repeater should enter
  * QRP. Returns 1 if low power must be activated

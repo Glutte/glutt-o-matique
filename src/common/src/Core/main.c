@@ -53,6 +53,19 @@
 static int tm_trigger_button = 0;
 static int tm_trigger = 0;
 
+/* Saturating counter for SWR measurement
+ *
+ * Hysteresis:
+ * If the counter reaches the max value, the
+ * SWR Error is triggered. Once the counter
+ * reaches the min value, the error is
+ * cleared again.
+ */
+#define SWR_ERROR_COUNTER_MIN 0
+#define SWR_ERROR_COUNTER_MAX 10
+static int swr_error_counter = 0;
+static int swr_error_flag = 0;
+
 // Platform specific init function
 void init(void);
 
@@ -188,7 +201,7 @@ static void launcher_task(void __attribute__ ((unused))*pvParameters)
 
     usart_debug_puts("Init done.\r\n");
 
-    int last_qrp = 0;
+    int last_qrp_from_supply = 0;
     while(1) {
         int i = 0;
         vTaskDelay(pdMS_TO_TICKS(1000));
@@ -202,20 +215,42 @@ static void launcher_task(void __attribute__ ((unused))*pvParameters)
             leds_turn_off(LED_GREEN);
         }
 
-        const int qrp = analog_supply_too_low();
-        if (qrp != last_qrp) {
-            usart_debug("QRP = %d\r\n", qrp);
-            last_qrp = qrp;
+        const int qrp_from_supply = analog_supply_too_low();
+        if (swr_error_flag) {
+            pio_set_qrp(1);
+        }
+        else if (qrp_from_supply != last_qrp_from_supply) {
+            usart_debug("QRP = %d\r\n", qrp_from_supply);
+            last_qrp_from_supply = qrp_from_supply;
 
-            pio_set_qrp(qrp);
+            pio_set_qrp(qrp_from_supply);
         }
 
         struct fsm_output_signals_t fsm_out;
         fsm_get_outputs(&fsm_out);
-        if (1) {
-        //if (fsm_out.tx_on) {
-            uint16_t swr_fwd, swr_refl;
-            analog_measure_swr(&swr_fwd, &swr_refl);
+
+        if (fsm_out.tx_on) {
+            int swr_fwd_mv, swr_refl_mv;
+            const int swr_refl_threshold = 10; // mV
+            if (analog_measure_swr(&swr_fwd_mv, &swr_refl_mv)) {
+                if (swr_refl_mv > swr_refl_threshold) {
+                    usart_debug("SWR meas %d mV\r\n", swr_refl_mv);
+                    swr_error_counter++;
+                }
+                else {
+                    swr_error_counter--;
+                }
+
+                if (swr_error_counter > SWR_ERROR_COUNTER_MAX) {
+                    swr_error_counter = SWR_ERROR_COUNTER_MAX;
+                    swr_error_flag = 1;
+                }
+
+                if (swr_error_counter < SWR_ERROR_COUNTER_MIN) {
+                    swr_error_counter = SWR_ERROR_COUNTER_MIN;
+                    swr_error_flag = 0;
+                }
+            }
         }
     }
 }
@@ -496,6 +531,8 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
         else {
             leds_turn_on(LED_ORANGE);
         }
+
+        fsm_input.swr_high = swr_error_flag;
 
         fsm_update_inputs(&fsm_input);
         fsm_update();
