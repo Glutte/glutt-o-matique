@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Matthias P. Braendli
+ * Copyright (c) 2016 Matthias P. Braendli
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -36,7 +36,7 @@
 #define GPIO_PIN_U        GPIO_Pin_8
 #define GPIO_PIN_QRP_out  GPIO_Pin_9
 #define GPIO_PIN_D        GPIO_Pin_11
-#define GPIO_PIN_REPLIE_n GPIO_Pin_13
+#define GPIO_PIN_REPLIE   GPIO_Pin_13
 #define GPIO_PIN_FAX      GPIO_Pin_14
 #define GPIO_PIN_GPS_EPPS GPIO_Pin_15
 
@@ -57,7 +57,7 @@
                           GPIO_PIN_SQ_n | \
                           GPIO_PIN_U | \
                           GPIO_PIN_D | \
-                          GPIO_PIN_REPLIE_n | \
+                          GPIO_PIN_REPLIE | \
                           GPIO_PIN_FAX | \
                           0 )
 
@@ -146,7 +146,7 @@ void read_fsm_input_task(void __attribute__ ((unused))*pvParameters)
             GPIO_ReadInputDataBit(GPIOC, GPIO_PIN_D) ? 1 : 0;
 
         pio_signals.wind_generator_ok =
-            GPIO_ReadInputDataBit(GPIOC, GPIO_PIN_REPLIE_n) ? 1 : 0;
+            GPIO_ReadInputDataBit(GPIOC, GPIO_PIN_REPLIE) ? 0 : 1;
 
         pio_signals.sstv_mode =
             GPIO_ReadInputDataBit(GPIOC, GPIO_PIN_FAX) ? 1 : 0;

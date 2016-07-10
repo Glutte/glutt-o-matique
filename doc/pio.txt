@@ -12,15 +12,15 @@ Connexions Relais
 -       in   U                  PC8
 -       out  QRP                PC9
 -       in   D                  PC11
--       in   REPLIE_n           PC13
+-       in   REPLIE             PC13
 -       in   FAX_n              PC14
 -       out  GPS EPPS           PC15
 
 -       i/o  Dallas 1-wire      PA1
 
-TODO Analog signals
--------------------
--       in   f_0 deviation
+Analog signals
+--------------
+-       in   f_0 deviation      unused
 -       in   Vcc 12V            PA5 (ADC12 IN5)
 -       in   SWR forward        PA6 (ADC12 IN6)
 -       in   SWR reflected      PA7 (ADC12 IN7)

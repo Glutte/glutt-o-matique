@@ -152,8 +152,8 @@ int gui_in_1750_n = 1;
 int gui_in_sq_n = 1;
 int gui_in_u = 0;
 int gui_in_d = 0;
-int gui_in_replie_n = 1;
-static const char *replie_status[] = {"Replié", "In vent"};
+int gui_in_replie = 0;
+static const char *replie_status[] = {"In vent", "Replié"};
 int gui_in_fax_n = 1;
 
 int in_button = 0;
@@ -830,15 +830,15 @@ void main_gui() {
                     gui_in_fax_n = in_fax_n;
                 }
 
-                if (gui_in_replie_n) {
+                if (gui_in_replie) {
                     c = color_on;
                 } else {
                     c = color_off;
                 }
 
                 nk_layout_row_dynamic(ctx, 18, 2);
-                nk_label_colored(ctx, "REPLIE_n", NK_TEXT_LEFT, c);
-                gui_in_replie_n = nk_combo(ctx, replie_status, LEN(replie_status), gui_in_replie_n, 30);
+                nk_label_colored(ctx, "REPLIE", NK_TEXT_LEFT, c);
+                gui_in_replie = nk_combo(ctx, replie_status, LEN(replie_status), gui_in_replie, 30);
 
                 nk_label_colored(ctx, "Voltage", NK_TEXT_LEFT, c);
                 nk_property_float(ctx, "V", 0.0f, &gui_measured_voltage, 24.0f, 0.5f, 0.5f);

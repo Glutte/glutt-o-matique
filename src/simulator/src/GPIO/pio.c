@@ -35,7 +35,7 @@ extern int gui_in_1750_n;
 extern int gui_in_sq_n;
 extern int gui_in_u;
 extern int gui_in_d;
-extern int gui_in_replie_n;
+extern int gui_in_replie;
 extern int gui_in_fax_n;
 extern char led_gps;
 
@@ -65,7 +65,7 @@ void pio_set_fsm_signals(struct fsm_input_signals_t* sig) {
     sig->sq = gui_in_sq_n ? 0 : 1;
     sig->discrim_u = gui_in_u ? 1 : 0;
     sig->discrim_d = gui_in_d ? 1 : 0;
-    sig->wind_generator_ok = gui_in_replie_n ? 1 : 0;
+    sig->wind_generator_ok = gui_in_replie ? 0 : 1;
     sig->sstv_mode = gui_in_fax_n ? 0 : 1;
 
 }
