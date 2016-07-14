@@ -154,16 +154,16 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.8644597"
-     inkscape:cx="323.78417"
-     inkscape:cy="570.35154"
+     inkscape:zoom="1.4322299"
+     inkscape:cx="628.14706"
+     inkscape:cy="234.65747"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:object-nodes="true"
-     inkscape:window-width="1548"
+     inkscape:window-width="1566"
      inkscape:window-height="874"
-     inkscape:window-x="52"
+     inkscape:window-x="34"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
      inkscape:snap-text-baseline="true"
@@ -4403,7 +4403,7 @@
          sodipodi:role="line"
          x="718.53662"
          y="983.32874"
-         id="tspan29929">2016-07-07 HB9EGM</tspan></text>
+         id="tspan29929">2016-07-14 HB9EGM</tspan></text>
     <g
        transform="matrix(0.5,0,0,0.5,110,236.80611)"
        id="g26374-6">
@@ -7480,8 +7480,9 @@
            y="621.49603"
            x="814.96069"
            id="tspan28974"
-           sodipodi:role="line">V<tspan
-   style="font-size:61.35811806%;baseline-shift:sub"
+           sodipodi:role="line"
+           style="-inkscape-font-specification:'Sans Bold';font-family:Sans;font-weight:bold;font-style:normal;font-stretch:normal;font-variant:normal">V<tspan
+   style="font-size:61.35811806%;baseline-shift:sub;-inkscape-font-specification:'Sans Bold';font-family:Sans;font-weight:bold;font-style:normal;font-stretch:normal;font-variant:normal"
    id="tspan6437">1-wire</tspan></tspan></text>
       <text
          xml:space="preserve"
