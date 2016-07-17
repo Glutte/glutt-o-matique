@@ -51,6 +51,14 @@ static char cw_message_balise[CW_MESSAGE_BALISE_LEN];
 // Reset the counter if the QSO was 10m too long
 #define SHORT_BEACON_RESET_IF_QSO (60 * 10)
 
+/* At least 1 second predelay for CW, ensures the receivers had enough time
+ * time to open their squelch before the first letter gets transmitted
+ */
+#define CW_PREDELAY "      "
+
+// Some time to ensure we don't cut off the last letter
+#define CW_POSTDELAY "  "
+
 // The counter (up to 20 minutes) for the short balise
 static int short_beacon_counter_s = 0;
 static uint64_t short_beacon_counter_last_update = 0;
@@ -267,7 +275,10 @@ void fsm_update() {
         case FSM_ANTI_BAVARD:
             fsm_out.tx_on = 1;
             // No modulation!
-            fsm_out.msg = " HI HI";
+
+            // Short post-delay to underscore the fact that
+            // transmission was forcefully cut off.
+            fsm_out.msg = " HI HI ";
             fsm_out.cw_psk31_trigger = 1;
 
             if (fsm_in.cw_psk31_done) {
@@ -302,7 +313,8 @@ void fsm_update() {
             fsm_out.modulation = 1;
             fsm_out.msg_frequency   = 696;
             fsm_out.cw_dit_duration = 70;
-            fsm_out.msg = " HB9G";
+            // No need for CW_PREDELAY, since we are already transmitting
+            fsm_out.msg = " HB9G" CW_POSTDELAY;
             fsm_out.cw_psk31_trigger = 1;
 
             if (fsm_in.sq) {
@@ -320,11 +332,12 @@ void fsm_update() {
             fsm_out.msg_frequency   = 696;
             fsm_out.cw_dit_duration = 70;
 
+            // No need for CW_PREDELAY, since we are already transmitting
             if (random_bool()) {
-                fsm_out.msg = " HB9G 1628M";
+                fsm_out.msg = " HB9G 1628M" CW_POSTDELAY;
             }
             else {
-                fsm_out.msg = " HB9G JN36BK";
+                fsm_out.msg = " HB9G JN36BK" CW_POSTDELAY;
             }
             fsm_out.cw_psk31_trigger = 1;
 
@@ -365,7 +378,7 @@ void fsm_update() {
 
                 if (temperature_valid()) {
                     snprintf(cw_message_balise, CW_MESSAGE_BALISE_LEN-1,
-                            "  HB9G JN36BK 1628M U %dV%01d %c  T %d  %s",
+                            CW_PREDELAY "HB9G JN36BK 1628M U %dV%01d %c  T %d  %s" CW_POSTDELAY,
                             supply_decivolts / 10,
                             supply_decivolts % 10,
                             supply_trend,
@@ -374,7 +387,7 @@ void fsm_update() {
                 }
                 else {
                     snprintf(cw_message_balise, CW_MESSAGE_BALISE_LEN-1,
-                            "  HB9G JN36BK 1628M U %dV%01d %c  %s",
+                            CW_PREDELAY "HB9G JN36BK 1628M U %dV%01d %c  %s" CW_POSTDELAY,
                             supply_decivolts / 10,
                             supply_decivolts % 10,
                             supply_trend,
@@ -410,7 +423,7 @@ void fsm_update() {
                 }
 
                 snprintf(cw_message_balise, CW_MESSAGE_BALISE_LEN-1,
-                        "  HB9G U %dV%01d %s",
+                        CW_PREDELAY "HB9G U %dV%01d %s" CW_POSTDELAY,
                         supply_decivolts / 10,
                         supply_decivolts % 10,
                         eol_info);
@@ -437,16 +450,16 @@ void fsm_update() {
                 int rand = random_bool() * 2 + random_bool();
 
                 if (rand == 0) {
-                    fsm_out.msg = "  HB9G";
+                    fsm_out.msg = CW_PREDELAY "HB9G" CW_POSTDELAY;
                 }
                 else if (rand == 1) {
-                    fsm_out.msg = "  HB9G JN36BK";
+                    fsm_out.msg = CW_PREDELAY "HB9G JN36BK" CW_POSTDELAY;
                 }
                 else if (rand == 2) {
-                    fsm_out.msg = "  HB9G 1628M";
+                    fsm_out.msg = CW_PREDELAY "HB9G 1628M" CW_POSTDELAY;
                 }
                 else {
-                    fsm_out.msg = "  HB9G JN36BK 1628M";
+                    fsm_out.msg = CW_PREDELAY "HB9G JN36BK 1628M" CW_POSTDELAY;
                 }
             }
             fsm_out.cw_psk31_trigger = 1;
