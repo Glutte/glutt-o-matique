@@ -128,7 +128,7 @@ void fsm_update() {
     switch (current_state) {
         case FSM_OISIF:
 
-            // Check the lenght of the last QSO, and reset the SHORT_BEACON counter if needed
+            // Check the length of the last QSO, and reset the SHORT_BEACON counter if needed
             if (last_qso_start_timestamp != 0) {
 
                 if ((timestamp_now() - last_qso_start_timestamp) > 1000 * SHORT_BEACON_RESET_IF_QSO) {
@@ -138,7 +138,7 @@ void fsm_update() {
                 last_qso_start_timestamp = 0;
             }
 
-            // Increment the SHORT_BEACON counter based on  time spent in the state
+            // Increment the SHORT_BEACON counter based on time spent in the state
             if (short_beacon_counter_s < SHORT_BEACON_MAX) {
                 while(short_beacon_counter_s < SHORT_BEACON_MAX && (fsm_current_state_time_s() - short_beacon_counter_last_update > 1)) {
                     short_beacon_counter_last_update++;
@@ -249,7 +249,14 @@ void fsm_update() {
                 last_qso_start_timestamp = timestamp_now();
             }
 
-            if (!fsm_in.sq) {
+            if (!fsm_in.sq && fsm_current_state_time_s() < 5) {
+                /* To avoid that very short open squelch triggers
+                 * transmit CW letters all the time. Some people
+                 * enjoy doing that.
+                 */
+                next_state = FSM_ECOUTE;
+            }
+            else if (!fsm_in.sq && fsm_current_state_time_s() >= 5) {
                 next_state = FSM_LETTRE;
             }
             else if (fsm_current_state_time_s() > 5 * 60) {
@@ -457,20 +464,19 @@ void fsm_update() {
             } else { //FSM_BALISE_COURTE_OPEN
 
                 if (fsm_in.cw_psk31_done) {
-
                     if (fsm_in.sq) {
                         next_state = FSM_OPEN1;
                     } else {
                         next_state = FSM_OPEN2;
                     }
-
                 }
+
             }
 
             break;
         default:
-        // Should never happen
-        next_state = FSM_OISIF;
+            // Should never happen
+            next_state = FSM_OISIF;
             break;
     }
 
