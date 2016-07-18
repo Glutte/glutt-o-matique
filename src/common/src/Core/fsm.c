@@ -244,28 +244,41 @@ void fsm_update() {
             fsm_out.tx_on = 1;
             fsm_out.modulation = 1;
 
+            /* Time checks:
+             * We need to check the total TX_ON duration to decide the text to
+             * send. This is done with the first check (delay between OPEN2 and
+             * current state).
+             *
+             * We also need to check if we actually entered the QSO state
+             * recently, otherwise we want to go to ATTENTE. That's why the
+             * check with QSO is needed.
+             */
+
             if (fsm_in.sq) {
                 next_state = FSM_QSO;
             }
             else if (fsm_current_state_time_s() > 6 &&
-                    state_delta_ms(FSM_OPEN2, FSM_ECOUTE) < 1000ul * 5 &&
-                    state_delta_ms(FSM_QSO, FSM_ECOUTE) > 1000ul * 5) {
+                    state_delta_ms(FSM_OPEN2, FSM_ECOUTE) < 1000ul * 5) {
                 next_state = FSM_ATTENTE;
             }
             else if (fsm_current_state_time_s() > 5 &&
-                    state_delta_ms(FSM_OPEN2, FSM_ECOUTE) < 1000ul * 5 * 60) {
+                    state_delta_ms(FSM_OPEN2, FSM_ECOUTE) < 1000ul * 5 * 60 &&
+                    state_delta_ms(FSM_QSO, FSM_ECOUTE) < 1000ul * 15) {
                 next_state = FSM_OISIF;
             }
             else if (fsm_current_state_time_s() > 5 &&
-                    state_delta_ms(FSM_OPEN2, FSM_ECOUTE) < 1000ul * 10 * 60) {
+                    state_delta_ms(FSM_OPEN2, FSM_ECOUTE) < 1000ul * 10 * 60 &&
+                    state_delta_ms(FSM_QSO, FSM_ECOUTE) < 1000ul * 15) {
                 next_state = FSM_TEXTE_73;
             }
             else if (fsm_current_state_time_s() > 5 &&
-                    state_delta_ms(FSM_OPEN2, FSM_ECOUTE) < 1000ul * 15 * 60) {
+                    state_delta_ms(FSM_OPEN2, FSM_ECOUTE) < 1000ul * 15 * 60 &&
+                    state_delta_ms(FSM_QSO, FSM_ECOUTE) < 1000ul * 15) {
                 next_state = FSM_TEXTE_HB9G;
             }
             else if (fsm_current_state_time_s() > 5 &&
-                    state_delta_ms(FSM_OPEN2, FSM_ECOUTE) >= 1000ul * 15 * 60) {
+                    state_delta_ms(FSM_OPEN2, FSM_ECOUTE) >= 1000ul * 15 * 60 &&
+                    state_delta_ms(FSM_QSO, FSM_ECOUTE) < 1000ul * 15) {
                 next_state = FSM_TEXTE_LONG;
             }
             break;
