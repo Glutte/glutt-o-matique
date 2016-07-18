@@ -47,21 +47,6 @@
          transform="scale(0.4) rotate(180) translate(10,0)" />
     </marker>
     <marker
-       inkscape:isstock="true"
-       style="overflow:visible;"
-       id="marker6622"
-       refX="0.0"
-       refY="0.0"
-       orient="auto"
-       inkscape:stockid="Arrow1Mend"
-       inkscape:collect="always">
-      <path
-         transform="scale(0.4) rotate(180) translate(10,0)"
-         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1;fill:#000000;fill-opacity:1"
-         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
-         id="path6624" />
-    </marker>
-    <marker
        inkscape:stockid="Arrow1Mend"
        orient="auto"
        refY="0.0"
@@ -525,9 +510,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.92591043"
-     inkscape:cx="414.0077"
-     inkscape:cy="632.0182"
+     inkscape:zoom="0.65471754"
+     inkscape:cx="294.50163"
+     inkscape:cy="497.31265"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -561,7 +546,7 @@
      id="layer1">
     <g
        id="g9370"
-       transform="translate(13.799729,9.4488191e-6)">
+       transform="translate(13.799729,-45.821277)">
       <ellipse
          ry="13.637059"
          rx="17.425131"
@@ -591,7 +576,7 @@
     </g>
     <g
        id="g9390"
-       transform="translate(13.799729,9.4488191e-6)">
+       transform="translate(13.799729,-45.821277)">
       <ellipse
          style="opacity:1;fill:none;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
          id="ellipse9378"
@@ -614,7 +599,7 @@
     </g>
     <g
        id="g9395"
-       transform="translate(35.406872,56.428582)">
+       transform="translate(35.406872,10.607296)">
       <ellipse
          ry="16.048639"
          rx="20.506594"
@@ -636,7 +621,7 @@
            sodipodi:role="line">OPEN2</tspan></text>
     </g>
     <g
-       transform="translate(57.549729,105.71429)"
+       transform="translate(57.549729,59.893004)"
        id="g9403">
       <ellipse
          style="opacity:1;fill:none;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
@@ -660,7 +645,7 @@
     </g>
     <g
        id="g9411"
-       transform="translate(60.942586,165.35715)">
+       transform="translate(60.942586,119.53586)">
       <ellipse
          ry="19.084354"
          rx="28.185165"
@@ -683,7 +668,7 @@
     </g>
     <g
        id="g9419"
-       transform="translate(-48.495417,78.335317)">
+       transform="translate(-48.495417,32.514031)">
       <ellipse
          ry="19.084354"
          rx="28.185165"
@@ -705,7 +690,7 @@
            sodipodi:role="line">ATTENTE</tspan></text>
     </g>
     <g
-       transform="translate(155.10995,106.9362)"
+       transform="translate(155.10995,61.114914)"
        id="g9427">
       <ellipse
          style="opacity:1;fill:none;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
@@ -729,7 +714,7 @@
     </g>
     <g
        id="g9435"
-       transform="translate(251.1611,105.35969)">
+       transform="translate(251.1611,59.538404)">
       <ellipse
          ry="19.620068"
          rx="24.970879"
@@ -757,7 +742,7 @@
     </g>
     <g
        id="g9459"
-       transform="translate(248.32424,63.543352)">
+       transform="translate(248.32424,17.722066)">
       <ellipse
          ry="16.048639"
          rx="20.506594"
@@ -780,7 +765,7 @@
     </g>
     <g
        id="g9467"
-       transform="translate(90.571319,-125.764)">
+       transform="translate(90.571319,-171.58529)">
       <ellipse
          ry="16.048639"
          rx="20.506594"
@@ -802,7 +787,7 @@
            sodipodi:role="line">BALISE</tspan></text>
     </g>
     <g
-       transform="translate(-153.40499,-159.80535)"
+       transform="translate(-153.40499,-205.62664)"
        id="g9475">
       <ellipse
          style="opacity:1;fill:none;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
@@ -831,7 +816,7 @@
     </g>
     <g
        id="g9485"
-       transform="translate(-172.09281,-108.28757)">
+       transform="translate(-172.09281,-154.10886)">
       <ellipse
          ry="22.145449"
          rx="29.011488"
@@ -858,7 +843,7 @@
            id="tspan9501">BALISE</tspan></text>
     </g>
     <g
-       transform="translate(-240.78319,193.24297)"
+       transform="translate(-240.78319,147.42168)"
        id="g9503">
       <ellipse
          style="opacity:1;fill:none;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
@@ -887,7 +872,7 @@
     </g>
     <g
        id="g9513"
-       transform="translate(-221.33776,245.01328)">
+       transform="translate(-221.33776,199.19199)">
       <ellipse
          ry="19.620068"
          rx="24.970879"
@@ -914,7 +899,7 @@
            id="tspan9539">TEXTE</tspan></text>
     </g>
     <g
-       transform="translate(-210.47862,140.20996)"
+       transform="translate(-210.47862,94.388674)"
        id="g9523">
       <ellipse
          style="opacity:1;fill:none;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
@@ -938,7 +923,7 @@
     </g>
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Mend)"
-       d="m 366.1644,272.13294 c 1.38265,9.04729 7.23909,22.36044 9.91398,28.18338"
+       d="m 366.1644,226.31165 c 1.38265,9.04729 7.23909,22.36044 9.91398,28.18338"
        id="path9568"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cc" />
@@ -946,11 +931,11 @@
        sodipodi:nodetypes="cc"
        inkscape:connector-curvature="0"
        id="path10038"
-       d="m 390.96544,335.91151 c 1.00384,3.49145 6.35335,15.01146 9.02824,20.8344"
+       d="m 390.96544,290.09022 c 1.00384,3.49145 6.35335,15.01146 9.02824,20.8344"
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker10040)" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker10610)"
-       d="m 416.53492,390.96482 c 2.33729,3.98735 3.70195,7.9875 5.36644,12.31124"
+       d="m 416.53492,345.14353 c 2.33729,3.98735 3.70195,7.9875 5.36644,12.31124"
        id="path10608"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cc" />
@@ -958,11 +943,11 @@
        sodipodi:nodetypes="cc"
        inkscape:connector-curvature="0"
        id="path11598"
-       d="m 433.89692,444.75545 c 2.33729,3.98735 2.8812,11.71243 2.65165,17.5514"
+       d="m 433.89692,398.93416 c 2.33729,3.98735 2.8812,11.71243 2.65165,17.5514"
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker11600)" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker12254)"
-       d="m 347.78142,409.14758 c 14.20658,7.27034 40.38311,28.75875 62.75572,57.57869"
+       d="m 347.78142,363.32629 c 14.20658,7.27034 40.38311,28.75875 62.75572,57.57869"
        id="path12252"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cc" />
@@ -970,17 +955,17 @@
        sodipodi:nodetypes="cc"
        inkscape:connector-curvature="0"
        id="path12942"
-       d="m 403.97115,471.39823 c -15.46664,-6.24045 -53.93988,-40.56296 -66.29126,-54.04316"
+       d="m 403.97115,425.57694 c -15.46664,-6.24045 -53.93988,-40.56296 -66.29126,-54.04316"
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker12944)" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker14162)"
-       d="m 547.55256,425.98723 c 19.50989,2.72467 29.14517,2.24226 49.87628,-0.12627"
+       d="m 547.55256,380.16594 c 19.50989,2.72467 29.14517,2.24226 49.87628,-0.12627"
        id="path14160"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cc" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker15224)"
-       d="m 508.43018,414.69917 c -15.46664,-6.24045 -30.60395,-7.62532 -50.6339,2.82305"
+       d="m 508.43018,368.87788 c -15.46664,-6.24045 -30.60395,-7.62532 -50.6339,2.82305"
        id="path15222"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cc" />
@@ -988,17 +973,17 @@
        sodipodi:nodetypes="cc"
        inkscape:connector-curvature="0"
        id="path16086"
-       d="m 520.96847,408.2706 c -14.35478,-14.81188 15.06824,-25.48247 6.34819,-1.64124"
+       d="m 520.96847,362.44931 c -14.35478,-14.81188 15.06824,-25.48247 6.34819,-1.64124"
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker16088)" />
     <path
        sodipodi:nodetypes="cc"
        inkscape:connector-curvature="0"
        id="path19050"
-       d="m 643.64332,410.07733 c 5.70608,-5.23532 6.77008,-11.31071 -2.77792,-19.1929"
+       d="m 643.64332,364.25604 c 5.70608,-5.23532 6.77008,-11.31071 -2.77792,-19.1929"
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker19052)" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker21776)"
-       d="M 599.82795,371.94407 C 584.81974,357.42304 490.88374,258.4905 381.33574,256.67974"
+       d="M 599.82795,326.12278 C 584.81974,311.60175 490.88374,212.66921 381.33574,210.85845"
        id="path21774"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cc" />
@@ -1006,17 +991,17 @@
        sodipodi:nodetypes="cc"
        inkscape:connector-curvature="0"
        id="path22380"
-       d="m 374.55726,244.81151 c 17.98979,-13.98842 40.2748,-31.56813 64.02112,-42.70948"
+       d="m 374.55726,198.99022 c 17.98979,-13.98842 40.2748,-31.56813 64.02112,-42.70948"
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker22382)" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker23492)"
-       d="m 442.85775,204.18546 c -17.98979,13.98842 -40.2748,31.56813 -64.02112,42.70948"
+       d="m 442.85775,158.36417 c -17.98979,13.98842 -40.2748,31.56813 -64.02112,42.70948"
        id="path23490"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cc" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker23822)"
-       d="m 349.37869,240.88294 c -3.79593,-7.55985 -10.61806,-31.92527 -102.94317,-71.28091"
+       d="M 349.37869,195.06165 C 345.58276,187.5018 338.76063,163.13638 246.43552,123.78074"
        id="path23820"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cc" />
@@ -1024,23 +1009,23 @@
        sodipodi:nodetypes="cc"
        inkscape:connector-curvature="0"
        id="path24810"
-       d="m 247.80389,153.36313 c 50.26013,-4.42053 95.68328,11.63793 106.69317,84.85234"
+       d="m 247.80389,107.54184 c 50.26013,-4.42053 95.68328,11.63793 106.69317,84.85234"
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker24812)" />
     <path
        sodipodi:nodetypes="cc"
        inkscape:connector-curvature="0"
        id="path25326"
-       d="M 342.23583,244.81151 C 308.45399,244.59864 257.10241,229.59353 232.76528,220.0343"
+       d="M 342.23583,198.99022 C 308.45399,198.77735 257.10241,183.77224 232.76528,174.21301"
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker25328)" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker25958)"
-       d="m 228.00839,223.26274 c 3.79593,7.55985 36.33234,32.81812 107.94317,31.45948"
+       d="m 228.00839,177.44145 c 3.79593,7.55985 36.33234,32.81812 107.94317,31.45948"
        id="path25956"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cc" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker26480)"
-       d="m 481.18437,204.72056 c 15.08503,6.27967 21.92616,10.29564 32.31642,25.83387"
+       d="m 481.18437,158.89927 c 15.08503,6.27967 21.92616,10.29564 32.31642,25.83387"
        id="path26478"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cc" />
@@ -1048,11 +1033,11 @@
        sodipodi:nodetypes="cc"
        inkscape:connector-curvature="0"
        id="path27168"
-       d="m 326.98292,374.78455 c 1.01819,-32.58838 15.89303,-64.17483 25.73249,-97.93123"
+       d="m 326.98292,328.96326 c 1.01819,-32.58838 15.89303,-64.17483 25.73249,-97.93123"
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker27170)" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker28568)"
-       d="m 160.90999,437.75065 c -7.5681,-45.97291 79.65764,-102.17003 181.70389,-165.44302"
+       d="m 160.90999,391.92936 c -7.5681,-45.97291 79.65764,-102.17003 181.70389,-165.44302"
        id="path28566"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cc" />
@@ -1060,11 +1045,11 @@
        sodipodi:nodetypes="cc"
        inkscape:connector-curvature="0"
        id="path29916"
-       d="M 122.5242,493.56158 C 102.83426,403.14196 239.4221,336.34431 342.61388,272.30763"
+       d="M 122.5242,447.74029 C 102.83426,357.32067 239.4221,290.52302 342.61388,226.48634"
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker29918)" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker30296)"
-       d="M 128.61548,554.8008 C -31.485662,434.58168 242.85869,338.25353 342.61388,272.30763"
+       d="M 128.61548,508.97951 C -31.485662,388.76039 242.85869,292.43224 342.61388,226.48634"
        id="path30294"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cc" />
@@ -1072,11 +1057,11 @@
        sodipodi:nodetypes="cc"
        inkscape:connector-curvature="0"
        id="path30960"
-       d="m 462.85588,478.71999 c 20.24308,-0.50286 40.78978,-19.48709 49.62375,-36.66316"
+       d="m 462.85588,432.8987 c 20.24308,-0.50286 40.78978,-19.48709 49.62375,-36.66316"
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker30962)" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker32516)"
-       d="m 173.58099,481.1087 c 15.04887,32.33768 36.74352,76.87707 88.98075,82.83506 220.45856,25.14471 247.54521,-82.06139 254.46358,-117.34124"
+       d="m 173.58099,435.28741 c 15.04887,32.33768 36.74352,76.87707 88.98075,82.83506 220.45856,25.14471 247.54521,-82.06139 254.46358,-117.34124"
        id="path32514"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="csc" />
@@ -1084,17 +1069,17 @@
        sodipodi:nodetypes="cc"
        inkscape:connector-curvature="0"
        id="path34472"
-       d="m 157.15242,525.03727 c 19.33459,14.12339 53.17209,32.9485 105.40932,38.90649"
+       d="m 157.15242,479.21598 c 19.33459,14.12339 53.17209,32.9485 105.40932,38.90649"
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 178.93813,562.18013 c 16.83459,-5.51947 31.38638,-4.19436 83.62361,1.76363"
+       d="m 178.93813,516.35884 c 16.83459,-5.51947 31.38638,-4.19436 83.62361,1.76363"
        id="path34790"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cc" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker35566)"
-       d="m 399.85875,484.34203 c -19.75235,3.75955 -49.35395,4.51754 -69.20533,3.1802"
+       d="m 399.85875,438.52074 c -19.75235,3.75955 -49.35395,4.51754 -69.20533,3.1802"
        id="path35564"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cc" />
@@ -1102,17 +1087,17 @@
        sodipodi:nodetypes="cc"
        inkscape:connector-curvature="0"
        id="path36302"
-       d="m 319.14446,487.55632 c -19.75235,3.75955 -111.85395,8.4461 -133.1339,-11.10552"
+       d="m 319.14446,441.73503 c -19.75235,3.75955 -111.85395,8.4461 -133.1339,-11.10552"
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker36304)" />
     <circle
        style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="path37394"
        cx="324.56177"
-       cy="487.22067"
+       cy="441.39938"
        r="2.5000002" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker37560)"
-       d="m 321.09977,491.40009 c -12.60949,13.04527 -129.1664,51.38804 -143.66064,63.62214"
+       d="m 321.09977,445.5788 c -12.60949,13.04527 -129.1664,51.38804 -143.66064,63.62214"
        id="path37558"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cc" />
@@ -1120,54 +1105,54 @@
        sodipodi:nodetypes="cc"
        inkscape:connector-curvature="0"
        id="path38716"
-       d="M 319.6712,489.74065 C 297.77599,501.35734 200.5048,515.64527 161.3677,513.9508"
+       d="m 319.6712,443.91936 c -21.89521,11.61669 -119.1664,25.90462 -158.3035,24.21015"
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker38718)" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker39552)"
-       d="M 319.24526,485.15178 C 162.28546,450.34069 284.02992,335.9781 346.24601,275.43045"
+       d="M 319.24526,439.33049 C 162.28546,404.5194 284.02992,290.15681 346.24601,229.60916"
        id="path39550"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cc" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker41334)"
-       d="m 405.18539,311.39332 c 10.59188,-17.69925 28.51412,7.95945 3.22835,5.70709"
+       d="m 405.18539,265.57203 c 10.59188,-17.69925 28.51412,7.95945 3.22835,5.70709"
        id="path41332"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cc" />
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:14px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="278.12112"
-       y="377.14035"
+       x="291.00565"
+       y="333.16788"
        id="text41842"
        sodipodi:linespacing="125%"
        transform="matrix(0.95965191,-0.28119072,0.28119072,0.95965191,0,0)"><tspan
          sodipodi:role="line"
-         x="278.12112"
-         y="377.14035"
+         x="291.00565"
+         y="333.16788"
          style="font-size:7.5px"
          id="tspan41887">1750 &amp;</tspan><tspan
          sodipodi:role="line"
-         x="278.12112"
-         y="386.51535"
+         x="291.00565"
+         y="342.54288"
          style="font-size:7.5px"
          id="tspan41891">SQ</tspan></text>
     <text
        sodipodi:linespacing="125%"
        id="text41846"
-       y="442.90936"
-       x="247.04839"
+       y="400.96579"
+       x="265.49634"
        style="font-style:normal;font-weight:normal;font-size:14px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        xml:space="preserve"
        transform="matrix(0.91537315,-0.40260651,0.40260651,0.91537315,0,0)"><tspan
          style="font-size:7.5px"
-         y="442.90936"
-         x="247.04839"
+         y="400.96579"
+         x="265.49634"
          id="tspan41848"
          sodipodi:role="line">SQ</tspan></text>
     <g
        id="g41882"
-       transform="matrix(0.99762077,-0.06894062,0.06894062,0.99762077,-11.814308,28.274361)">
+       transform="matrix(0.99762077,-0.06894062,0.06894062,0.99762077,-11.814308,-17.546925)">
       <text
          transform="matrix(0.96592583,-0.25881905,0.25881905,0.96592583,0,0)"
          sodipodi:linespacing="125%"
@@ -1191,24 +1176,24 @@
     <text
        sodipodi:linespacing="125%"
        id="text41856"
-       y="490.21167"
-       x="305.3089"
+       y="445.95172"
+       x="317.16833"
        style="font-style:normal;font-weight:normal;font-size:14px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        xml:space="preserve"
        transform="matrix(0.96592583,-0.25881905,0.25881905,0.96592583,0,0)"><tspan
          style="font-size:7.5px"
-         y="490.21167"
-         x="305.3089"
+         y="445.95172"
+         x="317.16833"
          id="tspan41858"
          sodipodi:role="line">délai</tspan><tspan
          style="font-size:7.5px"
-         y="499.58667"
-         x="305.3089"
+         y="455.32672"
+         x="317.16833"
          sodipodi:role="line"
          id="tspan41880">200ms</tspan></text>
     <g
        id="g45339"
-       transform="translate(-4.2002711,9.4488191e-6)">
+       transform="translate(-4.2002711,-45.821277)">
       <text
          xml:space="preserve"
          style="font-style:normal;font-weight:normal;font-size:14px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
@@ -1232,49 +1217,49 @@
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:14px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        x="518.83539"
-       y="390.57651"
+       y="344.75522"
        id="text41866"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan41868"
          x="518.83539"
-         y="390.57651"
+         y="344.75522"
          style="font-size:7.5px">SQ</tspan></text>
     <text
        sodipodi:linespacing="125%"
        id="text41870"
-       y="412.18365"
+       y="366.36237"
        x="549.33545"
        style="font-style:normal;font-weight:normal;font-size:14px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        xml:space="preserve"><tspan
          style="font-size:7.5px"
-         y="412.18365"
+         y="366.36237"
          x="549.33545"
          id="tspan41872"
          sodipodi:role="line">délai 5min &amp;</tspan><tspan
          style="font-size:7.5px"
-         y="421.55865"
+         y="375.73737"
          x="549.33545"
          sodipodi:role="line"
          id="tspan41874">SQ</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:14px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="75.061272"
-       y="670.06317"
+       x="104.31877"
+       y="634.79858"
        id="text41876"
        sodipodi:linespacing="125%"
        transform="matrix(0.76961087,-0.6385132,0.6385132,0.76961087,0,0)"><tspan
          sodipodi:role="line"
          id="tspan41878"
-         x="75.061272"
-         y="670.06317"
+         x="104.31877"
+         y="634.79858"
          style="font-size:7.5px">SQ</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:14px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="529.83759"
-       y="-76.355591"
+       x="506.21957"
+       y="-115.6211"
        id="text41893"
        sodipodi:linespacing="125%"
        transform="matrix(0.85692722,0.51543742,-0.51543742,0.85692722,0,0)"
@@ -1282,25 +1267,25 @@
        inkscape:transform-center-y="2.2910643"><tspan
          sodipodi:role="line"
          id="tspan41895"
-         x="529.83759"
-         y="-76.355591"
+         x="506.21957"
+         y="-115.6211"
          style="font-size:7.5px">SQ</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:14px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="649.27417"
-       y="-163.11551"
+       x="616.93079"
+       y="-195.5731"
        id="text42059"
        sodipodi:linespacing="125%"
        transform="matrix(0.70835187,0.7058595,-0.7058595,0.70835187,0,0)"><tspan
          id="tspan42063"
          sodipodi:role="line"
-         x="649.27417"
-         y="-163.11551"
+         x="616.93079"
+         y="-195.5731"
          style="font-size:7.5px">délai 10s</tspan></text>
     <g
        id="g42077"
-       transform="translate(14.809881,12.121841)">
+       transform="translate(14.809881,-33.699445)">
       <text
          inkscape:transform-center-y="-4.3190958"
          inkscape:transform-center-x="3.5266973"
@@ -1327,14 +1312,14 @@
        transform="matrix(0.84579799,0.53350328,-0.53350328,0.84579799,0,0)"
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:14px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="445.31903"
-       y="241.1113"
+       x="420.87323"
+       y="202.35574"
        id="text42082"
        sodipodi:linespacing="125%"><tspan
          id="tspan42086"
          sodipodi:role="line"
-         x="445.31903"
-         y="241.1113"
+         x="420.87323"
+         y="202.35574"
          style="font-size:7.5px">t<tspan
    style="font-size:64.99999762%;baseline-shift:sub"
    id="tspan42090">ECOUTE</tspan>-t<tspan
@@ -1343,14 +1328,14 @@
     <text
        sodipodi:linespacing="125%"
        id="text42094"
-       y="463.68106"
-       x="245.51288"
+       y="418.01151"
+       x="241.78722"
        style="font-style:normal;font-weight:normal;font-size:14px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        xml:space="preserve"
        transform="matrix(0.99668897,0.08130866,-0.08130866,0.99668897,0,0)"><tspan
          style="font-size:7.5px"
-         y="463.68106"
-         x="245.51288"
+         y="418.01151"
+         x="241.78722"
          sodipodi:role="line"
          id="tspan42096">t<tspan
    id="tspan42098"
@@ -1361,14 +1346,14 @@
        transform="matrix(0.99256979,-0.12167664,0.12167664,0.99256979,0,0)"
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:14px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="138.72371"
-       y="529.65973"
+       x="144.29909"
+       y="484.17889"
        id="text42102"
        sodipodi:linespacing="125%"><tspan
          id="tspan42104"
          sodipodi:role="line"
-         x="138.72371"
-         y="529.65973"
+         x="144.29909"
+         y="484.17889"
          style="font-size:7.5px">t<tspan
    style="font-size:64.99999762%;baseline-shift:sub"
    id="tspan42106">ECOUTE</tspan>-t<tspan
@@ -1377,14 +1362,14 @@
     <text
        sodipodi:linespacing="125%"
        id="text42110"
-       y="575.23224"
-       x="9.0844803"
+       y="532.36572"
+       x="25.272434"
        style="font-style:normal;font-weight:normal;font-size:14px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        xml:space="preserve"
        transform="matrix(0.9355159,-0.35328459,0.35328459,0.9355159,0,0)"><tspan
          style="font-size:7.5px"
-         y="575.23224"
-         x="9.0844803"
+         y="532.36572"
+         x="25.272434"
          sodipodi:role="line"
          id="tspan42112">t<tspan
    id="tspan42114"
@@ -1393,7 +1378,7 @@
    style="font-size:64.99999762%;baseline-shift:sub">OPEN2</tspan> &gt;= 15min</tspan></text>
     <g
        id="g42355"
-       transform="matrix(0.97227733,0.23383071,-0.23383071,0.97227733,124.5168,-81.888046)">
+       transform="matrix(0.97227733,0.23383071,-0.23383071,0.97227733,124.5168,-127.70933)">
       <text
          transform="matrix(0.90395476,0.4276281,-0.4276281,0.90395476,0,0)"
          xml:space="preserve"
@@ -1427,17 +1412,17 @@
        transform="matrix(0.80422229,0.59432862,-0.59432862,0.80422229,0,0)"
        sodipodi:linespacing="125%"
        id="text44451"
-       y="117.35564"
-       x="529.70532"
+       y="80.505135"
+       x="502.47241"
        style="font-style:normal;font-weight:normal;font-size:14px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        xml:space="preserve"><tspan
          style="font-size:7.5px"
-         y="117.35564"
-         x="529.70532"
+         y="80.505135"
+         x="502.47241"
          id="tspan44453"
          sodipodi:role="line">SQ</tspan></text>
     <g
-       transform="matrix(0.25881905,-0.96592583,0.96592583,0.25881905,-232.43222,566.40876)"
+       transform="matrix(0.25881905,-0.96592583,0.96592583,0.25881905,-232.43222,520.58747)"
        id="g45309">
       <text
          transform="matrix(0.99826063,-0.05895518,0.05895518,0.99826063,0,0)"
@@ -1464,44 +1449,44 @@
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:14px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="507.76859"
-       y="114.8239"
+       x="469.35617"
+       y="89.842392"
        id="text45317"
        sodipodi:linespacing="125%"
        transform="matrix(0.54519432,0.8383097,-0.8383097,0.54519432,0,0)"><tspan
          sodipodi:role="line"
          id="tspan45319"
-         x="507.76859"
-         y="114.8239"
+         x="469.35617"
+         y="89.842392"
          style="font-size:7.5px">SQ</tspan></text>
     <text
        transform="matrix(0.83973684,0.54299359,-0.54299359,0.83973684,0,0)"
        sodipodi:linespacing="125%"
        id="text45327"
-       y="352.08261"
-       x="427.51334"
+       y="313.6048"
+       x="402.63266"
        style="font-style:normal;font-weight:normal;font-size:14px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        xml:space="preserve"><tspan
          style="font-size:7.5px"
-         y="352.08261"
-         x="427.51334"
+         y="313.6048"
+         x="402.63266"
          id="tspan45329"
          sodipodi:role="line">SQ</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:14px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="133.34093"
-       y="583.88715"
+       x="137.5712"
+       y="538.26154"
        id="text45331"
        sodipodi:linespacing="125%"
        transform="matrix(0.9957293,-0.09232094,0.09232094,0.9957293,0,0)"><tspan
          sodipodi:role="line"
          id="tspan45333"
-         x="133.34093"
-         y="583.88715"
+         x="137.5712"
+         y="538.26154"
          style="font-size:7.5px">SQ</tspan></text>
     <g
-       transform="matrix(0.99133105,0.13138775,-0.13138775,0.99133105,-244.94214,-29.658787)"
+       transform="matrix(0.99133105,0.13138775,-0.13138775,0.99133105,-244.94214,-75.480073)"
        id="g45352">
       <text
          xml:space="preserve"
@@ -1523,7 +1508,7 @@
          sodipodi:nodetypes="cc" />
     </g>
     <g
-       transform="matrix(0.9885381,-0.15097159,0.15097159,0.9885381,-396.66013,158.29993)"
+       transform="matrix(0.9885381,-0.15097159,0.15097159,0.9885381,-396.66013,112.47864)"
        id="g45360">
       <text
          xml:space="preserve"
@@ -1546,7 +1531,7 @@
     </g>
     <g
        id="g45344"
-       transform="matrix(0.79590608,0.60542011,-0.60542011,0.79590608,-3.7033161,-58.031105)">
+       transform="matrix(0.79590608,0.60542011,-0.60542011,0.79590608,-3.7033161,-103.85239)">
       <text
          sodipodi:linespacing="125%"
          id="text45346"
@@ -1566,20 +1551,9 @@
          d="m 464.82143,398.61221 9.10714,-0.17858"
          style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
     </g>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:14px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="80"
-       y="112.36221"
-       id="text45470"
-       sodipodi:linespacing="125%"><tspan
-         sodipodi:role="line"
-         id="tspan45472"
-         x="80"
-         y="112.36221">Glutt-o-matique / Machine d'états</tspan></text>
     <g
        id="g45474"
-       transform="translate(-209.96707,359.72267)">
+       transform="translate(-209.96707,313.90138)">
       <ellipse
          ry="16.048639"
          rx="20.506594"
@@ -1602,7 +1576,7 @@
     </g>
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m 70,602.3622 590,0"
+       d="m 70,556.54091 590,0"
        id="path45484"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cc" />
@@ -1610,33 +1584,33 @@
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:14px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        x="140"
-       y="642.36218"
+       y="596.54089"
        id="text45486"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan45488"
          x="140"
-         y="642.36218">Légende</tspan></text>
+         y="596.54089">Légende</tspan></text>
     <rect
        style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.5;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="rect45490"
        width="4.4590487"
        height="4.4590487"
        x="158.634"
-       y="692.4621" />
+       y="646.64081" />
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:10px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        x="190"
-       y="682.36218"
+       y="636.54089"
        id="text45492"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan45494"
          x="190"
-         y="682.36218">Etat avec TX ON</tspan></text>
+         y="636.54089">Etat avec TX ON</tspan></text>
     <g
-       transform="translate(-209.96707,399.72269)"
+       transform="translate(-209.96707,353.9014)"
        id="g45496">
       <ellipse
          style="opacity:1;fill:none;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
@@ -1661,22 +1635,22 @@
     <text
        sodipodi:linespacing="125%"
        id="text45506"
-       y="722.36218"
+       y="676.54089"
        x="190"
        style="font-style:normal;font-weight:normal;font-size:10px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        xml:space="preserve"><tspan
-         y="722.36218"
+         y="676.54089"
          x="190"
          id="tspan45508"
          sodipodi:role="line">Etat avec MOD OFF</tspan></text>
     <path
        style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 166.33439,736.35772 5.92851,-1.75054 -4.40565,-4.00624 z"
+       d="m 166.33439,690.53643 5.92851,-1.75054 -4.40565,-4.00624 z"
        id="path45510"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cccc" />
     <rect
-       y="443.00989"
+       y="397.1886"
        x="620.08459"
        height="4.4590487"
        width="4.4590487"
@@ -1686,7 +1660,7 @@
        sodipodi:nodetypes="cccc"
        inkscape:connector-curvature="0"
        id="path45514"
-       d="m 627.785,447.95737 5.92851,-1.75054 -4.40565,-4.00624 z"
+       d="m 627.785,402.13608 5.92851,-1.75054 -4.40565,-4.00624 z"
        style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
     <rect
        style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.5;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
@@ -1694,9 +1668,9 @@
        width="4.4590487"
        height="4.4590487"
        x="524.6236"
-       y="439.19144" />
+       y="393.37015" />
     <rect
-       y="501.05017"
+       y="455.22888"
        x="429.92627"
        height="4.4590487"
        width="4.4590487"
@@ -1708,9 +1682,9 @@
        width="4.4590487"
        height="4.4590487"
        x="424.96231"
-       y="441.48251" />
+       y="395.66122" />
     <rect
-       y="389.16989"
+       y="343.3486"
        x="402.81537"
        height="4.4590487"
        width="4.4590487"
@@ -1722,9 +1696,9 @@
        width="4.4590487"
        height="4.4590487"
        x="159.58069"
-       y="477.37585" />
+       y="431.55457" />
     <rect
-       y="530.83405"
+       y="485.01276"
        x="130.1787"
        height="4.4590487"
        width="4.4590487"
@@ -1736,22 +1710,22 @@
        width="4.4590487"
        height="4.4590487"
        x="150.41643"
-       y="582.76483" />
+       y="536.94354" />
     <rect
        style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.5;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="rect45528-2"
        width="4.4590487"
        height="4.4590487"
        x="197.55144"
-       y="231.86404" />
+       y="186.04276" />
     <path
        sodipodi:nodetypes="cccc"
        inkscape:connector-curvature="0"
        id="path45514-0"
-       d="m 207.12876,236.31689 5.92851,-1.75054 -4.40565,-4.00624 z"
+       d="m 207.12876,190.4956 5.92851,-1.75054 -4.40565,-4.00624 z"
        style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
     <rect
-       y="177.72813"
+       y="131.90685"
        x="213.4817"
        height="4.4590487"
        width="4.4590487"
@@ -1759,12 +1733,12 @@
        style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.5;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
     <path
        style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 223.05903,182.18098 5.92851,-1.75054 -4.40565,-4.00624 z"
+       d="m 223.05903,136.35969 5.92851,-1.75054 -4.40565,-4.00624 z"
        id="path45562"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cccc" />
     <rect
-       y="206.61552"
+       y="160.79424"
        x="457.08939"
        height="4.4590487"
        width="4.4590487"
@@ -1772,24 +1746,24 @@
        style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.5;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
     <path
        style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 464.50665,211.06837 5.92851,-1.75054 -4.40565,-4.00624 z"
+       d="m 464.50665,165.24708 5.92851,-1.75054 -4.40565,-4.00624 z"
        id="path45562-4"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cccc" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m 370,622.3622 0,150.00002"
+       d="m 370,576.54091 0,150.00002"
        id="path45582"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cc" />
     <text
        sodipodi:linespacing="125%"
        id="text45584"
-       y="642.36218"
+       y="596.54089"
        x="410"
        style="font-style:normal;font-weight:normal;font-size:14px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        xml:space="preserve"><tspan
-         y="642.36218"
+         y="596.54089"
          x="410"
          id="tspan45586"
          sodipodi:role="line">Fréquences &amp; Vitesse CW</tspan></text>
@@ -1797,21 +1771,21 @@
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:10px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        x="410"
-       y="672.36218"
+       y="626.54089"
        id="text45588"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan45590"
          x="410"
-         y="672.36218">K, U, D, S, R,</tspan></text>
+         y="626.54089">K, U, D, S, R,</tspan></text>
     <text
        sodipodi:linespacing="125%"
        id="text45592"
-       y="657.36218"
+       y="611.54089"
        x="410"
        style="font-style:normal;font-weight:normal;font-size:10px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        xml:space="preserve"><tspan
-         y="657.36218"
+         y="611.54089"
          x="410"
          id="tspan45594"
          sodipodi:role="line">Message</tspan></text>
@@ -1819,32 +1793,32 @@
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:10px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        x="495"
-       y="657.36218"
+       y="611.54089"
        id="text45596"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan45598"
          x="495"
-         y="657.36218">Durée dit</tspan></text>
+         y="611.54089">Durée dit</tspan></text>
     <text
        sodipodi:linespacing="125%"
        id="text45600"
-       y="657.36218"
+       y="611.54089"
        x="550"
        style="font-style:normal;font-weight:normal;font-size:10px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        xml:space="preserve"><tspan
-         y="657.36218"
+         y="611.54089"
          x="550"
          id="tspan45602"
          sodipodi:role="line">Fréquence</tspan></text>
     <text
        sodipodi:linespacing="125%"
        id="text45604"
-       y="702.36218"
+       y="656.54089"
        x="495"
        style="font-style:normal;font-weight:normal;font-size:10px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        xml:space="preserve"><tspan
-         y="702.36218"
+         y="656.54089"
          x="495"
          id="tspan45606"
          sodipodi:role="line">80 ms</tspan></text>
@@ -1852,21 +1826,21 @@
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:10px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        x="550"
-       y="702.36218"
+       y="656.54089"
        id="text45608"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan45610"
          x="550"
-         y="702.36218">960 Hz</tspan></text>
+         y="656.54089">960 Hz</tspan></text>
     <text
        sodipodi:linespacing="125%"
        id="text45612"
-       y="722.36218"
+       y="676.54089"
        x="410"
        style="font-style:normal;font-weight:normal;font-size:10px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        xml:space="preserve"><tspan
-         y="722.36218"
+         y="676.54089"
          x="410"
          id="tspan45614"
          sodipodi:role="line">G, 73,</tspan></text>
@@ -1874,38 +1848,38 @@
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:10px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        x="495"
-       y="742.36218"
+       y="696.54089"
        id="text45616"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan45618"
          x="495"
-         y="742.36218">70 ms</tspan></text>
+         y="696.54089">70 ms</tspan></text>
     <text
        sodipodi:linespacing="125%"
        id="text45620"
-       y="742.36218"
+       y="696.54089"
        x="550"
        style="font-style:normal;font-weight:normal;font-size:10px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        xml:space="preserve"><tspan
-         y="742.36218"
+         y="696.54089"
          x="550"
          id="tspan45622"
          sodipodi:role="line">696 Hz</tspan></text>
     <path
        inkscape:connector-curvature="0"
        id="path45624"
-       d="m 410,660.36224 200,0"
+       d="m 410,614.54095 200,0"
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.30000001;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        sodipodi:nodetypes="cc" />
     <text
        sodipodi:linespacing="125%"
        id="text45626"
-       y="682.36218"
+       y="636.54089"
        x="410"
        style="font-style:normal;font-weight:normal;font-size:10px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        xml:space="preserve"><tspan
-         y="682.36218"
+         y="636.54089"
          x="410"
          sodipodi:role="line"
          id="tspan45638">HI HI, HB9G,</tspan></text>
@@ -1913,21 +1887,21 @@
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:10px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        x="410"
-       y="692.36218"
+       y="646.54089"
        id="text45642"
        sodipodi:linespacing="125%"><tspan
          id="tspan45644"
          sodipodi:role="line"
          x="410"
-         y="692.36218">HB9G 1628m,</tspan></text>
+         y="646.54089">HB9G 1628m,</tspan></text>
     <text
        sodipodi:linespacing="125%"
        id="text45646"
-       y="702.36218"
+       y="656.54089"
        x="410"
        style="font-style:normal;font-weight:normal;font-size:10px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        xml:space="preserve"><tspan
-         y="702.36218"
+         y="656.54089"
          x="410"
          sodipodi:role="line"
          id="tspan45648">HB9G JN36BK</tspan></text>
@@ -1946,32 +1920,32 @@
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:10px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        x="410"
-       y="742.36218"
+       y="696.54089"
        id="text45658"
        sodipodi:linespacing="125%"><tspan
          id="tspan45660"
          sodipodi:role="line"
          x="410"
-         y="742.36218">Balise QRP/ROS</tspan></text>
+         y="696.54089">Balise QRP/ROS</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:10px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        x="410"
-       y="762.36218"
+       y="716.54089"
        id="text45662"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan45664"
          x="410"
-         y="762.36218">Balise longue</tspan></text>
+         y="716.54089">Balise longue</tspan></text>
     <text
        sodipodi:linespacing="125%"
        id="text45666"
-       y="762.36218"
+       y="716.54089"
        x="495"
        style="font-style:normal;font-weight:normal;font-size:10px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        xml:space="preserve"><tspan
-         y="762.36218"
+         y="716.54089"
          x="495"
          id="tspan45668"
          sodipodi:role="line">110 ms</tspan></text>
@@ -1979,38 +1953,27 @@
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:10px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        x="550"
-       y="762.36218"
+       y="716.54089"
        id="text45670"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan45672"
          x="550"
-         y="762.36218">588 Hz</tspan></text>
+         y="716.54089">588 Hz</tspan></text>
     <text
        sodipodi:linespacing="125%"
        id="text45674"
-       y="732.36218"
+       y="686.54089"
        x="410"
        style="font-style:normal;font-weight:normal;font-size:10px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        xml:space="preserve"><tspan
-         y="732.36218"
+         y="686.54089"
          x="410"
          sodipodi:role="line"
          id="tspan45676">Balise courte,</tspan></text>
-    <text
-       sodipodi:linespacing="125%"
-       id="text45678"
-       y="112.36221"
-       x="558.83246"
-       style="font-style:normal;font-weight:normal;font-size:14px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       xml:space="preserve"><tspan
-         y="112.36221"
-         x="558.83246"
-         id="tspan45680"
-         sodipodi:role="line">17.07.2016</tspan></text>
     <g
        id="g45701"
-       transform="matrix(0.95462798,0.29780099,-0.29780099,0.95462798,89.241269,-344.11963)">
+       transform="matrix(0.95462798,0.29780099,-0.29780099,0.95462798,89.241269,-389.94092)">
       <text
          inkscape:transform-center-y="-4.3190958"
          inkscape:transform-center-x="3.5266973"
@@ -2040,7 +2003,7 @@
          sodipodi:nodetypes="cc" />
     </g>
     <g
-       transform="matrix(0.82669775,0.56264629,-0.56264629,0.82669775,282.63637,-414.0617)"
+       transform="matrix(0.82669775,0.56264629,-0.56264629,0.82669775,282.63637,-459.88299)"
        id="g46485">
       <text
          transform="matrix(0.99826063,-0.05895518,0.05895518,0.99826063,0,0)"
@@ -2059,7 +2022,7 @@
            style="font-size:7.5px">(ROS|QRP) &amp; START TM</tspan></text>
     </g>
     <g
-       transform="matrix(0.84596627,-0.53323642,0.53323642,0.84596627,-149.99422,-24.604604)"
+       transform="matrix(0.84596627,-0.53323642,0.53323642,0.84596627,-149.99422,-70.42589)"
        id="g46495">
       <text
          transform="matrix(0.99826063,-0.05895518,0.05895518,0.99826063,0,0)"
@@ -2098,16 +2061,16 @@
        sodipodi:nodetypes="cc"
        inkscape:connector-curvature="0"
        id="path46507"
-       d="m 70,792.3622 590,0"
+       d="m 70,746.54091 590,0"
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <text
        sodipodi:linespacing="125%"
        id="text46509"
-       y="832.36218"
+       y="786.54089"
        x="140"
        style="font-style:normal;font-weight:normal;font-size:14px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        xml:space="preserve"><tspan
-         y="832.36218"
+         y="786.54089"
          x="140"
          id="tspan46511"
          sodipodi:role="line">Clarification intervalle petite balise</tspan></text>
@@ -2115,31 +2078,31 @@
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:10px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        x="140"
-       y="852.36218"
+       y="806.54089"
        id="text46513"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          x="140"
-         y="852.36218"
+         y="806.54089"
          id="tspan46523">Le timer de balise ne compte que lorsque TX OFF.</tspan><tspan
          sodipodi:role="line"
          x="140"
-         y="864.86218"
+         y="819.04089"
          id="tspan46529" /><tspan
          sodipodi:role="line"
          x="140"
-         y="877.36218"
+         y="831.54089"
          id="tspan46531">Dès que TX est ON pendant plus de 10 minutes, remise à zéro du timer.</tspan><tspan
          sodipodi:role="line"
          x="140"
-         y="889.86218"
+         y="844.04089"
          id="tspan46517" /><tspan
          sodipodi:role="line"
          x="140"
-         y="902.36218"
+         y="856.54089"
          id="tspan46519">Dès que le timer atteint 20 minutes, TX balise et remise à zéro.</tspan></text>
     <g
-       transform="translate(167.70382,-71.923989)"
+       transform="translate(165.03091,-116.2179)"
        id="g4666">
       <ellipse
          style="opacity:1;fill:none;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
@@ -2167,35 +2130,14 @@
            id="tspan4674">OPEN</tspan></text>
     </g>
     <rect
-       y="264.56775"
-       x="536.52838"
+       y="220.27383"
+       x="533.85547"
        height="4.4590487"
        width="4.4590487"
        id="rect45560-5-3"
        style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.5;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
-    <path
-       sodipodi:nodetypes="cc"
-       inkscape:connector-curvature="0"
-       id="path6620"
-       d="m 505.62239,243.2868 c -43.98697,-14.90851 -87.00667,21.69796 -109.18146,59.24065"
-       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker6622)" />
-    <text
-       inkscape:transform-center-y="5.1365844"
-       inkscape:transform-center-x="1.2209105"
-       transform="matrix(0.94684826,-0.32168054,0.32168054,0.94684826,0,0)"
-       sodipodi:linespacing="125%"
-       id="text9248"
-       y="377.67572"
-       x="336.53082"
-       style="font-style:normal;font-weight:normal;font-size:14px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       xml:space="preserve"><tspan
-         style="font-size:7.5px"
-         y="377.67572"
-         x="336.53082"
-         id="tspan9250"
-         sodipodi:role="line">SQ &amp; CW fini</tspan></text>
     <g
-       transform="matrix(0.8660254,-0.5,0.5,0.8660254,-145.0954,328.75274)"
+       transform="matrix(0.8660254,-0.5,0.5,0.8660254,-145.0954,282.93145)"
        id="g9252">
       <text
          sodipodi:linespacing="125%"
@@ -2218,19 +2160,19 @@
     </g>
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker9268)"
-       d="m 502.64917,430.54836 c -20.24308,0.50286 -40.78978,19.48709 -49.62375,36.66316"
+       d="m 502.64917,384.72707 c -20.24308,0.50286 -40.78978,19.48709 -49.62375,36.66316"
        id="path9266"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cc" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker11008)"
-       d="m 510.58636,261.99716 c -34.82271,18.69377 -66.38709,59.88236 -88.56188,97.42505"
+       d="m 510.58636,216.17587 c -36.73193,22.51221 -66.38709,59.88236 -88.56188,97.42505"
        id="path11006"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cc" />
     <g
        id="g11853"
-       transform="translate(-16.200271,0)">
+       transform="matrix(0.98310191,0.18305911,-0.18305911,0.98310191,93.444591,-169.31297)">
       <text
          inkscape:transform-center-y="5.0931975"
          inkscape:transform-center-x="-1.4038225"
@@ -2245,13 +2187,37 @@
            y="555.24792"
            x="72.898773"
            id="tspan11836"
-           sodipodi:role="line">SQ &amp; CW fini</tspan></text>
-      <path
-         style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-         d="m 453.69431,316.30216 6.21682,-6.78199"
-         id="path41854-7"
-         inkscape:connector-curvature="0"
-         sodipodi:nodetypes="cc" />
+           sodipodi:role="line">CW fini</tspan></text>
     </g>
+    <rect
+       style="opacity:1;fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.80000001;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect29885"
+       width="920.00006"
+       height="620"
+       x="60.993282"
+       y="-672.88605"
+       transform="matrix(0,1,-1,0,0,0)" />
+    <rect
+       y="906.6012"
+       x="379.75772"
+       height="74.392029"
+       width="293.12836"
+       id="rect29923"
+       style="opacity:1;fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.80000001;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:14px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="400.38937"
+       y="933.79523"
+       id="text29925"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan29927"
+         x="400.38937"
+         y="933.79523">Glutt-o-matique / Machine d'états</tspan><tspan
+         sodipodi:role="line"
+         x="400.38937"
+         y="951.29523"
+         id="tspan29929">2016-07-18 HB9EGM - HB9FOH</tspan></text>
   </g>
 </svg>

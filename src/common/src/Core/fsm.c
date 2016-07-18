@@ -207,8 +207,9 @@ void fsm_update() {
             break;
 
         case FSM_OPEN1:
-            fsm_out.tx_on = 1;
-
+            /* Do not enable TX_ON here, otherwise we could get stuck transmitting
+             * forever if SQ never goes low.
+             */
             if (!fsm_in.sq) {
                 next_state = FSM_OPEN2;
             }
@@ -507,11 +508,7 @@ void fsm_update() {
             } else { //FSM_BALISE_COURTE_OPEN
 
                 if (fsm_in.cw_psk31_done) {
-                    if (fsm_in.sq) {
-                        next_state = FSM_OPEN1;
-                    } else {
-                        next_state = FSM_OPEN2;
-                    }
+                    next_state = FSM_OPEN2;
                 }
 
             }
