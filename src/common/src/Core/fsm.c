@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2016 Matthias P. Braendli
+ * Copyright (c) 2016 Matthias P. Braendli, Maximilien Cuony
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
-*/
+ */
 
 #include <string.h>
 #include <stdio.h>
@@ -78,12 +78,46 @@ void fsm_init() {
 }
 
 // Calculate the time spent in the current state
-uint64_t fsm_current_state_time_ms(void) {
+static uint64_t fsm_current_state_time_ms(void) {
     return timestamp_now() - timestamp_state[current_state];
 }
 
-uint64_t fsm_current_state_time_s(void) {
+static uint64_t fsm_current_state_time_s(void) {
     return fsm_current_state_time_ms() / 1000;
+}
+
+static const char* state_name(fsm_state_t state) {
+    switch (state) {
+        case FSM_OISIF: return "FSM_OISIF";
+        case FSM_OPEN1: return "FSM_OPEN1";
+        case FSM_OPEN2: return "FSM_OPEN2";
+        case FSM_LETTRE: return "FSM_LETTRE";
+        case FSM_ECOUTE: return "FSM_ECOUTE";
+        case FSM_ATTENTE: return "FSM_ATTENTE";
+        case FSM_QSO: return "FSM_QSO";
+        case FSM_ANTI_BAVARD: return "FSM_ANTI_BAVARD";
+        case FSM_BLOQUE: return "FSM_BLOQUE";
+        case FSM_TEXTE_73: return "FSM_TEXTE_73";
+        case FSM_TEXTE_HB9G: return "FSM_TEXTE_HB9G";
+        case FSM_TEXTE_LONG: return "FSM_TEXTE_LONG";
+        case FSM_BALISE_LONGUE: return "FSM_BALISE_LONGUE";
+        case FSM_BALISE_SPECIALE: return "FSM_BALISE_SPECIALE";
+        case FSM_BALISE_COURTE: return "FSM_BALISE_COURTE";
+        case FSM_BALISE_COURTE_OPEN: return "FSM_BALISE_COURTE_OPEN";
+        default: return "ERROR!";
+    }
+}
+
+// Calculate the time difference between two states
+static uint64_t state_delta_ms(fsm_state_t state_first, fsm_state_t state_second) {
+    uint64_t delta = timestamp_state[state_second] - timestamp_state[state_first];
+#if SIMULATOR
+    fprintf(stderr, "Delta %s (%llu) -> %s (%llu) = %llu\n",
+            state_name(state_first), timestamp_state[state_first],
+            state_name(state_second), timestamp_state[state_second],
+            delta);
+#endif
+    return delta;
 }
 
 // Between turns in a QSO, the repeater sends a letter in CW,
@@ -96,7 +130,7 @@ const char* letter_freq_high = "U";
 const char* letter_freq_low  = "D";
 const char* letter_swr_high  = "R";
 
-const char* fsm_select_letter(void) {
+static const char* fsm_select_letter(void) {
     if (fsm_in.swr_high) {
         return letter_swr_high;
     }
@@ -213,28 +247,24 @@ void fsm_update() {
                 next_state = FSM_QSO;
             }
             else if (fsm_current_state_time_s() > 6 &&
-                    timestamp_state[FSM_ECOUTE] - timestamp_state[FSM_OPEN2] <
-                        1000ul * 5) {
+                    state_delta_ms(FSM_OPEN2, FSM_ECOUTE) < 1000ul * 5 &&
+                    state_delta_ms(FSM_QSO, FSM_ECOUTE) > 1000ul * 5) {
                 next_state = FSM_ATTENTE;
             }
             else if (fsm_current_state_time_s() > 5 &&
-                    timestamp_state[FSM_ECOUTE] - timestamp_state[FSM_OPEN2] <
-                        1000ul * 5 * 60) {
+                    state_delta_ms(FSM_OPEN2, FSM_ECOUTE) < 1000ul * 5 * 60) {
                 next_state = FSM_OISIF;
             }
             else if (fsm_current_state_time_s() > 5 &&
-                    timestamp_state[FSM_ECOUTE] - timestamp_state[FSM_OPEN2] <
-                        1000ul * 10 * 60) {
+                    state_delta_ms(FSM_OPEN2, FSM_ECOUTE) < 1000ul * 10 * 60) {
                 next_state = FSM_TEXTE_73;
             }
             else if (fsm_current_state_time_s() > 5 &&
-                    timestamp_state[FSM_ECOUTE] - timestamp_state[FSM_OPEN2] <
-                        1000ul * 15 * 60) {
+                    state_delta_ms(FSM_OPEN2, FSM_ECOUTE) < 1000ul * 15 * 60) {
                 next_state = FSM_TEXTE_HB9G;
             }
             else if (fsm_current_state_time_s() > 5 &&
-                    timestamp_state[FSM_ECOUTE] - timestamp_state[FSM_OPEN2] >=
-                        1000ul * 15 * 60) {
+                    state_delta_ms(FSM_OPEN2, FSM_ECOUTE) >= 1000ul * 15 * 60) {
                 next_state = FSM_TEXTE_LONG;
             }
             break;
@@ -499,42 +529,7 @@ void fsm_update() {
 
         short_beacon_counter_last_update = 0;
 
-        switch (next_state) {
-            case FSM_OISIF:
-                fsm_state_switched("FSM_OISIF"); break;
-            case FSM_OPEN1:
-                fsm_state_switched("FSM_OPEN1"); break;
-            case FSM_OPEN2:
-                fsm_state_switched("FSM_OPEN2"); break;
-            case FSM_LETTRE:
-                fsm_state_switched("FSM_LETTRE"); break;
-            case FSM_ECOUTE:
-                fsm_state_switched("FSM_ECOUTE"); break;
-            case FSM_ATTENTE:
-                fsm_state_switched("FSM_ATTENTE"); break;
-            case FSM_QSO:
-                fsm_state_switched("FSM_QSO"); break;
-            case FSM_ANTI_BAVARD:
-                fsm_state_switched("FSM_ANTI_BAVARD"); break;
-            case FSM_BLOQUE:
-                fsm_state_switched("FSM_BLOQUE"); break;
-            case FSM_TEXTE_73:
-                fsm_state_switched("FSM_TEXTE_73"); break;
-            case FSM_TEXTE_HB9G:
-                fsm_state_switched("FSM_TEXTE_HB9G"); break;
-            case FSM_TEXTE_LONG:
-                fsm_state_switched("FSM_TEXTE_LONG"); break;
-            case FSM_BALISE_LONGUE:
-                fsm_state_switched("FSM_BALISE_LONGUE"); break;
-            case FSM_BALISE_SPECIALE:
-                fsm_state_switched("FSM_BALISE_SPECIALE"); break;
-            case FSM_BALISE_COURTE:
-                fsm_state_switched("FSM_BALISE_COURTE"); break;
-            case FSM_BALISE_COURTE_OPEN:
-                fsm_state_switched("FSM_BALISE_COURTE_OPEN"); break;
-            default:
-                fsm_state_switched("ERROR!"); break;
-        }
+        fsm_state_switched(state_name(next_state));
     }
     current_state = next_state;
 }

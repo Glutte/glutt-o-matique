@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2016 Matthias P. Braendli
+ * Copyright (c) 2016 Matthias P. Braendli, Maximilien Cuony
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,11 +20,9 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
-*/
+ */
 
-#ifndef _FSM_H_
-#define _FSM_H_
-
+#pragma once
 #include <stdint.h>
 
 // List of all states the FSM of the relay can be in
@@ -103,10 +101,4 @@ void fsm_get_outputs(struct fsm_output_signals_t* out);
 
 // Announce a state change
 void fsm_state_switched(const char *new_state);
-
-uint64_t fsm_current_state_time_ms(void);
-uint64_t fsm_current_state_time_s(void);
-const char* fsm_select_letter(void);
-
-#endif // _FSM_H_
 
