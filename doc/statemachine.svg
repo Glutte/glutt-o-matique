@@ -510,9 +510,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.65471754"
-     inkscape:cx="294.50163"
-     inkscape:cy="497.31265"
+     inkscape:zoom="0.67277217"
+     inkscape:cx="372.04724"
+     inkscape:cy="526.1811"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -1205,7 +1205,7 @@
            id="tspan41862"
            x="464.10712"
            y="405.75507"
-           style="font-size:7.5px">SQ après 5s</tspan></text>
+           style="font-size:7.5px">SQ après 3s</tspan></text>
       <path
          style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
          d="m 464.82143,398.61221 9.10714,-0.17858"
@@ -2150,7 +2150,7 @@
            y="405.75507"
            x="464.10712"
            id="tspan9256"
-           sodipodi:role="line">SQ avant 5s</tspan></text>
+           sodipodi:role="line">SQ avant 3s</tspan></text>
       <path
          sodipodi:nodetypes="cc"
          inkscape:connector-curvature="0"

@@ -301,7 +301,7 @@ void fsm_update() {
                 last_qso_start_timestamp = timestamp_now();
             }
 
-            if (!fsm_in.sq && fsm_current_state_time_s() < 5) {
+            if (!fsm_in.sq && fsm_current_state_time_s() < 3) {
                 /* To avoid that very short open squelch triggers
                  * transmit CW letters all the time. Some people
                  * enjoy doing that.
