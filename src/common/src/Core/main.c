@@ -274,16 +274,6 @@ static void detect_button_press(void __attribute__ ((unused))*pvParameters)
                 last_pin_high_count != pin_high_count) {
             tm_trigger_button = 1;
             usart_debug_puts("Bouton bleu\r\n");
-
-            if (temperature_valid()) {
-                float temp = temperature_get();
-                int temp_decidegrees = temp * 10.0f;
-
-                usart_debug("Temperature %d.%01d\r\n", temp_decidegrees / 10, temp_decidegrees % 10);
-
-            } else {
-                usart_debug_puts("No temp\r\n");
-            }
         }
         else if (pin_high_count == 0 &&
                 last_pin_high_count != pin_high_count) {
