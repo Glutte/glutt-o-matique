@@ -48,20 +48,21 @@
 #include "GPIO/analog.h"
 #include "vc.h"
 
-
-// Private variables
 static int tm_trigger_button = 0;
 static int tm_trigger = 0;
+
+/* Threshold for SWR measurement */
+const int swr_refl_threshold = 10; // mV
 
 /* Saturating counter for SWR measurement
  *
  * Hysteresis:
  * If the counter reaches the max value, the
- * SWR Error is triggered. Once the counter
- * reaches the min value, the error is
- * cleared again.
+ * SWR Error is triggered.
+ *
+ * The error can only be cleared through
+ * a full reset.
  */
-#define SWR_ERROR_COUNTER_MIN 0
 #define SWR_ERROR_COUNTER_MAX 10
 static int swr_error_counter = 0;
 static int swr_error_flag = 0;
@@ -231,7 +232,6 @@ static void launcher_task(void __attribute__ ((unused))*pvParameters)
 
         if (fsm_out.tx_on) {
             int swr_fwd_mv, swr_refl_mv;
-            const int swr_refl_threshold = 10; // mV
             if (analog_measure_swr(&swr_fwd_mv, &swr_refl_mv)) {
                 if (swr_refl_mv > swr_refl_threshold) {
                     usart_debug("SWR meas %d mV\r\n", swr_refl_mv);
@@ -244,11 +244,6 @@ static void launcher_task(void __attribute__ ((unused))*pvParameters)
                 if (swr_error_counter > SWR_ERROR_COUNTER_MAX) {
                     swr_error_counter = SWR_ERROR_COUNTER_MAX;
                     swr_error_flag = 1;
-                }
-
-                if (swr_error_counter < SWR_ERROR_COUNTER_MIN) {
-                    swr_error_counter = SWR_ERROR_COUNTER_MIN;
-                    swr_error_flag = 0;
                 }
             }
         }
