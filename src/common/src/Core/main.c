@@ -243,6 +243,9 @@ static void launcher_task(void __attribute__ ((unused))*pvParameters)
 
                 if (swr_error_counter > SWR_ERROR_COUNTER_MAX) {
                     swr_error_counter = SWR_ERROR_COUNTER_MAX;
+                    if (!swr_error_flag) {
+                        usart_debug("Set SWR error\r\n");
+                    }
                     swr_error_flag = 1;
                 }
             }

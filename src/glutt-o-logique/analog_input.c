@@ -113,10 +113,6 @@ int analog_measure_swr(int *forward_mv, int* reflected_mv)
     *forward_mv = swr_fwd;
     *reflected_mv = swr_refl;
 
-    usart_debug("RAW Meas %d mV - %d mV\r\n",
-            swr_fwd,
-            swr_refl);
-
     return 1;
 }
 
