@@ -407,6 +407,11 @@ static void gps_monit_task(void __attribute__ ((unused))*pvParameters) {
 
 
             t_gps_print_latch = 1;
+
+            usart_debug("ALIM %d mV\r\n", (int)roundf(1000.0f * analog_measure_12v()));
+
+            const float temp = temperature_get();
+            usart_debug("TEMP %d.%02d\r\n", (int)temp, (int)(temp * 100.0f - (int)(temp) * 100.0f));
         }
 
         if (time.tm_sec % 30 > 0) {
