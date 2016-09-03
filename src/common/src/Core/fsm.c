@@ -188,7 +188,7 @@ void fsm_update() {
                 }
             }
 
-            if (fsm_in.tone_1750 && fsm_in.sq) {
+            if (fsm_in.tone_1750) {
                 next_state = FSM_OPEN1;
             }
             else if (fsm_in.start_tm) {
@@ -210,7 +210,7 @@ void fsm_update() {
             /* Do not enable TX_ON here, otherwise we could get stuck transmitting
              * forever if SQ never goes low.
              */
-            if (!fsm_in.sq) {
+            if (!fsm_in.sq && !fsm_in.tone_1750) {
                 next_state = FSM_OPEN2;
             }
             break;
