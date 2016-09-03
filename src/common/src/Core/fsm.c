@@ -231,7 +231,6 @@ void fsm_update() {
             if (fsm_out.msg[0] == 'G') {
                 // The letter 'G' is a bit different
                 fsm_out.msg_frequency    = 696;
-                fsm_out.cw_dit_duration = 70;
             }
             fsm_out.cw_psk31_trigger = 1;
 
