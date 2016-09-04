@@ -338,6 +338,8 @@ static void gps_monit_task(void __attribute__ ((unused))*pvParameters) {
     int t_gps_hours_handeled = 0;
     uint64_t last_hour_timestamp = 0;
 
+    int last_even = -1;
+
 
     while (1) {
         struct tm time;
@@ -373,6 +375,13 @@ static void gps_monit_task(void __attribute__ ((unused))*pvParameters) {
 
         if (time_valid) {
             fsm_input.hour_is_even = (time.tm_hour + 1) % 2;
+
+            if (last_even != fsm_input.hour_is_even) {
+                last_even = fsm_input.hour_is_even;
+
+                usart_debug("Even changed: %i %i %i %i\r\n", fsm_input.hour_is_even, time.tm_hour, derived_mode);
+
+            }
         }
 
         gps_utctime(&gps_time);
