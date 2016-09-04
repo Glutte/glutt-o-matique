@@ -72,6 +72,15 @@ void read_fsm_input_task(void *pvParameters);
 
 struct fsm_input_signals_t pio_signals;
 
+
+/* Some signals need additional debouncing or delays, the following
+ * variables are shift registers.
+ */
+static uint8_t debounce_sq[3] = {0};
+static uint8_t debounce_discrim_d[3] = {0};
+static uint8_t debounce_discrim_u[3] = {0};
+
+
 void pio_init()
 {
     GPIO_InitTypeDef GPIO_InitStructure;
@@ -136,14 +145,36 @@ void read_fsm_input_task(void __attribute__ ((unused))*pvParameters)
         pio_signals.tone_1750 =
             GPIO_ReadInputDataBit(GPIOC, GPIO_PIN_1750_n) ? 0 : 1;
 
-        pio_signals.sq =
+        debounce_sq[0] = debounce_sq[1];
+        debounce_sq[1] = debounce_sq[2];
+        debounce_sq[2] =
             GPIO_ReadInputDataBit(GPIOC, GPIO_PIN_SQ_n) ? 0 : 1;
 
-        pio_signals.discrim_u =
+        /* Only change the signal if its input has stabilised */
+        if (debounce_sq[0] == debounce_sq[1] &&
+            debounce_sq[1] == debounce_sq[2]) {
+            pio_signals.sq = debounce_sq[0];
+        }
+
+        /* The discrim U and D signals should be very sensitive:
+         * if one toggles to 1, set to 1; reset to 0 only if all
+         * are at 0
+         */
+        debounce_discrim_u[0] = debounce_discrim_u[1];
+        debounce_discrim_u[1] = debounce_discrim_u[2];
+        debounce_discrim_u[2] =
             GPIO_ReadInputDataBit(GPIOC, GPIO_PIN_U) ? 1 : 0;
 
-        pio_signals.discrim_d =
+        pio_signals.discrim_u =
+            debounce_discrim_u[0] | debounce_discrim_u[1] | debounce_discrim_u[2];
+
+        debounce_discrim_d[0] = debounce_discrim_d[1];
+        debounce_discrim_d[1] = debounce_discrim_d[2];
+        debounce_discrim_d[2] =
             GPIO_ReadInputDataBit(GPIOC, GPIO_PIN_D) ? 1 : 0;
+
+        pio_signals.discrim_d =
+            debounce_discrim_d[0] | debounce_discrim_d[1] | debounce_discrim_d[2];
 
         pio_signals.wind_generator_ok =
             GPIO_ReadInputDataBit(GPIOC, GPIO_PIN_REPLIE) ? 0 : 1;
