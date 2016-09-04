@@ -28,4 +28,3 @@
 void fsm_state_switched(const char *new_state) {
     usart_debug_puts_header("FSM: ", new_state);
 }
-

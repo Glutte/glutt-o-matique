@@ -48,13 +48,23 @@ enum fsm_state_e {
 
 typedef enum fsm_state_e fsm_state_t;
 
+// List of all states the balise FSM of the relay can be in
+enum balise_fsm_state_e {
+     BALISE_FSM_EVEN_HOUR = 0, // Even hours.
+     BALISE_FSM_ODD_HOUR,      // Odd hours
+     BALISE_FSM_PENDING,       // Waiting for transmission of balise
+};
+
+typedef enum balise_fsm_state_e balise_fsm_state_t;
+
+
 // All signals that the FSM can read, most of them are actually booleans
 struct fsm_input_signals_t {
     /* Signals coming from repeater electronics */
     int sq;                // Squelch detection
     int discrim_u;         // FM discriminator says RX is too high in frequency
     int qrp;               // The relay is currently running with low power
-    int start_tm;          // 2-hour pulse
+    int hour_is_even;      // 1 if hour is even
     float temp;            // temperature in degrees C
     float humidity;        // relative humidity, range [0-100] %
     int wind_generator_ok; // false if the generator is folded out of the wind
@@ -83,8 +93,6 @@ struct fsm_output_signals_t {
     int cw_psk31_trigger;  // Set to true to trigger a CW or PSK31 transmission.
                            // PSK31 is sent if cw_dit_duration is 0
 
-    /* Acknowledgements for input signals */
-    int ack_start_tm;      // Set to 1 to clear start_tm
 };
 
 // Initialise local structures
@@ -92,6 +100,8 @@ void fsm_init(void);
 
 // Call the FSM once and update the internal state
 void fsm_update(void);
+
+void fsm_balise_update(void);
 
 // Setter for inputs
 void fsm_update_inputs(struct fsm_input_signals_t* inputs);

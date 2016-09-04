@@ -35,6 +35,7 @@ static struct fsm_input_signals_t fsm_in;
 static struct fsm_output_signals_t fsm_out;
 
 static fsm_state_t current_state;
+static balise_fsm_state_t balise_state;
 
 // Keep track of when we last entered a given state, measured
 // in ms using the timestamp_now() function
@@ -75,6 +76,7 @@ void fsm_init() {
     timestamp_state[FSM_OISIF] = timestamp_now();
 
     current_state = FSM_OISIF;
+    balise_state = BALISE_FSM_EVEN_HOUR;
 }
 
 // Calculate the time spent in the current state
@@ -108,6 +110,14 @@ static const char* state_name(fsm_state_t state) {
     }
 }
 
+static const char* balise_state_name(balise_fsm_state_t state) {
+    switch (state) {
+        case BALISE_FSM_EVEN_HOUR: return "BALISE_FSM_EVEN_HOUR";
+        case BALISE_FSM_ODD_HOUR: return "BALISE_FSM_ODD_HOUR";
+        case BALISE_FSM_PENDING: return "BALISE_FSM_PENDING";
+        default: return "ERROR!";
+    }
+}
 // Calculate the time difference between two states
 static uint64_t state_delta_ms(fsm_state_t state_first, fsm_state_t state_second) {
     uint64_t delta = timestamp_state[state_second] - timestamp_state[state_first];
@@ -150,6 +160,9 @@ static const char* fsm_select_letter(void) {
     return letter_all_ok;
 }
 
+
+int qso_occurred = 0;
+
 void fsm_update() {
 
     fsm_state_t next_state = current_state;
@@ -161,12 +174,6 @@ void fsm_update() {
     fsm_out.cw_dit_duration = 50;
     fsm_out.msg_frequency = 960;
     // other output signals keep their value
-
-    // Clear the ack flag if the start_tm has been cleared
-    if (!fsm_in.start_tm && fsm_out.ack_start_tm) {
-        usart_debug("ACK start_tm reset\r\n");
-        fsm_out.ack_start_tm = 0;
-    }
 
     switch (current_state) {
         case FSM_OISIF:
@@ -192,7 +199,7 @@ void fsm_update() {
             if (fsm_in.tone_1750) {
                 next_state = FSM_OPEN1;
             }
-            else if (fsm_in.start_tm) {
+            else if (balise_state == BALISE_FSM_PENDING) {
                 if (fsm_in.qrp || fsm_in.swr_high) {
                     next_state = FSM_BALISE_SPECIALE;
                 }
@@ -219,6 +226,7 @@ void fsm_update() {
         case FSM_OPEN2:
             fsm_out.tx_on = 1;
             fsm_out.modulation = 1;
+            qso_occurred = 0; // Reset QSO Flag
 
             if (fsm_current_state_time_ms() > 200) {
                 next_state = FSM_LETTRE;
@@ -257,29 +265,32 @@ void fsm_update() {
             if (fsm_in.sq) {
                 next_state = FSM_QSO;
             }
-            else if (fsm_current_state_time_s() > 6 &&
-                    state_delta_ms(FSM_OPEN2, FSM_ECOUTE) < 1000ul * 5) {
-                next_state = FSM_ATTENTE;
-            }
-            else if (fsm_current_state_time_s() > 5 &&
-                    state_delta_ms(FSM_OPEN2, FSM_ECOUTE) < 1000ul * 5 * 60 &&
-                    state_delta_ms(FSM_QSO, FSM_ECOUTE) < 1000ul * 15) {
-                next_state = FSM_OISIF;
-            }
-            else if (fsm_current_state_time_s() > 5 &&
-                    state_delta_ms(FSM_OPEN2, FSM_ECOUTE) < 1000ul * 10 * 60 &&
-                    state_delta_ms(FSM_QSO, FSM_ECOUTE) < 1000ul * 15) {
-                next_state = FSM_TEXTE_73;
-            }
-            else if (fsm_current_state_time_s() > 5 &&
-                    state_delta_ms(FSM_OPEN2, FSM_ECOUTE) < 1000ul * 15 * 60 &&
-                    state_delta_ms(FSM_QSO, FSM_ECOUTE) < 1000ul * 15) {
-                next_state = FSM_TEXTE_HB9G;
-            }
-            else if (fsm_current_state_time_s() > 5 &&
-                    state_delta_ms(FSM_OPEN2, FSM_ECOUTE) >= 1000ul * 15 * 60 &&
-                    state_delta_ms(FSM_QSO, FSM_ECOUTE) < 1000ul * 15) {
-                next_state = FSM_TEXTE_LONG;
+            else {
+                if (fsm_current_state_time_s() > 5 && qso_occurred) {
+                    if (state_delta_ms(FSM_OPEN2, FSM_ECOUTE) >= 1000ul * 15 * 60) {
+                        next_state = FSM_TEXTE_LONG;
+                    }
+                    else if (state_delta_ms(FSM_OPEN2, FSM_ECOUTE) >= 1000ul * 10 * 60) {
+                        next_state = FSM_TEXTE_HB9G;
+                    }
+                    else if (state_delta_ms(FSM_OPEN2, FSM_ECOUTE) >= 1000ul * 5 * 60) {
+                        next_state = FSM_TEXTE_73;
+                    }
+                    else {
+                        next_state = FSM_OISIF;
+                    }
+                }
+
+                if (fsm_current_state_time_s() > 6 && !qso_occurred) {
+                    next_state = FSM_ATTENTE;
+                }
+
+                /* If everything fails and the state was not changed after 7
+                 * seconds, fall back to oisif
+                 */
+                if (fsm_current_state_time_s() > 7) {
+                    next_state = FSM_OISIF;
+                }
             }
             break;
 
@@ -295,6 +306,7 @@ void fsm_update() {
         case FSM_QSO:
             fsm_out.tx_on = 1;
             fsm_out.modulation = 1;
+            qso_occurred = 1;  // Set QSO Flag
 
             // Save the starting timestamp, if there is none
             if (last_qso_start_timestamp == 0) {
@@ -397,7 +409,6 @@ void fsm_update() {
             fsm_out.tx_on = 1;
             fsm_out.msg_frequency   = 588;
             fsm_out.cw_dit_duration = 110;
-            fsm_out.ack_start_tm    = 1;
 
             {
                 const float supply_voltage = round_float_to_half_steps(analog_measure_12v());
@@ -454,7 +465,6 @@ void fsm_update() {
             fsm_out.tx_on = 1;
             fsm_out.msg_frequency   = 696;
             fsm_out.cw_dit_duration = 70;
-            fsm_out.ack_start_tm    = 1;
 
             {
                 const float supply_voltage = round_float_to_half_steps(analog_measure_12v());
@@ -552,4 +562,45 @@ void fsm_update_inputs(struct fsm_input_signals_t* inputs)
 void fsm_get_outputs(struct fsm_output_signals_t* out)
 {
     *out = fsm_out;
+}
+
+void fsm_balise_update() {
+
+    balise_fsm_state_t next_state = balise_state;
+
+    switch (balise_state) {
+        case BALISE_FSM_EVEN_HOUR:
+            if (fsm_in.hour_is_even == 0) {
+                next_state = BALISE_FSM_ODD_HOUR;
+            }
+            break;
+        case BALISE_FSM_ODD_HOUR:
+            if (fsm_in.hour_is_even == 1) {
+                if (timestamp_now() > 1000 * 60) { // Does not start the balise at startup
+                    next_state = BALISE_FSM_PENDING;
+                }
+                else {
+                    next_state = BALISE_FSM_EVEN_HOUR;
+                }
+            }
+            break;
+        case BALISE_FSM_PENDING:
+            if (current_state == FSM_BALISE_SPECIALE ||
+                    current_state == FSM_BALISE_LONGUE) {
+                next_state = BALISE_FSM_EVEN_HOUR;
+            }
+            break;
+
+        default:
+            // Should never happen
+            next_state = BALISE_FSM_EVEN_HOUR;
+            break;
+    }
+
+    if (next_state != balise_state) {
+        fsm_state_switched(balise_state_name(next_state));
+    }
+
+    balise_state = next_state;
+
 }

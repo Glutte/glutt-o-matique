@@ -49,7 +49,8 @@
 #include "vc.h"
 
 static int tm_trigger_button = 0;
-static int tm_trigger = 0;
+
+static struct fsm_input_signals_t fsm_input;
 
 /* Threshold for SWR measurement */
 const int swr_refl_threshold = 10; // mV
@@ -371,8 +372,7 @@ static void gps_monit_task(void __attribute__ ((unused))*pvParameters) {
         }
 
         if (time_valid) {
-            // Even hours: tm_trigger=1, odd hours: tm_trigger=0
-            tm_trigger = (time.tm_hour + 1) % 2;
+            fsm_input.hour_is_even = (time.tm_hour + 1) % 2;
         }
 
         gps_utctime(&gps_time);
@@ -409,7 +409,6 @@ static void gps_monit_task(void __attribute__ ((unused))*pvParameters) {
             const float temp = temperature_get();
             usart_debug("TEMP %d.%02d\r\n", (int)temp, (int)(temp * 100.0f - (int)(temp) * 100.0f));
 
-            usart_debug("TM_TRIGGER %d\r\n", tm_trigger);
         }
 
         if (time.tm_sec % 30 > 0) {
@@ -449,11 +448,9 @@ static void gps_monit_task(void __attribute__ ((unused))*pvParameters) {
     }
 }
 
-static struct fsm_input_signals_t fsm_input;
 static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
 {
     int cw_last_trigger = 0;
-    int last_tm_trigger = 0;
     int last_tm_trigger_button = 0;
 
     int last_sq = 0;
@@ -495,22 +492,10 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
             usart_debug("In U %d\r\n", last_discrim_u);
         }
 
-
         if (tm_trigger_button == 1 && last_tm_trigger_button == 0) {
-            fsm_input.start_tm = 1;
+            // Do something if you want. This currently does nothing.
         }
         last_tm_trigger_button = tm_trigger_button;
-
-        /* Do not time-trigger BALISE if
-         * the trigger occurs in the first minute,
-         * or if we happen to start up in an even hour
-         */
-        if (    timestamp_now() > 60 * 1000 &&
-                tm_trigger == 1 && last_tm_trigger == 0) {
-            fsm_input.start_tm = 1;
-            usart_debug("START_TM set\r\n");
-        }
-        last_tm_trigger = tm_trigger;
 
         int cw_done = !cw_psk31_busy();
         if (last_cw_done != cw_done) {
@@ -538,6 +523,7 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
 
         fsm_update_inputs(&fsm_input);
         fsm_update();
+        fsm_balise_update();
 
         struct fsm_output_signals_t fsm_out;
         fsm_get_outputs(&fsm_out);
@@ -553,9 +539,5 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
         }
         cw_last_trigger = fsm_out.cw_psk31_trigger;
 
-        if (fsm_out.ack_start_tm) {
-            fsm_input.start_tm = 0;
-            usart_debug("START_TM reset\r\n");
-        }
     }
 }
