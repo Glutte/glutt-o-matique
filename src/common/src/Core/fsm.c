@@ -164,6 +164,7 @@ void fsm_update() {
 
     // Clear the ack flag if the start_tm has been cleared
     if (!fsm_in.start_tm && fsm_out.ack_start_tm) {
+        usart_debug("ACK start_tm reset\r\n");
         fsm_out.ack_start_tm = 0;
     }
 

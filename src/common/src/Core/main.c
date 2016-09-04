@@ -408,6 +408,8 @@ static void gps_monit_task(void __attribute__ ((unused))*pvParameters) {
 
             const float temp = temperature_get();
             usart_debug("TEMP %d.%02d\r\n", (int)temp, (int)(temp * 100.0f - (int)(temp) * 100.0f));
+
+            usart_debug("TM_TRIGGER %d\r\n", tm_trigger);
         }
 
         if (time.tm_sec % 30 > 0) {
@@ -496,6 +498,7 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
         if (    timestamp_now() > 60 * 1000 &&
                 tm_trigger == 1 && last_tm_trigger == 0) {
             fsm_input.start_tm = 1;
+            usart_debug("START_TM set\r\n");
         }
         last_tm_trigger = tm_trigger;
 
@@ -542,6 +545,7 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
 
         if (fsm_out.ack_start_tm) {
             fsm_input.start_tm = 0;
+            usart_debug("START_TM reset\r\n");
         }
     }
 }
