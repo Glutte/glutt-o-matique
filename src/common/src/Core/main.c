@@ -351,11 +351,7 @@ static void gps_monit_task(void __attribute__ ((unused))*pvParameters) {
                 pio_set_gps_epps(0);
             }
 
-            // Even hours: tm_trigger=1, odd hours: tm_trigger=0
-            tm_trigger = (time.tm_hour + 1) % 2;
-
             derived_mode = 0;
-
         }
         else {
 
