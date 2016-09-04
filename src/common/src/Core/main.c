@@ -51,6 +51,7 @@
 static int tm_trigger_button = 0;
 
 static struct fsm_input_signals_t fsm_input;
+static int hour_is_even = 0;
 
 /* Threshold for SWR measurement */
 const int swr_refl_threshold = 10; // mV
@@ -374,12 +375,12 @@ static void gps_monit_task(void __attribute__ ((unused))*pvParameters) {
         }
 
         if (time_valid) {
-            fsm_input.hour_is_even = (time.tm_hour + 1) % 2;
+            hour_is_even = (time.tm_hour + 1) % 2;
 
-            if (last_even != fsm_input.hour_is_even) {
-                last_even = fsm_input.hour_is_even;
+            if (last_even != hour_is_even) {
+                last_even = hour_is_even;
 
-                usart_debug("Even changed: %i %i %i %i\r\n", fsm_input.hour_is_even, time.tm_hour, derived_mode);
+                usart_debug("Even changed: %i %i %i\r\n", hour_is_even, time.tm_hour, derived_mode);
 
             }
         }
@@ -529,6 +530,7 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
         }
 
         fsm_input.swr_high = swr_error_flag;
+        fsm_input.hour_is_even = hour_is_even;
 
         fsm_update_inputs(&fsm_input);
         fsm_update();
