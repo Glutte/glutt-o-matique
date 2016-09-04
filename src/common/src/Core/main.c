@@ -460,6 +460,8 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
     int last_1750 = 0;
     int last_qrp = 0;
     int last_cw_done = 0;
+    int last_discrim_d = 0;
+    int last_discrim_u = 0;
 
     fsm_input.humidity = 0;
     fsm_input.temp = 15;
@@ -483,6 +485,14 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
         if (last_qrp != fsm_input.qrp) {
             last_qrp = fsm_input.qrp;
             usart_debug("In QRP %d\r\n", last_qrp);
+        }
+        if (last_discrim_d != fsm_input.discrim_d) {
+            last_discrim_d = fsm_input.discrim_d;
+            usart_debug("In D %d\r\n", last_discrim_d);
+        }
+        if (last_discrim_u != fsm_input.discrim_u) {
+            last_discrim_u = fsm_input.discrim_u;
+            usart_debug("In U %d\r\n", last_discrim_u);
         }
 
 
