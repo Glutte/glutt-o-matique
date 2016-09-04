@@ -77,8 +77,13 @@ struct fsm_input_signals_t pio_signals;
  * variables are shift registers.
  */
 static uint8_t debounce_sq[3] = {0};
-static uint8_t debounce_discrim_d[3] = {0};
-static uint8_t debounce_discrim_u[3] = {0};
+
+/* D and U have to stay on longer than SQ, otherwise the
+ * letter selection can fail, and transmit a K when it should
+ * send a D or U
+ */
+static uint8_t debounce_discrim_d[6] = {0};
+static uint8_t debounce_discrim_u[6] = {0};
 
 
 void pio_init()
@@ -160,21 +165,24 @@ void read_fsm_input_task(void __attribute__ ((unused))*pvParameters)
          * if one toggles to 1, set to 1; reset to 0 only if all
          * are at 0
          */
-        debounce_discrim_u[0] = debounce_discrim_u[1];
-        debounce_discrim_u[1] = debounce_discrim_u[2];
-        debounce_discrim_u[2] =
+        for (int i = 0; i < 5; i++) {
+            debounce_discrim_d[i] = debounce_discrim_d[i+1];
+            debounce_discrim_u[i] = debounce_discrim_u[i+1];
+        }
+
+        debounce_discrim_u[5] =
             GPIO_ReadInputDataBit(GPIOC, GPIO_PIN_U) ? 1 : 0;
 
         pio_signals.discrim_u =
-            debounce_discrim_u[0] | debounce_discrim_u[1] | debounce_discrim_u[2];
+            debounce_discrim_u[0] | debounce_discrim_u[1] | debounce_discrim_u[2] |
+            debounce_discrim_u[3] | debounce_discrim_u[4] | debounce_discrim_u[5];
 
-        debounce_discrim_d[0] = debounce_discrim_d[1];
-        debounce_discrim_d[1] = debounce_discrim_d[2];
-        debounce_discrim_d[2] =
+        debounce_discrim_d[5] =
             GPIO_ReadInputDataBit(GPIOC, GPIO_PIN_D) ? 1 : 0;
 
         pio_signals.discrim_d =
-            debounce_discrim_d[0] | debounce_discrim_d[1] | debounce_discrim_d[2];
+            debounce_discrim_d[0] | debounce_discrim_d[1] | debounce_discrim_d[2] |
+            debounce_discrim_d[3] | debounce_discrim_d[4] | debounce_discrim_d[5];
 
         pio_signals.wind_generator_ok =
             GPIO_ReadInputDataBit(GPIOC, GPIO_PIN_REPLIE) ? 0 : 1;
