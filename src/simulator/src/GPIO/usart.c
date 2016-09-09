@@ -43,6 +43,9 @@ void usart_init() {
 
 }
 
+void usart_gps_remove_reset() {
+}
+
 void usart_gps_specific_init() {
 }
 
