@@ -94,6 +94,25 @@ static void gps_task(void __attribute__ ((unused))*pvParameters) {
                             xSemaphoreGive(timeutc_semaphore);
                         }
                     } break;
+                case MINMEA_SENTENCE_TXT:
+                    {
+                        struct minmea_sentence_txt frame;
+                        if (minmea_parse_txt(&frame, rxbuf)) {
+                            rxbuf[MINMEA_TXT_START_IX + frame.text_len] = '\0';
+
+                            switch (frame.msgtype) {
+                                case MINMEA_GPTXT_ERROR:
+                                    usart_debug_puts_header("GPS ERROR ", frame.text);
+                                    break;
+                                case MINMEA_GPTXT_WARNING:
+                                    usart_debug_puts_header("GPS WARNING ", frame.text);
+                                    break;
+                                default:
+                                    usart_debug_puts_header("GPS Message ", frame.text);
+                                    break;
+                            }
+                        }
+                    } break;
                 default:
                     break;
             }

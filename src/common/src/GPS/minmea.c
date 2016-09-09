@@ -367,6 +367,8 @@ enum minmea_sentence_id minmea_sentence_id(const char *sentence, bool strict)
         return MINMEA_SENTENCE_GST;
     if (!strcmp(type+2, "GSV"))
         return MINMEA_SENTENCE_GSV;
+    if (!strcmp(type+2, "TXT"))
+        return MINMEA_SENTENCE_TXT;
 
     return MINMEA_UNKNOWN;
 }
@@ -541,6 +543,29 @@ bool minmea_parse_gsv(struct minmea_sentence_gsv *frame, const char *sentence)
     }
     if (strcmp(type+2, "GSV"))
         return false;
+
+    return true;
+}
+
+bool minmea_parse_txt(struct minmea_sentence_txt *frame, const char *sentence)
+{
+    // Example
+    // $GPTXT,01,01,02,u-blox  ag - www.u-blox.com*50
+    char type[6];
+
+    if (!minmea_scan(sentence, "tiii",
+            type,
+            &frame->num_msg,
+            &frame->msg_num,
+            &frame->msgtype)) {
+        return false;
+    }
+    if (strcmp(type+2, "TXT")) {
+        return false;
+    }
+
+    frame->text = sentence + MINMEA_TXT_START_IX;
+    frame->text_len = strlen(sentence) - MINMEA_TXT_START_IX - 5;
 
     return true;
 }
