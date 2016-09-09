@@ -31,6 +31,7 @@
  * See pio.txt for PIO allocation details */
 const uint16_t GPIOD_PIN_USART3_TX = GPIO_Pin_8;
 const uint16_t GPIOD_PIN_USART3_RX = GPIO_Pin_9;
+const uint16_t GPIOD_PIN_GPS_RESET_N = GPIO_Pin_10;
 
 /* USART 2 on PA2 and PA3 */
 const uint16_t GPIOA_PIN_USART2_RX = GPIO_Pin_3;
@@ -103,6 +104,16 @@ void usart_gps_specific_init() {
     GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;
     GPIO_Init(GPIOD, &GPIO_InitStruct);
 
+    GPIO_InitStruct.GPIO_Pin = GPIOD_PIN_GPS_RESET_N;
+    GPIO_InitStruct.GPIO_Mode = GPIO_Mode_OUT;
+    GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_NOPULL;
+    GPIO_Init(GPIOD, &GPIO_InitStruct);
+
+    // The GPS is put in RESET here, the GPS task will enable it
+    GPIO_ResetBits(GPIOD, GPIOD_PIN_GPS_RESET_N);
+
     GPIO_PinAFConfig(GPIOD, GPIO_PinSource8, GPIO_AF_USART3);
     GPIO_PinAFConfig(GPIOD, GPIO_PinSource9, GPIO_AF_USART3);
 
@@ -131,6 +142,11 @@ void usart_gps_specific_init() {
 
     // finally this enables the complete USART3 peripheral
     USART_Cmd(USART3, ENABLE);
+}
+
+void usart_gps_remove_reset(void)
+{
+    GPIO_SetBits(GPIOD, GPIOD_PIN_GPS_RESET_N);
 }
 
 // Make sure Tasks are suspended when this is called!

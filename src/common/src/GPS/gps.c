@@ -66,7 +66,10 @@ int gps_utctime(struct tm *timeutc) {
 static char rxbuf[RXBUF_LEN];
 
 static void gps_task(void __attribute__ ((unused))*pvParameters) {
-    // Periodically reinit the GPS
+
+    // The initialisation placed the GPS into reset
+    usart_gps_remove_reset();
+
     while (1) {
         taskYIELD();
 

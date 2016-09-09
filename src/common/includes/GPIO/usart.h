@@ -48,6 +48,9 @@ void usart_init(void);
 // Needs running scheduler
 void usart_gps_init(void);
 
+// Take GPS out of RESET
+void usart_gps_remove_reset(void);
+
 // Send the str to the GPS receiver
 void usart_gps_puts(const char* str);
 
