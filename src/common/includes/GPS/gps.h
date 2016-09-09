@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Matthias P. Braendli
+ * Copyright (c) 2016 Matthias P. Braendli
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -40,6 +40,7 @@ void gps_init(void);
 // Return 1 of the GPS is receiving time
 int gps_locked(void);
 
-// Get current time from GPS
-// Returns 1 if time is valid, 0 otherwise
-int gps_utctime(struct tm *timeutc);
+// Get current time from GPS and number of satellite vehicles
+// used for fix.
+// Returns 1 if data is valid, 0 otherwise
+int gps_utctime(struct tm *timeutc, int *num_sv_used);

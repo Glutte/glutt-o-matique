@@ -385,12 +385,14 @@ static void gps_monit_task(void __attribute__ ((unused))*pvParameters) {
             }
         }
 
-        gps_utctime(&gps_time);
+        int num_sv_used = 0;
+        gps_utctime(&gps_time, &num_sv_used);
 
         if (time.tm_sec % 30 == 0 && t_gps_print_latch == 0) {
-            usart_debug("T_GPS %04d-%02d-%02d %02d:%02d:%02d\r\n",
+            usart_debug("T_GPS %04d-%02d-%02d %02d:%02d:%02d %d SV tracked\r\n",
                 gps_time.tm_year, gps_time.tm_mon, gps_time.tm_mday,
-                gps_time.tm_hour, gps_time.tm_min, gps_time.tm_sec);
+                gps_time.tm_hour, gps_time.tm_min, gps_time.tm_sec,
+                num_sv_used);
 
             char * mode;
 

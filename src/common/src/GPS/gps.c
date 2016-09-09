@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Matthias P. Braendli
+ * Copyright (c) 2016 Matthias P. Braendli
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -34,7 +34,8 @@
 
 TickType_t gps_timeutc_last_updated = 0;
 static struct tm gps_timeutc;
-static int gps_timeutc_valid;
+static int gps_num_sv_used;
+static int gps_timeutc_valid; // Validity flag for both gps_timeutc and gps_num_sv_used
 
 const TickType_t gps_data_validity_timeout = GPS_MS_TIMEOUT / portTICK_PERIOD_MS;
 
@@ -43,7 +44,8 @@ static void gps_task(void *pvParameters);
 SemaphoreHandle_t timeutc_semaphore;
 
 // Get current time from GPS
-int gps_utctime(struct tm *timeutc) {
+int gps_utctime(struct tm *timeutc, int *num_sv_used)
+{
     int valid = 0;
 
     xSemaphoreTake(timeutc_semaphore, portMAX_DELAY);
@@ -54,6 +56,7 @@ int gps_utctime(struct tm *timeutc) {
         timeutc->tm_hour  = gps_timeutc.tm_hour;
         timeutc->tm_min   = gps_timeutc.tm_min;
         timeutc->tm_sec   = gps_timeutc.tm_sec;
+        *num_sv_used      = gps_num_sv_used;
         valid             = gps_timeutc_valid;
     }
 
@@ -111,6 +114,15 @@ static void gps_task(void __attribute__ ((unused))*pvParameters) {
                                     usart_debug_puts_header("GPS Message ", frame.text);
                                     break;
                             }
+                        }
+                    } break;
+                case MINMEA_SENTENCE_GGA:
+                    {
+                        struct minmea_sentence_gga frame;
+                        if (minmea_parse_gga(&frame, rxbuf)) {
+                            xSemaphoreTake(timeutc_semaphore, portMAX_DELAY);
+                            gps_num_sv_used = frame.satellites_tracked;
+                            xSemaphoreGive(timeutc_semaphore);
                         }
                     } break;
                 default:
