@@ -218,17 +218,6 @@ static void launcher_task(void __attribute__ ((unused))*pvParameters)
             leds_turn_off(LED_GREEN);
         }
 
-        const int qrp_from_supply = analog_supply_too_low();
-        if (swr_error_flag) {
-            pio_set_qrp(1);
-        }
-        else if (qrp_from_supply != last_qrp_from_supply) {
-            usart_debug("QRP = %d\r\n", qrp_from_supply);
-            last_qrp_from_supply = qrp_from_supply;
-
-            pio_set_qrp(qrp_from_supply);
-        }
-
         struct fsm_output_signals_t fsm_out;
         fsm_get_outputs(&fsm_out);
 
@@ -251,6 +240,19 @@ static void launcher_task(void __attribute__ ((unused))*pvParameters)
                     swr_error_flag = 1;
                 }
             }
+        }
+        else {
+            const int qrp_from_supply = analog_supply_too_low();
+            if (swr_error_flag) {
+                pio_set_qrp(1);
+            }
+            else if (qrp_from_supply != last_qrp_from_supply) {
+                usart_debug("QRP = %d\r\n", qrp_from_supply);
+                last_qrp_from_supply = qrp_from_supply;
+
+                pio_set_qrp(qrp_from_supply);
+            }
+
         }
     }
 }
