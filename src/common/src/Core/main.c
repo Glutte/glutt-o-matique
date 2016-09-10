@@ -471,6 +471,7 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
     int last_cw_done = 0;
     int last_discrim_d = 0;
     int last_discrim_u = 0;
+    int last_wind_generator_ok = 0;
 
     fsm_input.humidity = 0;
     fsm_input.temp = 15;
@@ -502,6 +503,10 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
         if (last_discrim_u != fsm_input.discrim_u) {
             last_discrim_u = fsm_input.discrim_u;
             usart_debug("In U %d\r\n", last_discrim_u);
+        }
+        if (last_wind_generator_ok != fsm_input.wind_generator_ok) {
+            last_wind_generator_ok = fsm_input.wind_generator_ok;
+            usart_debug("In eolienne %s\r\n", last_wind_generator_ok ? "vent" : "replie");
         }
 
         if (tm_trigger_button == 1 && last_tm_trigger_button == 0) {
