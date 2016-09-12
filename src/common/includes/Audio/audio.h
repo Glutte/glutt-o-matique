@@ -44,7 +44,6 @@ void audio_set_volume(int volume);
 // Start and stop audio playback using DMA.
 // Callback is optional, and called whenever a new buffer is needed.
 void audio_play_with_callback(AudioCallbackFunction *callback,void *context);
-void audio_stop(void);
 
 // Provide a new buffer to the audio DMA. Output is double buffered, so
 // at least two buffers must be maintained by the program. It is not allowed

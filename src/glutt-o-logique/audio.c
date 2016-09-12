@@ -149,13 +149,6 @@ void audio_play_with_callback(AudioCallbackFunction *callback, void *context) {
         callback_function(callback_context, buffer_number);
 }
 
-void audio_stop() {
-    audio_stop_dma();
-    SPI3 ->CR2 &= ~SPI_CR2_TXDMAEN; // Disable I2S TX DMA request.
-    NVIC_DisableIRQ(DMA1_Stream7_IRQn);
-    callback_function = (AudioCallbackFunction*)0;
-}
-
 bool audio_provide_buffer_without_blocking(void *samples, int numsamples) {
     if (next_buffer_samples)
         return false;

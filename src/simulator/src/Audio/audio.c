@@ -98,9 +98,6 @@ void audio_set_volume(int __attribute__ ((unused))volume) {
 }
 
 
-void audio_output_sample_without_blocking(int16_t __attribute__ ((unused))sample) {
-}
-
 void audio_play_with_callback(AudioCallbackFunction *callback, void *context) {
     audio_stop_dma();
 
@@ -110,11 +107,6 @@ void audio_play_with_callback(AudioCallbackFunction *callback, void *context) {
 
     if (callback_function)
         callback_function(callback_context, buffer_number);
-}
-
-void audio_stop() {
-    audio_stop_dma();
-    callback_function = NULL;
 }
 
 bool audio_provide_buffer_without_blocking(void *samples, int numsamples) {
