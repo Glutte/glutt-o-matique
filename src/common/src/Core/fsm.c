@@ -189,11 +189,9 @@ void fsm_update() {
             }
 
             // Increment the SHORT_BEACON counter based on time spent in the state
-            if (short_beacon_counter_s < SHORT_BEACON_MAX) {
-                while(short_beacon_counter_s < SHORT_BEACON_MAX && (fsm_current_state_time_s() - short_beacon_counter_last_update > 1)) {
-                    short_beacon_counter_last_update++;
-                    short_beacon_counter_s++;
-                }
+            while(short_beacon_counter_s < SHORT_BEACON_MAX && (fsm_current_state_time_s() - short_beacon_counter_last_update > 1)) {
+                short_beacon_counter_last_update++;
+                short_beacon_counter_s++;
             }
 
             if (fsm_in.tone_1750) {
