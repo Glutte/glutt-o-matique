@@ -27,6 +27,8 @@
 #include "stm32f4xx_conf.h"
 #include "stm32f4xx.h"
 
+const uint16_t CODEC_RESET_PIN = GPIO_Pin_4; // on GPIOD
+
 static void audio_write_register(uint8_t address, uint8_t value);
 
 void audio_initialize_platform(int plln, int pllr, int i2sdiv, int i2sodd, int __attribute__ ((unused)) rate) {
@@ -43,7 +45,7 @@ void audio_initialize_platform(int plln, int pllr, int i2sdiv, int i2sodd, int _
     // Assume I2C is set up
 
     // Configure reset pin.
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4;
+    GPIO_InitStructure.GPIO_Pin = CODEC_RESET_PIN;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
@@ -63,7 +65,7 @@ void audio_initialize_platform(int plln, int pllr, int i2sdiv, int i2sodd, int _
     GPIO_PinAFConfig(GPIOC, GPIO_PinSource12, GPIO_AF_SPI3);
 
     // Configure I2S WS pin.
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4;
+    GPIO_InitStructure.GPIO_Pin = CODEC_RESET_PIN;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
@@ -94,7 +96,7 @@ void audio_initialize_platform(int plln, int pllr, int i2sdiv, int i2sodd, int _
 }
 
 void audio_put_codec_in_reset(void) {
-    GPIO_ResetBits(GPIOD, GPIO_Pin_4);
+    GPIO_ResetBits(GPIOD, CODEC_RESET_PIN);
 }
 
 void audio_reinit_codec(void) {
@@ -102,7 +104,7 @@ void audio_reinit_codec(void) {
     for (volatile int i = 0; i < 0x4fff; i++) {
         __asm__ volatile("nop");
     }
-    GPIO_SetBits(GPIOD, GPIO_Pin_4);
+    GPIO_SetBits(GPIOD, CODEC_RESET_PIN);
 
     // Configure codec.
     audio_write_register(0x02, 0x01); // Keep codec powered off.
