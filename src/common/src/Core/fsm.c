@@ -198,6 +198,7 @@ void fsm_update() {
                 next_state = FSM_OPEN1;
             }
             else if (balise_state == BALISE_FSM_PENDING) {
+                short_beacon_counter_s = 0;
                 if (fsm_in.qrp || fsm_in.swr_high) {
                     next_state = FSM_BALISE_SPECIALE;
                 }
