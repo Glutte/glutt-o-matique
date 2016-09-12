@@ -37,15 +37,9 @@ void audio_initialize(int plln,int pllr,int i2sdiv,int i2sodd, int rate);
 // Power up and down the audio hardware.
 void audio_put_codec_in_reset(void);
 void audio_reinit_codec(void);
-void audio_on(void);
-void audio_off(void);
 
 // Set audio volume in steps of 0.5 dB. 0xff is +12 dB.
 void audio_set_volume(int volume);
-
-// Output one audio sample directly to the hardware without using DMA.
-void audio_output_sample(int16_t sample);
-void audio_output_sample_without_blocking(int16_t sample);
 
 // Start and stop audio playback using DMA.
 // Callback is optional, and called whenever a new buffer is needed.
@@ -58,7 +52,6 @@ void audio_stop(void);
 // invocation.
 // Buffers must reside in DMA1-accessible memory, that is, the 128k RAM bank,
 // or flash.
-void audio_provide_buffer(void *samples,int numsamples);
 bool audio_provide_buffer_without_blocking(void *samples,int numsamples);
 
 void DMA1_Stream7_IRQHandler(void);

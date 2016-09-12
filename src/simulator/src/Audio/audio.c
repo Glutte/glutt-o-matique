@@ -36,8 +36,6 @@ int16_t * current_buffer_samples;
 static void audio_buffer_sent(void);
 static void audio_buffer_sender(void *args);
 
-extern char gui_audio_on;
-
 void audio_initialize_platform(int __attribute__ ((unused))plln, int __attribute__ ((unused))pllr, int __attribute__ ((unused))i2sdiv, int __attribute__ ((unused))i2sodd, int rate) {
 
     int error;
@@ -96,14 +94,6 @@ static void audio_buffer_sent() {
 
 }
 
-void audio_on() {
-    gui_audio_on = 1;
-}
-
-void audio_off() {
-    gui_audio_on = 0;
-}
-
 void audio_set_volume(int __attribute__ ((unused))volume) {
 }
 
@@ -125,11 +115,6 @@ void audio_play_with_callback(AudioCallbackFunction *callback, void *context) {
 void audio_stop() {
     audio_stop_dma();
     callback_function = NULL;
-}
-
-void audio_provide_buffer(void *samples, int numsamples) {
-    while (!audio_provide_buffer_without_blocking(samples, numsamples))
-        __asm__ volatile ("nop");
 }
 
 bool audio_provide_buffer_without_blocking(void *samples, int numsamples) {

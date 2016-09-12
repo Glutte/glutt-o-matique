@@ -115,6 +115,7 @@ void audio_reinit_codec(void) {
 
     // Power on the codec.
     audio_write_register(0x02, 0x9e);
+    // Powering the codec off can be done be writing (0x02, 0x9e)
 
     // Configure codec for fast shutdown.
     audio_write_register(0x0a, 0x00); // Disable the analog soft ramp.
@@ -127,31 +128,9 @@ void audio_reinit_codec(void) {
     audio_write_register(0x1b, 0x0a);
 }
 
-void audio_on() {
-    audio_write_register(0x02, 0x9e);
-    SPI3 ->I2SCFGR = SPI_I2SCFGR_I2SMOD | SPI_I2SCFGR_I2SCFG_1
-        | SPI_I2SCFGR_I2SE; // Master transmitter, Phillips mode, 16 bit values, clock polarity low, enable.
-}
-
-void audio_off() {
-    audio_write_register(0x02, 0x9f);
-    SPI3 ->I2SCFGR = 0;
-}
-
 void audio_set_volume(int volume) {
     audio_write_register(0x20, (volume + 0x19) & 0xff);
     audio_write_register(0x21, (volume + 0x19) & 0xff);
-}
-
-void audio_output_sample(int16_t sample) {
-    while (!(SPI3 ->SR & SPI_SR_TXE ))
-        ;
-    SPI3 ->DR = sample;
-}
-
-
-void audio_output_sample_without_blocking(int16_t sample) {
-    SPI3 ->DR = sample;
 }
 
 void audio_play_with_callback(AudioCallbackFunction *callback, void *context) {
@@ -175,11 +154,6 @@ void audio_stop() {
     SPI3 ->CR2 &= ~SPI_CR2_TXDMAEN; // Disable I2S TX DMA request.
     NVIC_DisableIRQ(DMA1_Stream7_IRQn);
     callback_function = (AudioCallbackFunction*)0;
-}
-
-void audio_provide_buffer(void *samples, int numsamples) {
-    while (!audio_provide_buffer_without_blocking(samples, numsamples))
-        __asm__ volatile ("wfi");
 }
 
 bool audio_provide_buffer_without_blocking(void *samples, int numsamples) {

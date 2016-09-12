@@ -124,7 +124,6 @@ int gui_gps_custom_year_len = 2;
 /**
  * Audio
  **/
-char gui_audio_on = 0;
 char gui_cw_text[4096];
 
 
@@ -532,30 +531,6 @@ void main_gui() {
 
             }
             nk_end(ctx);
-
-            if (nk_begin(ctx, &layout, "Audio", nk_rect(210, 390, 100, 155), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
-
-                nk_layout_row_static(ctx, 20, 20, 3);
-
-                struct nk_color color;
-
-                nk_text(ctx, "", 0, NK_TEXT_LEFT);
-                nk_text(ctx, "", 0, NK_TEXT_LEFT);
-                nk_text(ctx, "", 0, NK_TEXT_LEFT);
-
-                nk_text(ctx, "", 0, NK_TEXT_LEFT);
-
-                color.r = 255; color.g = 255; color.b = 0; color.a = 255;
-
-                if (gui_audio_on == 1) {
-                    color.r = 0;
-                } else {
-                    color.g = 0;
-                }
-                nk_button_color(ctx, color, NK_BUTTON_DEFAULT);
-            }
-            nk_end(ctx);
-
 
             if (nk_begin(ctx, &layout, "CW", nk_rect(320, 390, 180, 155), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_SCALABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
 
