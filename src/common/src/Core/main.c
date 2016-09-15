@@ -516,16 +516,18 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
         }
         last_tm_trigger_button = tm_trigger_button;
 
-        int cw_done = !cw_psk31_busy();
+        const int cw_psk31_done = !cw_psk31_busy();
+        const int cw_done = cw_psk31_done || only_zero_in_audio_buffer;
+
+        // Set the done flag to 1 only once, when cw_done switches from 0 to 1
         if (last_cw_done != cw_done) {
+            usart_debug("In cw_done change %d %d\r\n", cw_done, only_zero_in_audio_buffer);
 
-            // On fait le switch du cw_done vers 1 QUE si les buffers audio ont été flushés
-            if (!cw_done || only_zero_in_audio_buffer) {
-                usart_debug("In CW done %d\r\n", cw_done);
-                last_cw_done = cw_done;
-
+            if (cw_done) {
                 fsm_input.cw_psk31_done = cw_done;
             }
+
+            last_cw_done = cw_done;
         }
         else {
             fsm_input.cw_psk31_done = 0;
