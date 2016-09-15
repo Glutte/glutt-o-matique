@@ -517,7 +517,7 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
         last_tm_trigger_button = tm_trigger_button;
 
         const int cw_psk31_done = !cw_psk31_busy();
-        const int cw_done = cw_psk31_done || only_zero_in_audio_buffer;
+        const int cw_done = cw_psk31_done && only_zero_in_audio_buffer;
 
         // Set the done flag to 1 only once, when cw_done switches from 0 to 1
         if (last_cw_done != cw_done) {
