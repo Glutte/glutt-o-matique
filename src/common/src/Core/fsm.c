@@ -563,6 +563,10 @@ void fsm_get_outputs(struct fsm_output_signals_t* out)
     *out = fsm_out;
 }
 
+void fsm_balise_force() {
+    balise_state = BALISE_FSM_PENDING;
+}
+
 void fsm_balise_update() {
 
     balise_fsm_state_t next_state = balise_state;

@@ -103,6 +103,9 @@ void fsm_update(void);
 
 void fsm_balise_update(void);
 
+// Force a BALISE
+void fsm_balise_force(void);
+
 // Setter for inputs
 void fsm_update_inputs(struct fsm_input_signals_t* inputs);
 

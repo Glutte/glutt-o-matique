@@ -512,7 +512,7 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
         }
 
         if (tm_trigger_button == 1 && last_tm_trigger_button == 0) {
-            // Do something if you want. This currently does nothing.
+            fsm_balise_force();
         }
         last_tm_trigger_button = tm_trigger_button;
 
