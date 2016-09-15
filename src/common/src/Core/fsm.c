@@ -58,7 +58,7 @@ static char cw_message_balise[CW_MESSAGE_BALISE_LEN];
 #define CW_PREDELAY "      "
 
 // Some time to ensure we don't cut off the last letter
-#define CW_POSTDELAY "  "
+#define CW_POSTDELAY "    "
 
 // The counter (up to 20 minutes) for the short balise
 static int short_beacon_counter_s = 0;
@@ -352,7 +352,7 @@ void fsm_update() {
             fsm_out.modulation = 1;
             fsm_out.msg_frequency    = 696;
             fsm_out.cw_dit_duration = 70;
-            fsm_out.msg = " 73";
+            fsm_out.msg = " 73" CW_POSTDELAY;
             fsm_out.cw_psk31_trigger = 1;
 
             if (fsm_in.sq) {
