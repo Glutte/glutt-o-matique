@@ -80,6 +80,8 @@ static void launcher_task(void *pvParameters);
 
 // Audio callback function
 static void audio_callback(void* context, int select_buffer);
+// Debugging
+static uint64_t timestamp_last_audio_callback = 0;
 
 void vApplicationStackOverflowHook(TaskHandle_t, signed char *);
 
@@ -205,8 +207,11 @@ static void launcher_task(void __attribute__ ((unused))*pvParameters)
     usart_debug_puts("Init done.\r\n");
 
     int last_qrp_from_supply = 0;
+    int send_audio_callback_warning = 0;
+
+    int i = 0;
+
     while(1) {
-        int i = 0;
         vTaskDelay(pdMS_TO_TICKS(1000));
 
         if (i == 0) {
@@ -253,6 +258,18 @@ static void launcher_task(void __attribute__ ((unused))*pvParameters)
                 pio_set_qrp(qrp_from_supply);
             }
 
+        }
+
+        if (timestamp_now() - timestamp_last_audio_callback > 1000) {
+            if (send_audio_callback_warning == 0) {
+                send_audio_callback_warning = 1;
+                usart_debug("[HOHO] timestamp_last_audio_callback > 1000\r\n");
+            }
+        } else {
+            if (send_audio_callback_warning == 1) {
+                send_audio_callback_warning = 0;
+                usart_debug("[HOHO] Fix ? Now timestamp_last_audio_callback < 1000\r\n");
+            }
         }
     }
 }
@@ -328,7 +345,11 @@ static void audio_callback(void __attribute__ ((unused))*context, int select_buf
         count_zero_audio_buffer = 0;
     }
 
-    audio_provide_buffer_without_blocking(samples, samples_len);
+    if (!audio_provide_buffer_without_blocking(samples, samples_len)) {
+        usart_debug("[HOHO] audio_provide_buffer_without_blocking returned False.\r\n");
+    }
+
+    timestamp_last_audio_callback = timestamp_now();
 
 }
 
