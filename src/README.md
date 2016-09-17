@@ -29,3 +29,10 @@ faut openocd pour FLASHer le STM32F4-DISCOVERY.
     cd glutt-o-logique
     make
     make deploy
+
+Analyse statique avec clang
+===========================
+
+Dans le simulateur scan-build tout seul fonctionne, mais dans glutt-o-logique/ il faut
+
+    scan-build --use-cc=arm-none-eabi-gcc --analyzer-target=arm-none-eabi make ARCH=arm CROSS_COMPILE=arm-none-eabi-

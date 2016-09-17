@@ -319,11 +319,9 @@ static void audio_callback(void __attribute__ ((unused))*context, int select_buf
     if (select_buffer == 0) {
         samples = audio_buffer0;
         leds_turn_off(LED_RED);
-        select_buffer = 1;
     } else {
         samples = audio_buffer1;
         leds_turn_on(LED_RED);
-        select_buffer = 0;
     }
 
     size_t samples_len = cw_psk31_fill_buffer(samples, AUDIO_BUF_LEN);
