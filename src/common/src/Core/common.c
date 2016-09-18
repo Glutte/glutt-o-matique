@@ -60,7 +60,6 @@ int find_last_sunday(const struct tm* time) {
     while (t.tm_mon == time->tm_mon) {
         t.tm_mday++;
         if (mktime(&t) == (time_t)-1) {
-            // TODO error
             return -1;
         }
 
@@ -132,7 +131,15 @@ int local_time(struct tm *time) {
     if (valid) {
         time->tm_hour += local_time_offset;
 
-        if (is_dst(time)) {
+        const int dst = is_dst(time);
+        if (dst == -1) {
+            usart_debug("mktime fail for dst %d-%d-%d %d:%d:%d "
+                    "dst %d wday %d yday %d\r\n",
+                    time->tm_year, time->tm_mon, time->tm_mday,
+                    time->tm_hour, time->tm_min, time->tm_sec,
+                    time->tm_isdst, time->tm_wday, time->tm_yday);
+        }
+        else if (dst == 1) {
             time->tm_hour++;
             time->tm_isdst = 1;
         }
@@ -143,7 +150,11 @@ int local_time(struct tm *time) {
 
         // Let mktime fix the struct tm *time
         if (mktime(time) == (time_t)-1) {
-            // TODO inform about failure
+            usart_debug("mktime fail for local_time %d-%d-%d %d:%d:%d "
+                    "dst %d wday %d yday %d\r\n",
+                    time->tm_year, time->tm_mon, time->tm_mday,
+                    time->tm_hour, time->tm_min, time->tm_sec,
+                    time->tm_isdst, time->tm_wday, time->tm_yday);
             valid = 0;
         }
 
