@@ -27,6 +27,8 @@
 #include <math.h>
 #include "GPIO/usart.h"
 
+// Measured on the board itself
+const float v_ref = 2.965f;
 
 void analog_init(void)
 {
@@ -88,7 +90,6 @@ float analog_measure_12v(void)
     const uint16_t raw_value = analog_read_channel(ADC_CHANNEL_SUPPLY);
 
     const float adc_max_value = (1 << 12);
-    const float v_ref = 2.965f;
 
     // Convert ADC measurement to voltage
     float voltage = ((float)raw_value*v_ref/adc_max_value);
@@ -104,7 +105,6 @@ int analog_measure_swr(int *forward_mv, int* reflected_mv)
     const uint16_t raw_swr_refl_value = analog_read_channel(ADC_CHANNEL_SWR_REFL);
 
     const float adc_max_value = (1 << 12);
-    const float v_ref = 2.965f;
 
     // Convert ADC measurement to mV (includes times 100 amplifier)
     const int swr_fwd = ((float)raw_swr_fwd_value*10.0f*v_ref/adc_max_value);
