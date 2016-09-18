@@ -23,6 +23,8 @@
 */
 
 #include "analog_input.h"
+#include "Core/delay.h"
+#include "Core/common.h"
 #include "stm32f4xx_adc.h"
 #include <math.h>
 #include "GPIO/usart.h"
@@ -77,10 +79,25 @@ static uint16_t analog_read_channel(uint8_t channel)
 
     ADC_SoftwareStartConv(ADC1);
 
-    // TODO add timeout
+    /* Timeout:
+     * System clock is at 168MHz, ADC is on APB2 which has a prescaler of 2.
+     * 480 cycles at 84Mhz is about 6us.
+     *
+     * If we have no result after 10ms it is a real problem.
+     */
 
-    /* wait for end of conversion */
-    while((ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC) == RESET));
+    int ready = 0;
+
+    for (int i = 0; i < 10000; i++) {
+        if (ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC) == SET) {
+            ready = 1;
+            break;
+        }
+    }
+
+    if (!ready) {
+        trigger_fault(FAULT_SOURCE_ADC1);
+    }
 
     return ADC_GetConversionValue(ADC1);
 }
