@@ -145,7 +145,7 @@ int local_time(struct tm *time) {
         }
 
 #ifdef SIMULATOR
-        time->tm_year -= 1900;  //TODO Same on hardware ?
+        time->tm_year -= 1900;
 #endif
 
         // Let mktime fix the struct tm *time
