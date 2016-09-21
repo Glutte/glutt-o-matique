@@ -577,9 +577,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.1417322"
-     inkscape:cx="316.01926"
-     inkscape:cy="570.65842"
+     inkscape:zoom="2.2834645"
+     inkscape:cx="340.74619"
+     inkscape:cy="651.41357"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -1307,7 +1307,12 @@
            y="505.12033"
            x="299.98801"
            sodipodi:role="line"
-           id="tspan42071">SQ &amp; délai 5s</tspan></text>
+           id="tspan42071">SQ &amp; délai 5s &amp;</tspan><tspan
+           style="font-size:7.5px"
+           y="514.49536"
+           x="299.98801"
+           sodipodi:role="line"
+           id="tspan14806">QSO a eu lieu</tspan></text>
       <path
          sodipodi:nodetypes="cc"
          inkscape:connector-curvature="0"
@@ -1403,11 +1408,7 @@
            sodipodi:role="line"
            x="491.39328"
            y="275.60803"
-           style="font-size:7.5px">t<tspan
-   style="font-size:64.99999762%;baseline-shift:sub"
-   id="tspan42136">ECOUTE</tspan>-t<tspan
-   style="font-size:64.99999762%;baseline-shift:sub"
-   id="tspan42138">OPEN2</tspan> &lt; 5s</tspan></text>
+           style="font-size:7.5px">pas de QSO</tspan></text>
       <path
          style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
          d="m 333.25896,444.78648 9.77921,4.73617"
