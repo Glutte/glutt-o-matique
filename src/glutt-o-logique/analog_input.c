@@ -23,6 +23,11 @@
 */
 
 #include "analog_input.h"
+
+#include "FreeRTOS.h"
+#include "task.h"
+#include "timers.h"
+
 #include "Core/delay.h"
 #include "Core/common.h"
 #include "stm32f4xx_adc.h"
@@ -83,16 +88,18 @@ static uint16_t analog_read_channel(uint8_t channel)
      * System clock is at 168MHz, ADC is on APB2 which has a prescaler of 2.
      * 480 cycles at 84Mhz is about 6us.
      *
-     * If we have no result after 10ms it is a real problem.
+     * If we have no result after 10ms it is a real problem. Keep in mind
+     * we could get preempted.
      */
 
     int ready = 0;
 
-    for (int i = 0; i < 10000; i++) {
+    for (int i = 0; i < 10; i++) {
         if (ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC) == SET) {
             ready = 1;
             break;
         }
+        vTaskDelay(pdMS_TO_TICKS(1));
     }
 
     if (!ready) {

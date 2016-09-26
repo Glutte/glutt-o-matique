@@ -29,16 +29,22 @@ void analog_init(void);
 
 /* Measure the 12V supply voltage, in 0.5V increments.
  * Returns 0.0f in case of error
+ *
+ * Warning, do not run from interrupt context!
  */
 float analog_measure_12v(void);
 
 /* Measure SWR, and return voltages in mV.
  * Returns 0 in case of error, 1 in case of success
+ *
+ * Warning, do not run from interrupt context!
  */
 int analog_measure_swr(int *forward_mv, int* reflected_mv);
 
 /* Keep an average of measurements, and decide if the repeater should enter
  * QRP. Returns 1 if low power must be activated
+ *
+ * Warning, do not run from interrupt context!
  */
 int analog_supply_too_low(void);
 

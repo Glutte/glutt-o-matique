@@ -253,7 +253,7 @@ int random_bool(void)
 static int faultsource = 0;
 void trigger_fault(int source)
 {
-    usart_debug("Fatal: %d", source);
+    usart_debug("Fatal: %d\r\n\r\n", source);
 
     __disable_irq();
 
