@@ -94,7 +94,7 @@ int main(void) {
     init();
     delay_init();
     usart_init();
-    usart_debug_puts("\r\n******* glutt-o-matique version " GIT_VERSION " *******\r\n");
+    usart_debug("\r\n******* glutt-o-matique version %s *******\r\n", vc_get_version());
 
 #ifndef SIMULATOR
 
