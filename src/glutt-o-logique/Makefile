@@ -161,3 +161,10 @@ else
 	/opt/openocd/bin/openocd -f /opt/openocd/share/openocd/scripts/board/stm32f4discovery.cfg -c "program bin/"$(BINELF)" verify reset" -c "init" -c "reset" -c "exit"
 endif
 
+# Some STM32F4DISCOVERY have a newer ST-LINK II interface
+deploy21: $(BINDIR)/$(BINELF)
+ifeq ($(wildcard /opt/openocd/bin/openocd),)
+	/usr/bin/openocd -f stm32f4discovery-with-stlinkv2.1.cfg -c "program bin/"$(BINELF)" verify reset" -c "init" -c "reset" -c "exit"
+else
+	/opt/openocd/bin/openocd -f stm32f4discovery-with-stlinkv2.1.cfg -c "program bin/"$(BINELF)" verify reset" -c "init" -c "reset" -c "exit"
+endif
