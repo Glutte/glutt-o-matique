@@ -135,7 +135,7 @@ int local_time(struct tm *time) {
         if (dst == -1) {
             usart_debug("mktime fail for dst %d-%d-%d %d:%d:%d "
                     "dst %d wday %d yday %d\r\n",
-                    time->tm_year, time->tm_mon, time->tm_mday,
+                    time->tm_year, time->tm_mon + 1, time->tm_mday,
                     time->tm_hour, time->tm_min, time->tm_sec,
                     time->tm_isdst, time->tm_wday, time->tm_yday);
         }
@@ -152,7 +152,7 @@ int local_time(struct tm *time) {
         if (mktime(time) == (time_t)-1) {
             usart_debug("mktime fail for local_time %d-%d-%d %d:%d:%d "
                     "dst %d wday %d yday %d\r\n",
-                    time->tm_year, time->tm_mon, time->tm_mday,
+                    time->tm_year, time->tm_mon + 1, time->tm_mday,
                     time->tm_hour, time->tm_min, time->tm_sec,
                     time->tm_isdst, time->tm_wday, time->tm_yday);
             valid = 0;

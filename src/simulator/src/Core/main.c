@@ -160,7 +160,7 @@ static void thread_gui_gps(void __attribute__ ((unused))*arg) {
 
             if (gui_gps_send_current_time) {
 
-                sprintf(gps_frame_buffer + gps_buffer_pointer, "%02d%02d%02d", t->tm_mday, t->tm_mon, t->tm_year - 100);
+                sprintf(gps_frame_buffer + gps_buffer_pointer, "%02d%02d%02d", t->tm_mday, t->tm_mon + 1, t->tm_year - 100);
 
             } else {
                 strcpy(gps_frame_buffer + gps_buffer_pointer, "000000");
@@ -173,7 +173,7 @@ static void thread_gui_gps(void __attribute__ ((unused))*arg) {
                     day = t->tm_mday;
                 }
                 if (!gui_gps_custom_month_on) {
-                    mon = t->tm_mon;
+                    mon = t->tm_mon + 1;
                 }
                 if (!gui_gps_custom_year_on) {
                     year = t->tm_year - 100;
