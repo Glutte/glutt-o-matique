@@ -67,6 +67,11 @@ static uint64_t short_beacon_counter_last_update = 0;
 // The last start of the last qso
 static uint64_t last_qso_start_timestamp = 0;
 
+// Information from which we can calculate the QSO duration
+static struct {
+    int qso_occurred;
+    uint64_t qso_start_time;
+} qso_info;
 
 void fsm_init() {
     memset(&fsm_in, 0, sizeof(fsm_in));
@@ -77,6 +82,9 @@ void fsm_init() {
 
     current_state = FSM_OISIF;
     balise_state = BALISE_FSM_EVEN_HOUR;
+
+    qso_info.qso_occurred = 0;
+    qso_info.qso_start_time = timestamp_now();
 }
 
 // Calculate the time spent in the current state
@@ -118,16 +126,9 @@ static const char* balise_state_name(balise_fsm_state_t state) {
         default: return "ERROR!";
     }
 }
-// Calculate the time difference between two states
-static uint64_t state_delta_ms(fsm_state_t state_first, fsm_state_t state_second) {
-    uint64_t delta = timestamp_state[state_second] - timestamp_state[state_first];
-#if SIMULATOR
-    fprintf(stderr, "Delta %s (%llu) -> %s (%llu) = %llu\n",
-            state_name(state_first), timestamp_state[state_first],
-            state_name(state_second), timestamp_state[state_second],
-            delta);
-#endif
-    return delta;
+
+static uint64_t qso_duration(void) {
+    return timestamp_state[current_state] - qso_info.qso_start_time;
 }
 
 // Between turns in a QSO, the repeater sends a letter in CW,
@@ -160,8 +161,6 @@ static const char* fsm_select_letter(void) {
     return letter_all_ok;
 }
 
-
-int qso_occurred = 0;
 
 void fsm_update() {
 
@@ -225,7 +224,8 @@ void fsm_update() {
         case FSM_OPEN2:
             fsm_out.tx_on = 1;
             fsm_out.modulation = 1;
-            qso_occurred = 0; // Reset QSO Flag
+            qso_info.qso_occurred = 0;
+            qso_info.qso_start_time = timestamp_now();
 
             if (fsm_current_state_time_ms() > 200) {
                 next_state = FSM_LETTRE;
@@ -265,14 +265,14 @@ void fsm_update() {
                 next_state = FSM_QSO;
             }
             else {
-                if (fsm_current_state_time_s() > 5 && qso_occurred) {
-                    if (state_delta_ms(FSM_OPEN2, FSM_ECOUTE) >= 1000ul * 15 * 60) {
+                if (fsm_current_state_time_s() > 5 && qso_info.qso_occurred) {
+                    if (qso_duration() >= 1000ul * 15 * 60) {
                         next_state = FSM_TEXTE_LONG;
                     }
-                    else if (state_delta_ms(FSM_OPEN2, FSM_ECOUTE) >= 1000ul * 10 * 60) {
+                    else if (qso_duration() >= 1000ul * 10 * 60) {
                         next_state = FSM_TEXTE_HB9G;
                     }
-                    else if (state_delta_ms(FSM_OPEN2, FSM_ECOUTE) >= 1000ul * 5 * 60) {
+                    else if (qso_duration() >= 1000ul * 5 * 60) {
                         next_state = FSM_TEXTE_73;
                     }
                     else {
@@ -280,7 +280,7 @@ void fsm_update() {
                     }
                 }
 
-                if (fsm_current_state_time_s() > 6 && !qso_occurred) {
+                if (fsm_current_state_time_s() > 6 && !qso_info.qso_occurred) {
                     next_state = FSM_ATTENTE;
                 }
 
@@ -305,7 +305,7 @@ void fsm_update() {
         case FSM_QSO:
             fsm_out.tx_on = 1;
             fsm_out.modulation = 1;
-            qso_occurred = 1;  // Set QSO Flag
+            qso_info.qso_occurred = 1;
 
             // Save the starting timestamp, if there is none
             if (last_qso_start_timestamp == 0) {
@@ -357,6 +357,7 @@ void fsm_update() {
 
             if (fsm_in.sq) {
                 next_state = FSM_QSO;
+                qso_info.qso_start_time = timestamp_now();
             }
             else if (fsm_in.cw_psk31_done) {
                 next_state = FSM_OISIF;
@@ -374,6 +375,7 @@ void fsm_update() {
 
             if (fsm_in.sq) {
                 next_state = FSM_QSO;
+                qso_info.qso_start_time = timestamp_now();
             }
             else if (fsm_in.cw_psk31_done) {
                 next_state = FSM_OISIF;
@@ -398,6 +400,7 @@ void fsm_update() {
 
             if (fsm_in.sq) {
                 next_state = FSM_QSO;
+                qso_info.qso_start_time = timestamp_now();
             }
             else if (fsm_in.cw_psk31_done) {
                 next_state = FSM_OISIF;
