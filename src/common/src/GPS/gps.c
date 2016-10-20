@@ -86,7 +86,8 @@ static void gps_task(void __attribute__ ((unused))*pvParameters) {
                         struct minmea_sentence_rmc frame;
                         if (minmea_parse_rmc(&frame, rxbuf)) {
                             xSemaphoreTake(timeutc_semaphore, portMAX_DELAY);
-                            gps_timeutc.tm_year  = 2000 + frame.date.year;
+                            // tm_year is saved as Year - 1900 in struct tm
+                            gps_timeutc.tm_year  = 2000 + frame.date.year - 1900;
                             // struct tm months are zero-indexed
                             gps_timeutc.tm_mon   = frame.date.month - 1;
                             gps_timeutc.tm_mday  = frame.date.day;

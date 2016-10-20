@@ -411,7 +411,7 @@ static void gps_monit_task(void __attribute__ ((unused))*pvParameters) {
 
         if (time.tm_sec % 30 == 0 && t_gps_print_latch == 0) {
             usart_debug("T_GPS %04d-%02d-%02d %02d:%02d:%02d %d SV tracked\r\n",
-                gps_time.tm_year, gps_time.tm_mon + 1, gps_time.tm_mday,
+                gps_time.tm_year + 1900, gps_time.tm_mon + 1, gps_time.tm_mday,
                 gps_time.tm_hour, gps_time.tm_min, gps_time.tm_sec,
                 num_sv_used);
 
@@ -425,11 +425,7 @@ static void gps_monit_task(void __attribute__ ((unused))*pvParameters) {
             }
 
             usart_debug("TIME  %04d-%02d-%02d %02d:%02d:%02d [%s]\r\n",
-#ifdef SIMULATOR
                 time.tm_year + 1900,
-#else
-                time.tm_year,
-#endif
                 time.tm_mon + 1, time.tm_mday,
                 time.tm_hour, time.tm_min, time.tm_sec,
                 mode);
