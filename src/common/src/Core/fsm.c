@@ -127,6 +127,15 @@ static const char* balise_state_name(balise_fsm_state_t state) {
     }
 }
 
+static fsm_state_t select_grande_balise(void) {
+    if (fsm_in.qrp || fsm_in.swr_high) {
+        return FSM_BALISE_SPECIALE;
+    }
+    else {
+        return FSM_BALISE_LONGUE;
+    }
+}
+
 static uint64_t qso_duration(void) {
     return timestamp_state[current_state] - qso_info.qso_start_time;
 }
@@ -198,12 +207,7 @@ void fsm_update() {
             }
             else if (balise_state == BALISE_FSM_PENDING) {
                 short_beacon_counter_s = 0;
-                if (fsm_in.qrp || fsm_in.swr_high) {
-                    next_state = FSM_BALISE_SPECIALE;
-                }
-                else {
-                    next_state = FSM_BALISE_LONGUE;
-                }
+                next_state = select_grande_balise();
             }
             else if (!fsm_in.qrp && short_beacon_counter_s == SHORT_BEACON_MAX) {
                 short_beacon_counter_s = 0;
@@ -253,30 +257,35 @@ void fsm_update() {
 
             /* Time checks:
              * We need to check the total TX_ON duration to decide the text to
-             * send. This is done with the first check (delay between OPEN2 and
-             * current state).
+             * send. This is the QSO duration.
              *
              * We also need to check if we actually entered the QSO state
              * recently, otherwise we want to go to ATTENTE. That's why the
-             * check with QSO is needed.
+             * additional field qso_occurred is required.
              */
 
             if (fsm_in.sq) {
                 next_state = FSM_QSO;
             }
             else {
-                if (fsm_current_state_time_s() > 5 && qso_info.qso_occurred) {
-                    if (qso_duration() >= 1000ul * 15 * 60) {
-                        next_state = FSM_TEXTE_LONG;
+                if (fsm_current_state_time_s() > 5) {
+                    if (balise_state == BALISE_FSM_PENDING) {
+                        short_beacon_counter_s = 0;
+                        next_state = select_grande_balise();
                     }
-                    else if (qso_duration() >= 1000ul * 10 * 60) {
-                        next_state = FSM_TEXTE_HB9G;
-                    }
-                    else if (qso_duration() >= 1000ul * 5 * 60) {
-                        next_state = FSM_TEXTE_73;
-                    }
-                    else {
-                        next_state = FSM_OISIF;
+                    else if (qso_info.qso_occurred) {
+                        if (qso_duration() >= 1000ul * 15 * 60) {
+                            next_state = FSM_TEXTE_LONG;
+                        }
+                        else if (qso_duration() >= 1000ul * 10 * 60) {
+                            next_state = FSM_TEXTE_HB9G;
+                        }
+                        else if (qso_duration() >= 1000ul * 5 * 60) {
+                            next_state = FSM_TEXTE_73;
+                        }
+                        else {
+                            next_state = FSM_OISIF;
+                        }
                     }
                 }
 
