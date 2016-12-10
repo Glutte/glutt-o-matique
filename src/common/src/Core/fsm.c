@@ -58,7 +58,7 @@ static char cw_message_balise[CW_MESSAGE_BALISE_LEN];
 #define CW_PREDELAY "      "
 
 // Some time to ensure we don't cut off the last letter
-#define CW_POSTDELAY "    "
+#define CW_POSTDELAY "  "
 
 // The counter (up to 20 minutes) for the short balise
 static int short_beacon_counter_s = 0;
