@@ -364,7 +364,7 @@ static void gps_monit_task(void __attribute__ ((unused))*pvParameters) {
 
 
     while (1) {
-        struct tm time;
+        struct tm time = {0};
         int time_valid = local_time(&time);
         int derived_mode = 0;
 
