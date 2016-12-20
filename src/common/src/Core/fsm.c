@@ -328,7 +328,7 @@ void fsm_update() {
                  */
                 next_state = FSM_ECOUTE;
             }
-            else if (!fsm_in.sq && fsm_current_state_time_s() >= 5) {
+            else if (!fsm_in.sq && fsm_current_state_time_s() >= 3) {
                 next_state = FSM_LETTRE;
             }
             else if (fsm_current_state_time_s() > 5 * 60) {
