@@ -73,7 +73,6 @@ CWARNS += -Wunused-value
 CWARNS += -Wunused-variable
 CWARNS += -Wmissing-prototypes
 
-CFLAGS += -m32
 CFLAGS += -DDEBUG=1
 CFLAGS += -g -DUSE_STDIO=1 -D__GCC_POSIX__=1 -lX11 -lm -lGL -lm -lGLU -lpulse-simple -lpulse
 ifneq ($(shell uname), Darwin)
