@@ -58,6 +58,15 @@ enum balise_fsm_state_e {
 typedef enum balise_fsm_state_e balise_fsm_state_t;
 
 
+// List of all states the SSTV FSM of the relay can be in
+enum sstv_fsm_state_e {
+    SSTV_FSM_OFF = 0,
+    SSTV_FSM_ON,
+};
+
+typedef enum sstv_fsm_state_e sstv_fsm_state_t;
+
+
 // All signals that the FSM can read, most of them are actually booleans
 struct fsm_input_signals_t {
     /* Signals coming from repeater electronics */
@@ -103,6 +112,8 @@ void fsm_update(void);
 
 void fsm_balise_update(void);
 
+void fsm_sstv_update(void);
+
 // Force a BALISE
 void fsm_balise_force(void);
 
@@ -114,4 +125,3 @@ void fsm_get_outputs(struct fsm_output_signals_t* out);
 
 // Announce a state change
 void fsm_state_switched(const char *new_state);
-

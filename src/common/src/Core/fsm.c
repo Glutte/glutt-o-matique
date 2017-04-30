@@ -36,6 +36,7 @@ static struct fsm_output_signals_t fsm_out;
 
 static fsm_state_t current_state;
 static balise_fsm_state_t balise_state;
+static sstv_fsm_state_t sstv_state;
 
 // Keep track of when we last entered a given state, measured
 // in ms using the timestamp_now() function
@@ -82,6 +83,7 @@ void fsm_init() {
 
     current_state = FSM_OISIF;
     balise_state = BALISE_FSM_EVEN_HOUR;
+    sstv_state = SSTV_FSM_OFF;
 
     qso_info.qso_occurred = 0;
     qso_info.qso_start_time = timestamp_now();
@@ -127,6 +129,14 @@ static const char* balise_state_name(balise_fsm_state_t state) {
     }
 }
 
+static const char* sstv_state_name(sstv_fsm_state_t state) {
+    switch (state) {
+        case SSTV_FSM_OFF: return "SSTV_FSM_OFF";
+        case SSTV_FSM_ON: return "SSTV_FSM_ON";
+        default: return "ERROR!";
+    }
+}
+
 static fsm_state_t select_grande_balise(void) {
     if (fsm_in.qrp || fsm_in.swr_high) {
         return FSM_BALISE_SPECIALE;
@@ -163,7 +173,7 @@ static const char* fsm_select_letter(void) {
     else if (fsm_in.qrp) {
         return letter_qrp;
     }
-    else if (fsm_in.sstv_mode) {
+    else if (fsm_in.sstv_mode || sstv_state == SSTV_FSM_ON) {
         return letter_sstv;
     }
 
@@ -202,7 +212,7 @@ void fsm_update() {
                 short_beacon_counter_s++;
             }
 
-            if (fsm_in.tone_1750) {
+            if (fsm_in.tone_1750 | (fsm_in.sq && sstv_state == SSTV_FSM_ON)) {
                 next_state = FSM_OPEN1;
             }
             else if (balise_state == BALISE_FSM_PENDING) {
@@ -617,5 +627,36 @@ void fsm_balise_update() {
     }
 
     balise_state = next_state;
+
+}
+
+void fsm_sstv_update() {
+
+    sstv_fsm_state_t next_state = sstv_state;
+
+    switch (sstv_state) {
+        case SSTV_FSM_OFF:
+            if (fsm_in.sq && fsm_in.sstv_mode) {
+                next_state = SSTV_FSM_ON;
+            }
+            break;
+        case SSTV_FSM_ON:
+            if (current_state == FSM_BALISE_LONGUE ||
+                    current_state == FSM_ANTI_BAVARD) {
+                next_state = SSTV_FSM_OFF;
+            }
+            break;
+
+        default:
+            // Should never happen
+            next_state = SSTV_FSM_OFF;
+            break;
+    }
+
+    if (next_state != sstv_state) {
+        fsm_state_switched(sstv_state_name(next_state));
+    }
+
+    sstv_state = next_state;
 
 }

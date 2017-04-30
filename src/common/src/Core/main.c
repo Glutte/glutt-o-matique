@@ -561,6 +561,7 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
         fsm_update_inputs(&fsm_input);
         fsm_update();
         fsm_balise_update();
+        fsm_sstv_update();
 
         struct fsm_output_signals_t fsm_out;
         fsm_get_outputs(&fsm_out);
