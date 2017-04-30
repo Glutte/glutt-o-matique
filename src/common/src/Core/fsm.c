@@ -444,7 +444,7 @@ void fsm_update() {
 
                 if (temperature_valid()) {
                     snprintf(cw_message_balise, CW_MESSAGE_BALISE_LEN-1,
-                            CW_PREDELAY "HB9G JN36BK 1628M U %dV%01d %c  T %d  %s" CW_POSTDELAY,
+                            CW_PREDELAY "HB9G JN36BK  1628M U %dV%01d %c  T %d  %s" CW_POSTDELAY,
                             supply_decivolts / 10,
                             supply_decivolts % 10,
                             supply_trend,
@@ -453,7 +453,7 @@ void fsm_update() {
                 }
                 else {
                     snprintf(cw_message_balise, CW_MESSAGE_BALISE_LEN-1,
-                            CW_PREDELAY "HB9G JN36BK 1628M U %dV%01d %c  %s" CW_POSTDELAY,
+                            CW_PREDELAY "HB9G JN36BK  1628M U %dV%01d %c  %s" CW_POSTDELAY,
                             supply_decivolts / 10,
                             supply_decivolts % 10,
                             supply_trend,
@@ -524,7 +524,7 @@ void fsm_update() {
                     fsm_out.msg = CW_PREDELAY "HB9G 1628M" CW_POSTDELAY;
                 }
                 else {
-                    fsm_out.msg = CW_PREDELAY "HB9G JN36BK 1628M" CW_POSTDELAY;
+                    fsm_out.msg = CW_PREDELAY "HB9G JN36BK  1628M" CW_POSTDELAY;
                 }
             }
             fsm_out.cw_psk31_trigger = 1;
