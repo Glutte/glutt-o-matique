@@ -642,7 +642,9 @@ void fsm_sstv_update() {
             break;
         case SSTV_FSM_ON:
             if (current_state == FSM_BALISE_LONGUE ||
-                    current_state == FSM_ANTI_BAVARD) {
+                current_state == FSM_ANTI_BAVARD ||
+                current_state == FSM_BALISE_SPECIALE
+            ) {
                 next_state = SSTV_FSM_OFF;
             }
             break;
