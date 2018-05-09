@@ -31,7 +31,7 @@ static int supply_history_ix = 0;
 static int supply_history_ready = 0;
 static int last_qrp = 0;
 
-// Return 1 if analog supply is too high
+// Return 1 if analog supply is too low
 int analog_supply_too_low(void)
 {
 
