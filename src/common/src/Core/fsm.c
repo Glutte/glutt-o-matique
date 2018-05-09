@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2016 Matthias P. Braendli, Maximilien Cuony
+ * Copyright (c) 2018 Matthias P. Braendli, Maximilien Cuony
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,6 +30,12 @@
 #include "GPIO/usart.h"
 #include "GPIO/temperature.h"
 #include "GPIO/analog.h"
+
+/* Set this flag to 1 to disable the usage of the 1750 signal in the FSM.
+ * This is used because the external 1750Hz detector is broken, and we temporarily
+ * want to run the repeater in open-through-carrier mode.
+ */
+#define BUG_1750_BROKEN 1
 
 static struct fsm_input_signals_t fsm_in;
 static struct fsm_output_signals_t fsm_out;
@@ -212,9 +218,15 @@ void fsm_update() {
                 short_beacon_counter_s++;
             }
 
+#if defined(BUG_1750_BROKEN)
+            if (fsm_in.sq) {
+                next_state = FSM_OPEN1;
+            }
+#else
             if (fsm_in.tone_1750 | (fsm_in.sq && sstv_state == SSTV_FSM_ON)) {
                 next_state = FSM_OPEN1;
             }
+#endif
             else if (balise_state == BALISE_FSM_PENDING) {
                 short_beacon_counter_s = 0;
                 next_state = select_grande_balise();
@@ -230,9 +242,15 @@ void fsm_update() {
             /* Do not enable TX_ON here, otherwise we could get stuck transmitting
              * forever if SQ never goes low.
              */
+#if defined(BUG_1750_BROKEN)
+            if (!fsm_in.sq) {
+                next_state = FSM_OPEN2;
+            }
+#else
             if (!fsm_in.sq && !fsm_in.tone_1750) {
                 next_state = FSM_OPEN2;
             }
+#endif
             break;
 
         case FSM_OPEN2:
