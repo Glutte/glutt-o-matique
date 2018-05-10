@@ -32,7 +32,7 @@ void audio_stop_dma(void);
 
 // Initialize and power up audio hardware. Use the above defines for the parameters.
 // Can probably only be called once.
-void audio_initialize(int plln,int pllr,int i2sdiv,int i2sodd, int rate);
+void audio_initialize(int plln, int pllr, int i2sdiv, int i2sodd, int rate);
 
 // Power up and down the audio hardware.
 void audio_put_codec_in_reset(void);

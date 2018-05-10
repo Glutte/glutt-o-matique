@@ -163,6 +163,8 @@ int in_u = 0;
 int in_d = 0;
 int in_fax_n = 1;
 
+extern int TONE_1750_DETECTED;
+
 
 /**
  * FSM
@@ -649,7 +651,7 @@ void main_gui() {
             nk_end(ctx);
 
 
-            if (nk_begin(ctx, &layout, "Output", nk_rect(720, 380, 200, 170), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
+            if (nk_begin(ctx, &layout, "Output", nk_rect(720, 410, 200, 170), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
 
                 nk_layout_row_dynamic(ctx, 25, 2);
 
@@ -691,7 +693,7 @@ void main_gui() {
             }
             nk_end(ctx);
 
-            if (nk_begin(ctx, &layout, "Input", nk_rect(720, 50, 200, 330), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
+            if (nk_begin(ctx, &layout, "Input", nk_rect(720, 50, 200, 360), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
 
                 nk_layout_row_dynamic(ctx, 25, 3);
 
@@ -817,6 +819,15 @@ void main_gui() {
 
                 nk_label_colored(ctx, "Voltage", NK_TEXT_LEFT, c);
                 nk_property_float(ctx, "V", 0.0f, &gui_measured_voltage, 24.0f, 0.5f, 0.5f);
+
+
+                if (TONE_1750_DETECTED) {
+                    c = color_on;
+                } else {
+                    c = color_off;
+                }
+
+                nk_label_colored(ctx, "TONE_1750", NK_TEXT_LEFT, c);
 
 
             }
