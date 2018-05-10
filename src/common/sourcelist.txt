@@ -6,5 +6,6 @@ src/GPS/minmea.c
 src/Core/common.c
 src/Core/fsm.c
 src/Core/main.c
+src/Audio/sstv.c
 src/Audio/cw.c
 src/Audio/audio.c

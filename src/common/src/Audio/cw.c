@@ -574,9 +574,9 @@ static void cw_psk31_task(void __attribute__ ((unused))*pvParameters)
                             // It should take AUDIO_BUF_LEN/cw_psk31_samplerate seconds to send one buffer.
                             // If it takes more than 4 times as long, we think there is a problem.
                             const TickType_t reasonable_delay = pdMS_TO_TICKS(4000 * AUDIO_BUF_LEN / cw_psk31_samplerate);
-                            if (xQueueSendToBack(cw_audio_queue, &cw_audio_buf, reasonable_delay) != pdTRUE) {
-                                trigger_fault(FAULT_SOURCE_CW_AUDIO_QUEUE);
-                            }
+                            /* if (xQueueSendToBack(cw_audio_queue, &cw_audio_buf, reasonable_delay) != pdTRUE) { */
+                            /*     trigger_fault(FAULT_SOURCE_CW_AUDIO_QUEUE); */
+                            /* } */
                             buf_pos = 0;
                         }
                         cw_audio_buf[buf_pos++] = s;

@@ -36,6 +36,7 @@
 /* Includes */
 #include "Audio/audio.h"
 #include "Audio/cw.h"
+#include "Audio/sstv.h"
 #include "GPIO/pio.h"
 #include "GPIO/i2c.h"
 #include "GPS/gps.h"
@@ -133,6 +134,9 @@ static void launcher_task(void __attribute__ ((unused))*pvParameters)
     usart_debug_puts("CW init\r\n");
     cw_psk31_init(16000);
 
+    usart_debug_puts("SSTV init\r\n");
+    sstv_init(48000);
+
     usart_debug_puts("PIO init\r\n");
     pio_init();
 
@@ -196,7 +200,7 @@ static void launcher_task(void __attribute__ ((unused))*pvParameters)
 
     usart_debug_puts("Audio init\r\n");
 
-    audio_initialize(Audio16000HzSettings);
+    audio_initialize(Audio48000HzSettings);
 
     usart_debug_puts("Audio set volume\r\n");
     audio_set_volume(210);
@@ -527,7 +531,8 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
         }
 
         if (tm_trigger_button == 1 && last_tm_trigger_button == 0) {
-            fsm_balise_force();
+            /* fsm_balise_force(); */
+            sstv_test();
         }
         last_tm_trigger_button = tm_trigger_button;
 
