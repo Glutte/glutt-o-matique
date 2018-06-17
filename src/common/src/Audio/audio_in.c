@@ -22,20 +22,22 @@
  * SOFTWARE.
 */
 
-
+#include "Audio/tone.h"
 #include "Audio/audio_in.h"
 
 int16_t audio_in_buffer_0[AUDIO_IN_BUF_LEN];
 int16_t audio_in_buffer_1[AUDIO_IN_BUF_LEN];
 
 void audio_in_initialize(int rate) {
-    audio_in_buffer = &audio_in_buffer_0;
+    audio_in_buffer = audio_in_buffer_0;
     audio_in_initialize_plateform(rate);
 }
 
 void audio_in_buffer_ready() {
 
-    detect_tones(audio_in_buffer);
+    for (int i = 0; i < AUDIO_IN_BUF_LEN; i++) {
+        tone_detect_1750(audio_in_buffer[i]);
+    }
 
     if (audio_in_buffer == audio_in_buffer_0) {
         audio_in_buffer = audio_in_buffer_1;

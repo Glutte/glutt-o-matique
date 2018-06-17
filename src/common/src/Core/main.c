@@ -197,7 +197,8 @@ static void launcher_task(void __attribute__ ((unused))*pvParameters)
     }
 
     usart_debug_puts("Tone init\r\n");
-    init_tones();
+#warning TODO
+    tone_init(20000);
 
     usart_debug_puts("Audio init\r\n");
     audio_initialize(Audio16000HzSettings);

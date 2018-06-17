@@ -23,6 +23,7 @@
 */
 
 #include <stdio.h>
+#include <assert.h>
 #include <pulse/simple.h>
 #include "Audio/audio_in.h"
 #include "FreeRTOS.h"
@@ -46,10 +47,7 @@ void audio_in_initialize_plateform(int rate) {
 
     s_in = pa_simple_new(NULL, "GlutteR", PA_STREAM_RECORD, NULL, "record", &ss, NULL, NULL, &error);
 
-    if (!s_in) {
-        printf("Pulseaudio record init error\n");
-        while(1);
-    }
+    assert(s_in);
 
     TaskHandle_t task_handle;
     xTaskCreate(
@@ -59,13 +57,11 @@ void audio_in_initialize_plateform(int rate) {
             (void*) NULL,
             tskIDLE_PRIORITY + 2UL,
             &task_handle);
-
 }
 
 static void audio_buffer_reader(void __attribute__ ((unused)) *args) {
 
     while(1) {
-
         pa_simple_read(s_in, audio_in_buffer, AUDIO_IN_BUF_LEN * 2, NULL);
         audio_in_buffer_ready();
 
