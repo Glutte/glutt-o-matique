@@ -25,6 +25,8 @@
 #include "Audio/tone.h"
 #include "Core/common.h"
 
+#include <stdlib.h>
+
 #ifdef SIMULATOR
 #include <math.h>
 #define arm_cos_f32 cosf
@@ -33,65 +35,61 @@
 #include "arm_math.h"
 #endif
 
-static int current_pos = 0;
+static struct tone_detector detector_1750;
 
+int TONE_1750_DETECTED = 0;
 
-void init_tones() {
-    init_tone(&detector_1750, 1750, 1);
-}
-
-void init_tone(struct tone_detector* detector, int freq, int threshold) {
-
-    detector->coef = 2.0 * cos(2.0 * FLOAT_PI * freq / AUDIO_IN_RATE);
+static void init_tone(struct tone_detector* detector, int freq, int threshold) {
+    detector->coef = 2.0 * arm_cos_f32(2.0 * FLOAT_PI * freq / AUDIO_IN_RATE);
     detector->Q1 = 0;
     detector->Q2 = 0;
-    detector->threshold = 200000;  // TODO
-
+    detector->threshold = threshold ; // 200000;
+    detector->num_samples_analysed = 0;
 }
 
-void detect_tones(int16_t * buffer) {
-
-    // Normalize buffer
-    int max_v = 0;
-    for (int i = 0; i < TONE_BUFFER_LEN; i++) {
-        max_v = fmax(abs(buffer[i]), max_v);
-    }
-
-    float coef = 32767.0 / max_v;
-
-    for (int i = 0; i < TONE_BUFFER_LEN; i++) {
-        buffer[i] *= coef;
-    }
-
-    TONE_1750_DETECTED = detect_tone(buffer, &detector_1750);
+void tone_init(int threshold) {
+    init_tone(&detector_1750, 1750, threshold);
 }
 
-int detect_tone(int16_t * buffer, struct tone_detector* detector) {
+/* Analyse a sample. Returns -1 if more samples needed, 0 if no tone detected,
+ * 1 if a tone was detected.
+ */
+static inline int analyse_sample(int16_t sample, struct tone_detector *detector)
+{
+    float Q0 = detector->coef * detector->Q1 - detector->Q2 + sample;
+    detector->Q2 = detector->Q1;
+    detector->Q1 = Q0;
 
-    float Q0;
-    int tt_samples = 0;
-    int tt = 0;
+    detector->num_samples_analysed++;
 
-    for (int i = 0; i < TONE_BUFFER_LEN; i++) {
-        Q0 = detector->coef * detector->Q1 - detector->Q2 + buffer[i];
-        detector->Q2 = detector->Q1;
-        detector->Q1 = Q0;
+    if (detector->num_samples_analysed == TONE_N) {
+        const float m = sqrtf(
+                detector->Q1 * detector->Q1 +
+                detector->Q2 * detector->Q2 -
+                detector->coef * detector->Q1 * detector->Q2);
 
-        current_pos++;
+        detector->Q1 = 0;
+        detector->Q2 = 0;
+        detector->num_samples_analysed = 0;
 
-        if (current_pos == TONE_N) {
-            float m = sqrt(detector->Q1 * detector->Q1 + detector->Q2 * detector->Q2 - detector->coef * detector->Q1 * detector->Q2);
-
-            if (m > detector->threshold) {
-                tt += 1;
-            }
-
-            tt_samples++;
-            detector->Q1 = 0;
-            detector->Q2 = 0;
-            current_pos = 0;
+        if (m > detector->threshold) {
+            return 1;
+        }
+        else {
+            return 0;
         }
     }
-
-    return (float)tt / tt_samples > 0.5;
+    else {
+        return -1;
+    }
 }
+
+int tone_detect_1750(int16_t sample)
+{
+    int r = analyse_sample(sample, &detector_1750);
+    if (r == 0 || r == 1) {
+        TONE_1750_DETECTED = r;
+    }
+    return r;
+}
+

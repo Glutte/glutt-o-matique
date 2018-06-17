@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2018 Matthias P. Braendli, Maximilien Cuony
+ * Copyright (c) 2016 Matthias P. Braendli, Maximilien Cuony
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,26 +22,9 @@
  * SOFTWARE.
 */
 
-#ifndef __TONE_H_
-#define __TONE_H_
+#include "vc.h"
 
-#include <stdio.h>
-#include "Audio/audio_in.h"
-
-#define TONE_BUFFER_LEN AUDIO_IN_BUF_LEN
-
-#define TONE_N 100
-
-struct tone_detector {
-    float coef;
-    float Q1;
-    float Q2;
-    float threshold;
-
-    int num_samples_analysed;
-};
-
-void tone_init(int threshold);
-int tone_detect_1750(int16_t sample);
-
-#endif
+const char* vc_get_version()
+{
+    return GIT_VERSION;
+}
