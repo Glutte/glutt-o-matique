@@ -41,15 +41,15 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    const int freq_start = 1750 - 350;
-    const int freq_stop = 1750 + 350;
+    const int freq_start = 1750 - 175;
+    const int freq_stop = 1750 + 175;
 
-    for (int freq = freq_start; freq < freq_stop; freq += 20) {
-        for (int threshold = 200; threshold < 8000; threshold += 240) {
+    for (int freq = freq_start; freq < freq_stop; freq += 4) {
+        for (int threshold = 100000; threshold < 4000000; threshold += 100000) {
             tone_init(threshold);
 
             for (size_t j = 0; j < 200; j++) {
-                float samplef = cosf(2.0f * FLOAT_PI * freq / AUDIO_IN_RATE);
+                float samplef = cosf(j * 2.0f * FLOAT_PI * freq / AUDIO_IN_RATE);
                 int16_t sample = samplef * 32767.0f;
                 int r = tone_detect_1750(sample);
                 if (r != -1) {
