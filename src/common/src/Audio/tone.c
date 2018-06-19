@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2018 Maximilien Cuony
+ * Copyright (c) 2018 Maximilien Cuony, Matthias P. Braendli
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -40,10 +40,10 @@ static struct tone_detector detector_1750;
 int TONE_1750_DETECTED = 0;
 
 static void init_tone(struct tone_detector* detector, int freq, int threshold) {
-    detector->coef = 2.0 * arm_cos_f32(2.0 * FLOAT_PI * freq / AUDIO_IN_RATE);
+    detector->coef = 2.0f * arm_cos_f32(2.0f * FLOAT_PI * freq / AUDIO_IN_RATE);
     detector->Q1 = 0;
     detector->Q2 = 0;
-    detector->threshold = threshold ; // 200000;
+    detector->threshold = threshold;
     detector->num_samples_analysed = 0;
 }
 

@@ -11,7 +11,7 @@ plt.scatter(dat[...,0], dat[...,1], c=dat[...,3].astype(np.float32))
 plt.show()
 
 if 0:
-    thresholds = [800, 2000, 4000, 8000]
+    thresholds = [200, 2000, 4000, 8000, 12000]
 
     fig, ax = plt.subplots()
 
