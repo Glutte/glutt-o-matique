@@ -2264,9 +2264,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1"
-     inkscape:cx="555.7456"
-     inkscape:cy="324.68238"
+     inkscape:zoom="5.6568543"
+     inkscape:cx="193.72606"
+     inkscape:cy="212.19034"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -11668,7 +11668,7 @@
            y="519.97961"
            x="146.08105"
            id="tspan26382-2"
-           sodipodi:role="line">470nF</tspan></text>
+           sodipodi:role="line">4.7µF</tspan></text>
       <path
          style="fill:none;stroke:#000000;stroke-width:0.99655509;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
          d="m 135,516.3622 h 9.96555"
@@ -11762,7 +11762,7 @@
            id="tspan4298"
            x="146.08105"
            y="519.97961"
-           style="font-weight:bold;font-size:9px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'Sans Bold'">470nF</tspan></text>
+           style="font-weight:bold;font-size:9px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'Sans Bold'">1µF</tspan></text>
       <path
          sodipodi:nodetypes="cc"
          inkscape:connector-curvature="0"

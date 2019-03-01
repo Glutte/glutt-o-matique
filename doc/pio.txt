@@ -6,21 +6,23 @@ Connexions Relais
 -       in   QRP_n              PC1
 -       out  TX_ON              PC2
 -       N/A  microphone         PC3
--       in   1750_n             PC4
+-       in   1750_n bouton      PC4
 -       out  MOD_OFF            PC5
 -       in   SQ_n               PC6
 -       in   U                  PC8
 -       out  QRP                PC9
 -       in   D                  PC11
 -       in   REPLIE             PC13
--       in   FAX_n              PC14
+-       out  FAX                PC14
 -       out  GPS EPPS           PC15
+-       out  SQ2                P??
+-       out  DET 1750           P??
 
 -       i/o  Dallas 1-wire      PA1
 
 Analog signals
 --------------
--       in   f_0 deviation      unused
+-       in   NF (demod audio)   P??
 -       in   Vcc 12V            PA5 (ADC12 IN5)
 -       in   SWR forward        PA6 (ADC12 IN6)
 -       in   SWR reflected      PA7 (ADC12 IN7)
