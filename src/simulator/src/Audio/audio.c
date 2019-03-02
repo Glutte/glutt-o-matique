@@ -50,9 +50,7 @@ void audio_initialize_platform(int __attribute__ ((unused))plln, int __attribute
 
     s = pa_simple_new(NULL, "Glutte", PA_STREAM_PLAYBACK, NULL, "playback", &ss, NULL, NULL, &error);
 
-    if (s) {
-
-    } else {
+    if (!s) {
         printf("Pulseaudio playback init error\n");
         while(1);
     }
@@ -140,4 +138,3 @@ void audio_start_dma_and_request_buffers() {
 void audio_stop_dma() {
     dma_running = false;
 }
-

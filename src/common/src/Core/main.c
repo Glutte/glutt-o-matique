@@ -35,6 +35,8 @@
 
 /* Includes */
 #include "Audio/audio.h"
+#include "Audio/audio_in.h"
+#include "Audio/tone.h"
 #include "Audio/cw.h"
 #include "GPIO/pio.h"
 #include "GPIO/i2c.h"
@@ -194,8 +196,11 @@ static void launcher_task(void __attribute__ ((unused))*pvParameters)
         trigger_fault(FAULT_SOURCE_MAIN);
     }
 
-    usart_debug_puts("Audio init\r\n");
+    usart_debug_puts("Tone init\r\n");
+#warning TODO
+    tone_init(20000);
 
+    usart_debug_puts("Audio init\r\n");
     audio_initialize(Audio16000HzSettings);
 
     usart_debug_puts("Audio set volume\r\n");
@@ -203,6 +208,9 @@ static void launcher_task(void __attribute__ ((unused))*pvParameters)
 
     usart_debug_puts("Audio set callback\r\n");
     audio_play_with_callback(audio_callback, NULL);
+
+    usart_debug_puts("Audio in init\r\n");
+    audio_in_initialize(AUDIO_IN_RATE);
 
     usart_debug_puts("Init done.\r\n");
 
