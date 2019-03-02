@@ -1,6 +1,8 @@
 Allocation of PIOs to functions
 ===============================
 
+Ref: Datasheet Table 7 on p. 45 and Table 9 on p. 60
+
 Connexions Relais
 -----------------
 -       in   QRP_n              PC1
@@ -15,14 +17,14 @@ Connexions Relais
 -       in   REPLIE             PC13
 -       out  FAX                PC14
 -       out  GPS EPPS           PC15
--       out  SQ2                P??
--       out  DET 1750           P??
+-       out  SQ2                PC0
+-       out  DET 1750           PA8
 
 -       i/o  Dallas 1-wire      PA1
 
 Analog signals
 --------------
--       in   NF (demod audio)   P??
+-       in   NF (demod audio)   PB1 (ADC12 IN9)
 -       in   Vcc 12V            PA5 (ADC12 IN5)
 -       in   SWR forward        PA6 (ADC12 IN6)
 -       in   SWR reflected      PA7 (ADC12 IN7)

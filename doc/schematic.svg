@@ -154,9 +154,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.7582312"
-     inkscape:cx="109.09857"
-     inkscape:cy="408.01094"
+     inkscape:zoom="4.9730289"
+     inkscape:cx="607.84454"
+     inkscape:cy="255.58511"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -4453,7 +4453,7 @@
            y="540.51709"
            x="373.32974"
            id="tspan5392"
-           sodipodi:role="line">P???</tspan></text>
+           sodipodi:role="line">PB1</tspan></text>
     </g>
     <path
        style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.60000002;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
@@ -5737,36 +5737,36 @@
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
-       x="603.02747"
-       y="865.39648"
+       x="605"
+       y="864.86218"
        id="text5515-3"><tspan
          sodipodi:role="line"
          id="tspan5517-7"
-         x="603.02747"
-         y="865.39648"
-         style="font-size:5.625px;line-height:1.25;font-family:sans-serif">ADC12 IN5</tspan></text>
+         x="605"
+         y="864.86218"
+         style="font-size:5.625px;line-height:1.25;font-family:sans-serif">ADC1 IN5</tspan></text>
     <text
        id="text5446"
-       y="835.39648"
-       x="603.02747"
+       y="834.86218"
+       x="605"
        style="font-style:normal;font-weight:normal;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
        xml:space="preserve"><tspan
          style="font-size:5.625px;line-height:1.25;font-family:sans-serif"
-         y="835.39648"
-         x="603.02747"
+         y="834.86218"
+         x="605"
          id="tspan5448"
-         sodipodi:role="line">ADC12 IN6</tspan></text>
+         sodipodi:role="line">ADC1 IN6</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
-       x="603.02747"
-       y="818.89648"
+       x="605"
+       y="819.86224"
        id="text5450"><tspan
          sodipodi:role="line"
          id="tspan5452"
-         x="603.02747"
-         y="818.89648"
-         style="font-size:5.625px;line-height:1.25;font-family:sans-serif">ADC12 IN7</tspan></text>
+         x="605"
+         y="819.86224"
+         style="font-size:5.625px;line-height:1.25;font-family:sans-serif">ADC1 IN7</tspan></text>
     <g
        id="g5434"
        transform="matrix(0.28125,0,0,-0.28125,287.23425,1446.4321)">
@@ -8001,6 +8001,17 @@
        d="m 735.00002,637.36221 22.5,10e-6 -10e-6,77.5 h 137.50001 v -10.5"
        style="fill:none;stroke:#000000;stroke-width:0.60000002;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        sodipodi:nodetypes="ccccc" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+       x="605"
+       y="849.86218"
+       id="text11525"><tspan
+         sodipodi:role="line"
+         id="tspan11523"
+         x="605"
+         y="849.86218"
+         style="font-size:5.625px;line-height:1.25;font-family:sans-serif">ADC12 IN9</tspan></text>
   </g>
   <g
      inkscape:groupmode="layer"

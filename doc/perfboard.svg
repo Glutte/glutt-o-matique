@@ -2312,11 +2312,11 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="4.1778968"
-     inkscape:cx="938.65485"
-     inkscape:cy="449.12091"
+     inkscape:zoom="1.6868812"
+     inkscape:cx="413.55815"
+     inkscape:cy="354.14576"
      inkscape:document-units="px"
-     inkscape:current-layer="layer4"
+     inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:snap-object-midpoints="true"
      inkscape:window-width="1876"
@@ -28421,7 +28421,7 @@
            x="390.63733"
            y="678.1145"
            style="font-size:7.5px;line-height:1.25;font-family:sans-serif"
-           id="tspan10923">SQ2</tspan></text>
+           id="tspan10923">FAX</tspan></text>
       <g
          id="g10955"
          transform="rotate(90,446.4736,790.0999)">
@@ -29053,7 +29053,7 @@
            x="456.88498"
            y="638.22028"
            style="font-size:7.5px;line-height:1.25;font-family:sans-serif"
-           id="tspan11151">FAX</tspan></text>
+           id="tspan11151">SQ2</tspan></text>
       <g
          id="g11183"
          transform="rotate(-90,297.58016,669.6681)">
@@ -29444,6 +29444,94 @@
        id="path11297"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cccc" />
+    <g
+       id="g11544"
+       transform="translate(297.63781,7.0866053)"
+       style="opacity:0.717">
+      <circle
+         style="opacity:1;fill:#007f00;fill-opacity:1;stroke:none;stroke-width:1.41732287;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         id="circle11538"
+         cx="170.07875"
+         cy="705.1181"
+         r="15" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:7.5px;line-height:23.4375px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;opacity:1;fill:#faff5a;fill-opacity:1;stroke:none;stroke-width:1.41732287;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         x="158.20619"
+         y="707.84821"
+         id="text11542"><tspan
+           sodipodi:role="line"
+           id="tspan11540"
+           x="158.20619"
+           y="707.84821"
+           style="fill:#faff5a;fill-opacity:1;stroke-width:1.41732287">TODO</tspan></text>
+    </g>
+    <g
+       id="g11552"
+       transform="translate(382.67718,7.0866053)"
+       style="opacity:0.717">
+      <circle
+         style="opacity:1;fill:#007f00;fill-opacity:1;stroke:none;stroke-width:1.41732287;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         id="circle11546"
+         cx="170.07875"
+         cy="705.1181"
+         r="15" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:7.5px;line-height:23.4375px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;opacity:1;fill:#faff5a;fill-opacity:1;stroke:none;stroke-width:1.41732287;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         x="158.20619"
+         y="707.84821"
+         id="text11550"><tspan
+           sodipodi:role="line"
+           id="tspan11548"
+           x="158.20619"
+           y="707.84821"
+           style="fill:#faff5a;fill-opacity:1;stroke-width:1.41732287">TODO</tspan></text>
+    </g>
+    <g
+       transform="translate(240.94489,191.33858)"
+       id="g11560"
+       style="opacity:0.717">
+      <circle
+         style="opacity:1;fill:#007f00;fill-opacity:1;stroke:none;stroke-width:1.41732287;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         id="circle11554"
+         cx="170.07875"
+         cy="705.1181"
+         r="15" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:7.5px;line-height:23.4375px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;opacity:1;fill:#faff5a;fill-opacity:1;stroke:none;stroke-width:1.41732287;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         x="158.20619"
+         y="707.84821"
+         id="text11558"><tspan
+           sodipodi:role="line"
+           id="tspan11556"
+           x="158.20619"
+           y="707.84821"
+           style="fill:#faff5a;fill-opacity:1;stroke-width:1.41732287">TODO</tspan></text>
+    </g>
+    <g
+       id="g11536"
+       transform="translate(127.55906,-134.64568)"
+       style="opacity:0.717">
+      <circle
+         r="15"
+         cy="705.1181"
+         cx="170.07875"
+         id="path11527"
+         style="opacity:1;fill:#007f00;fill-opacity:1;stroke:none;stroke-width:1.41732287;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+      <text
+         id="text11531"
+         y="707.84821"
+         x="158.20619"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:7.5px;line-height:23.4375px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;opacity:1;fill:#faff5a;fill-opacity:1;stroke:none;stroke-width:1.41732287;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         xml:space="preserve"><tspan
+           style="fill:#faff5a;fill-opacity:1;stroke-width:1.41732287"
+           y="707.84821"
+           x="158.20619"
+           id="tspan11529"
+           sodipodi:role="line">TODO</tspan></text>
+    </g>
   </g>
   <g
      inkscape:groupmode="layer"

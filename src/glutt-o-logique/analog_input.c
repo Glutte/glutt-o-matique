@@ -37,6 +37,8 @@
 // Measured on the board itself
 const float v_ref = 2.965f;
 
+#warning "TODO: initialise ADC2 and use it for NF input"
+
 void analog_init(void)
 {
     // Enable ADC and GPIOA clocks
