@@ -55,6 +55,8 @@ static int tm_trigger_button = 0;
 static struct fsm_input_signals_t fsm_input;
 static int hour_is_even = 0;
 
+extern int TONE_1750_DETECTED;
+
 /* Threshold for SWR measurement */
 const int swr_refl_threshold = 10; // mV
 
@@ -560,7 +562,7 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
         }
 
 #warning "TODO: from tone detector"
-        fsm_input.det_1750 = 0;
+        fsm_input.det_1750 = TONE_1750_DETECTED;
         fsm_input.fax_mode = 0;
 
         fsm_input.swr_high = swr_error_flag;

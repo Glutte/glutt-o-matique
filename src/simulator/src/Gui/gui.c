@@ -738,7 +738,7 @@ void main_gui() {
                     c = color_off;
                 }
 
-                nk_label_colored(ctx, "1750_n", NK_TEXT_LEFT, c);
+                nk_label_colored(ctx, "1750 btn", NK_TEXT_LEFT, c);
                 nk_checkbox_label(ctx, "", &in_1750_n);
 
                 if (nk_button_label(ctx, "", NK_BUTTON_REPEATER)) {
