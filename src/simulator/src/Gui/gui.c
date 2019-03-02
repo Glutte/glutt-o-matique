@@ -176,7 +176,7 @@ int gui_last_fsm_states_timestamps[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 /**
  * Voltage
  **/
-float gui_measured_voltage = 12.0f;
+float gui_measured_voltage = 14.0f;
 
 
 /**
