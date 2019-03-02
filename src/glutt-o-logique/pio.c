@@ -263,15 +263,11 @@ void read_fsm_input_task(void __attribute__ ((unused))*pvParameters)
             GPIO_ReadInputDataBit(GPIOC, GPIOC_PIN_1750_n) ? 0 : 1;
 
         if (all_equal(debounce_1750, DEBOUNCE_LEN_1750)) {
-            pio_signals.tone_1750 = debounce_1750[0];
+            pio_signals.button_1750 = debounce_1750[0];
         }
 
         pio_signals.wind_generator_ok =
             GPIO_ReadInputDataBit(GPIOC, GPIOC_PIN_REPLIE) ? 0 : 1;
-
-#warning "TODO: remove sstv_mode"
-        pio_signals.sstv_mode =
-            GPIO_ReadInputDataBit(GPIOC, GPIOC_PIN_FAX) ? 1 : 0;
 
         vTaskDelay(pdMS_TO_TICKS(100));
     }

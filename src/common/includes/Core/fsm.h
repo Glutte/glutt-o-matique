@@ -78,8 +78,11 @@ struct fsm_input_signals_t {
     float humidity;        // relative humidity, range [0-100] %
     int wind_generator_ok; // false if the generator is folded out of the wind
     int discrim_d;         // FM discriminator says RX is too low in frequency
-    int tone_1750;         // Detect 1750Hz tone
-    int sstv_mode;         // The 1750Hz filter is disabled, permitting SSTV usage
+    int button_1750;       // Front panel button 1750Hz
+
+    /* Signals coming from FAX and 1750 detector */
+    int fax_mode;          // 1750Hz filter disabled for machine-generated modes
+    int det_1750;          // 1750Hz detected
 
     /* Signals coming from CW and PSK generator */
     int cw_psk31_done;     // The CW and PSK generator has finished transmitting the message

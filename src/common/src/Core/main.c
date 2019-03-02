@@ -493,7 +493,7 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
     fsm_input.humidity = 0;
     fsm_input.temp = 15;
     fsm_input.swr_high = 0;
-    fsm_input.sstv_mode = 0;
+    fsm_input.fax_mode = 0;
     fsm_input.wind_generator_ok = 1;
 
     while (1) {
@@ -504,10 +504,6 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
         if (last_sq != fsm_input.sq) {
             last_sq = fsm_input.sq;
             usart_debug("In SQ %d\r\n", last_sq);
-        }
-        if (last_1750 != fsm_input.tone_1750) {
-            last_1750 = fsm_input.tone_1750;
-            usart_debug("In 1750 %d\r\n", last_1750);
         }
         if (last_qrp != fsm_input.qrp) {
             last_qrp = fsm_input.qrp;
@@ -554,6 +550,10 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
         else {
             leds_turn_on(LED_ORANGE);
         }
+
+#warning "TODO: from tone detector"
+        fsm_input.det_1750 = 0;
+        fsm_input.fax_mode = 0;
 
         fsm_input.swr_high = swr_error_flag;
         fsm_input.hour_is_even = hour_is_even;
