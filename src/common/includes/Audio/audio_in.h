@@ -28,10 +28,11 @@
 #include "FreeRTOS.h"
 
 #define AUDIO_IN_RATE 8000
-#define AUDIO_IN_BUF_LEN 32
+#define AUDIO_IN_BUF_LEN 400
 
-void audio_in_initialize(int rate);
+void audio_in_initialize(void);
 
-// Fill the buffer with AUDIO_IN_BUF_LEN samples.
-void audio_in_get_buffer(int16_t *buffer /*of length AUDIO_IN_BUF_LEN*/ );
+// After calling this function, *buffer will point to new audio data.
+// Returns the number of times filling the internal buffer failed.
+int32_t audio_in_get_buffer(int16_t **buffer /*of length AUDIO_IN_BUF_LEN*/ );
 

@@ -33,24 +33,30 @@
 
 pa_simple *s_in = NULL;
 
+static int16_t buffers[2][AUDIO_IN_BUF_LEN];
+static int current_buffer = 0;
+
 static QueueHandle_t adc2_values_queue;
 
 static void audio_buffer_reader(void __attribute__((unused))*args)
 {
     while (1) {
-        int16_t buffer[AUDIO_IN_BUF_LEN];
-        pa_simple_read(s_in, buffer, AUDIO_IN_BUF_LEN * sizeof(int16_t), NULL);
+        pa_simple_read(s_in, buffers[current_buffer], AUDIO_IN_BUF_LEN * sizeof(int16_t), NULL);
+
         int success = xQueueSendToBack(
                 adc2_values_queue,
-                buffer,
+                &current_buffer,
                 portMAX_DELAY);
         assert(success);
+
+        current_buffer = (current_buffer + 1) % 2;
+
         taskYIELD();
     }
 }
 
 
-void audio_in_initialize(int rate) {
+void audio_in_initialize() {
     int error;
 
     static pa_sample_spec ss = {
@@ -59,12 +65,12 @@ void audio_in_initialize(int rate) {
         .channels = 1
     };
 
-    ss.rate = rate;
+    ss.rate = AUDIO_IN_RATE;
 
     s_in = pa_simple_new(NULL, "GlutteR", PA_STREAM_RECORD, NULL, "record", &ss, NULL, NULL, &error);
     assert(s_in);
 
-    adc2_values_queue = xQueueCreate(4, AUDIO_IN_BUF_LEN);
+    adc2_values_queue = xQueueCreate(4, sizeof(current_buffer));
     assert(adc2_values_queue);
 
     TaskHandle_t task_handle;
@@ -77,8 +83,13 @@ void audio_in_initialize(int rate) {
             &task_handle);
 }
 
-void audio_in_get_buffer(int16_t *buffer /*of length AUDIO_IN_BUF_LEN*/ )
+int32_t audio_in_get_buffer(int16_t **buffer /*of length AUDIO_IN_BUF_LEN*/ )
 {
-    while (!xQueueReceive(adc2_values_queue, buffer, portMAX_DELAY)) {}
+    int last_written_buffer = 0;
+    while (!xQueueReceive(adc2_values_queue, &last_written_buffer, portMAX_DELAY)) {}
+
+    *buffer = buffers[last_written_buffer];
+
+    return 0;
 }
 

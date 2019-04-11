@@ -46,7 +46,8 @@
 #  error  "SOFTFP"
 #endif
 
-void init(void)
+void init(void);
+void init()
 {
     /* Setup Watchdog
      * The IWDG runs at 32kHz. With a prescaler of 32 -> 1kHz.

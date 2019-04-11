@@ -211,17 +211,17 @@ static void launcher_task(void __attribute__ ((unused))*pvParameters)
     audio_play_with_callback(audio_callback, NULL);
 
     usart_debug_puts("Tone init\r\n");
-    tone_init(120000);
+    tone_init();
 
     usart_debug_puts("Audio in init\r\n");
-    audio_in_initialize(AUDIO_IN_RATE);
+    audio_in_initialize();
 
     usart_debug_puts("TaskNF init\r\n");
 
     xTaskCreate(
             nf_analyse,
             "TaskNF",
-            1*configMINIMAL_STACK_SIZE,
+            3*configMINIMAL_STACK_SIZE,
             (void*) NULL,
             tskIDLE_PRIORITY + 2UL,
             &task_handle);
@@ -609,25 +609,46 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
     }
 }
 
-static int16_t audio_in_buffer[AUDIO_IN_BUF_LEN];
 static int led_phase = 0;
 static void nf_analyse(void __attribute__ ((unused))*pvParameters)
 {
+    int num_fails = 0;
+    int total_samples_analysed = 0;
+    int timestamp = 0;
+
+    uint64_t t0 = timestamp_now();
+
     while (1) {
         if (led_phase == 0) {
             leds_turn_on(LED_BLUE);
         }
-        else if (led_phase == 400) {
+        else if (led_phase == 40) {
             leds_turn_off(LED_BLUE);
         }
 
         led_phase++;
 
-        if (led_phase >= 800) {
+        if (led_phase >= 80) {
             led_phase = 0;
         }
 
-        audio_in_get_buffer(audio_in_buffer);
+        int16_t *audio_in_buffer;
+        const int new_num_fails = num_fails + audio_in_get_buffer(&audio_in_buffer);
+
+        if (new_num_fails != num_fails) {
+            usart_debug("Number of input samples lost: %d\r\n", new_num_fails);
+        }
+        num_fails = new_num_fails;
         tone_detect_1750(audio_in_buffer, AUDIO_IN_BUF_LEN);
+
+        total_samples_analysed += AUDIO_IN_BUF_LEN;
+        if (++timestamp == 80) {
+            uint64_t t1 = timestamp_now();
+            usart_debug("Total samples analysed: %d in %ldms = %d\r\n",
+                    total_samples_analysed,
+                    t1 - t0,
+                    1000 * total_samples_analysed / (int)(t1 - t0));
+            timestamp = 0;
+        }
     }
 }

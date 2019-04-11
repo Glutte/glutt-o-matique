@@ -30,18 +30,17 @@
 
 #define TONE_BUFFER_LEN AUDIO_IN_BUF_LEN
 
-#define TONE_N 100
+#define TONE_N 400
 
 struct tone_detector {
     float coef;
     float Q1;
     float Q2;
-    float threshold;
 
     int num_samples_analysed;
 };
 
-void tone_init(int threshold);
+void tone_init(void);
 
 /* Return 1 when 1750 detected, 0 otherwise */
 int tone_1750_status(void);
