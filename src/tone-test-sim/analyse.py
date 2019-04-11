@@ -4,10 +4,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 dat = np.loadtxt("tone.csv", dtype=np.int32, delimiter=",")
-# columns :"freq, threshold, num_samples, detector_output"
+# columns :"freq, threshold, num_samples, detector_output, avg_rms"
 
 fig, ax = plt.subplots()
-plt.scatter(dat[...,0], dat[...,1], c=dat[...,3].astype(np.float32))
+plt.scatter(dat[...,0], dat[...,1] / dat[...,4], c=dat[...,3].astype(np.float32))
+plt.xlabel("freq")
+plt.ylabel("threshold over rms")
 plt.show()
 
 if 0:

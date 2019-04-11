@@ -304,7 +304,7 @@ void pio_set_mod_off(int mod_off)
 }
 
 int pio_read_button() {
-    return GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_0) == Bit_SET;
+    return GPIO_ReadInputDataBit(GPIOA,GPIOA_PIN_PUSHBTN) == Bit_SET;
 }
 
 void pio_set_gps_epps(int on)

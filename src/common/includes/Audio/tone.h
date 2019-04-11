@@ -42,6 +42,11 @@ struct tone_detector {
 };
 
 void tone_init(int threshold);
-int tone_detect_1750(int16_t sample);
+
+/* Return 1 when 1750 detected, 0 otherwise */
+int tone_1750_status(void);
+
+/* Update 1750 tone detection status */
+void tone_detect_1750(const int16_t *samples, int len);
 
 #endif

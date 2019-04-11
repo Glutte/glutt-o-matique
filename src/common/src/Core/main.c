@@ -50,12 +50,14 @@
 #include "GPIO/analog.h"
 #include "vc.h"
 
+#ifdef SIMULATOR
+extern int gui_in_tone_1750;
+#endif
+
 static int tm_trigger_button = 0;
 
 static struct fsm_input_signals_t fsm_input;
 static int hour_is_even = 0;
-
-extern int TONE_1750_DETECTED;
 
 /* Threshold for SWR measurement */
 const int swr_refl_threshold = 10; // mV
@@ -79,6 +81,7 @@ void init(void);
 // Tasks
 static void detect_button_press(void *pvParameters);
 static void exercise_fsm(void *pvParameters);
+static void nf_analyse(void *pvParameters);
 static void gps_monit_task(void *pvParameters);
 static void launcher_task(void *pvParameters);
 
@@ -198,10 +201,6 @@ static void launcher_task(void __attribute__ ((unused))*pvParameters)
         trigger_fault(FAULT_SOURCE_MAIN);
     }
 
-    usart_debug_puts("Tone init\r\n");
-#warning TODO
-    tone_init(20000);
-
     usart_debug_puts("Audio init\r\n");
     audio_initialize(Audio16000HzSettings);
 
@@ -211,8 +210,25 @@ static void launcher_task(void __attribute__ ((unused))*pvParameters)
     usart_debug_puts("Audio set callback\r\n");
     audio_play_with_callback(audio_callback, NULL);
 
+    usart_debug_puts("Tone init\r\n");
+    tone_init(120000);
+
     usart_debug_puts("Audio in init\r\n");
     audio_in_initialize(AUDIO_IN_RATE);
+
+    usart_debug_puts("TaskNF init\r\n");
+
+    xTaskCreate(
+            nf_analyse,
+            "TaskNF",
+            1*configMINIMAL_STACK_SIZE,
+            (void*) NULL,
+            tskIDLE_PRIORITY + 2UL,
+            &task_handle);
+
+    if (!task_handle) {
+        trigger_fault(FAULT_SOURCE_MAIN);
+    }
 
     usart_debug_puts("Init done.\r\n");
 
@@ -489,11 +505,12 @@ static void gps_monit_task(void __attribute__ ((unused))*pvParameters) {
 
 static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
 {
+    fsm_init();
+
     int cw_last_trigger = 0;
     int last_tm_trigger_button = 0;
 
     int last_sq = 0;
-    int last_1750 = 0;
     int last_qrp = 0;
     int last_cw_done = 0;
     int last_discrim_d = 0;
@@ -561,8 +578,10 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
             leds_turn_on(LED_ORANGE);
         }
 
-#warning "TODO: from tone detector"
-        fsm_input.det_1750 = TONE_1750_DETECTED;
+#ifdef SIMULATOR
+        gui_in_tone_1750 =
+#endif
+        fsm_input.det_1750 = tone_1750_status();
         fsm_input.fax_mode = 0;
 
         fsm_input.swr_high = swr_error_flag;
@@ -587,5 +606,28 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
         }
         cw_last_trigger = fsm_out.cw_psk31_trigger;
 
+    }
+}
+
+static int16_t audio_in_buffer[AUDIO_IN_BUF_LEN];
+static int led_phase = 0;
+static void nf_analyse(void __attribute__ ((unused))*pvParameters)
+{
+    while (1) {
+        if (led_phase == 0) {
+            leds_turn_on(LED_BLUE);
+        }
+        else if (led_phase == 400) {
+            leds_turn_off(LED_BLUE);
+        }
+
+        led_phase++;
+
+        if (led_phase >= 800) {
+            led_phase = 0;
+        }
+
+        audio_in_get_buffer(audio_in_buffer);
+        tone_detect_1750(audio_in_buffer, AUDIO_IN_BUF_LEN);
     }
 }

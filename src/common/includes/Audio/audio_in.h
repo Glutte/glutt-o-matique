@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2018 Maximilien Cuony
+ * Copyright (c) 2019 Matthias P. Braendli, Maximilien Cuony
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,19 +22,16 @@
  * SOFTWARE.
 */
 
-#ifndef __AUDIO_IN_H__
-#define __AUDIO_IN_H__
+#pragma once
 
 #include <stdio.h>
 #include "FreeRTOS.h"
 
-#define AUDIO_IN_BUF_LEN 2048
 #define AUDIO_IN_RATE 8000
-
-int16_t * audio_in_buffer;
+#define AUDIO_IN_BUF_LEN 32
 
 void audio_in_initialize(int rate);
-void audio_in_initialize_plateform(int rate);
-void audio_in_buffer_ready(void);
 
-#endif
+// Fill the buffer with AUDIO_IN_BUF_LEN samples.
+void audio_in_get_buffer(int16_t *buffer /*of length AUDIO_IN_BUF_LEN*/ );
+

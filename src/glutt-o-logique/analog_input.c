@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2016 Matthias P. Braendli, Maximilien Cuony
+ * Copyright (c) 2019 Matthias P. Braendli, Maximilien Cuony
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,14 +30,25 @@
 
 #include "Core/delay.h"
 #include "Core/common.h"
+#include "stm32f4xx_conf.h"
 #include "stm32f4xx_adc.h"
+#include "stm32f4xx_gpio.h"
 #include <math.h>
 #include "GPIO/usart.h"
 
+#define PIN_SUPPLY GPIO_Pin_5
+#define PIN_SWR_FWD GPIO_Pin_6
+#define PIN_SWR_REFL GPIO_Pin_7
+
+// see doc/pio.txt for allocation
+#define PINS_ADC1 /* PA pins */ (GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7)
+
+#define ADC1_CHANNEL_SUPPLY ADC_Channel_5
+#define ADC1_CHANNEL_SWR_FWD ADC_Channel_6
+#define ADC1_CHANNEL_SWR_REFL ADC_Channel_7
+
 // Measured on the board itself
 const float v_ref = 2.965f;
-
-#warning "TODO: initialise ADC2 and use it for NF input"
 
 void analog_init(void)
 {
@@ -48,7 +59,7 @@ void analog_init(void)
     // Set analog input pins mode
     GPIO_InitTypeDef GPIO_InitStructure;
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AN;
-    GPIO_InitStructure.GPIO_Pin   = PINS_ANALOG;
+    GPIO_InitStructure.GPIO_Pin   = PINS_ADC1;
     GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
@@ -77,7 +88,7 @@ void analog_init(void)
     ADC_Cmd(ADC1, ENABLE);
 }
 
-static uint16_t analog_read_channel(uint8_t channel)
+static uint16_t adc1_read(uint8_t channel)
 {
     ADC_RegularChannelConfig(ADC1,
             channel,
@@ -115,7 +126,7 @@ static uint16_t analog_read_channel(uint8_t channel)
 
 float analog_measure_12v(void)
 {
-    const uint16_t raw_value = analog_read_channel(ADC_CHANNEL_SUPPLY);
+    const uint16_t raw_value = adc1_read(ADC1_CHANNEL_SUPPLY);
 
     const float adc_max_value = (1 << 12);
 
@@ -129,8 +140,8 @@ float analog_measure_12v(void)
 
 int analog_measure_swr(int *forward_mv, int* reflected_mv)
 {
-    const uint16_t raw_swr_fwd_value = analog_read_channel(ADC_CHANNEL_SWR_FWD);
-    const uint16_t raw_swr_refl_value = analog_read_channel(ADC_CHANNEL_SWR_REFL);
+    const uint16_t raw_swr_fwd_value = adc1_read(ADC1_CHANNEL_SWR_FWD);
+    const uint16_t raw_swr_refl_value = adc1_read(ADC1_CHANNEL_SWR_REFL);
 
     const float adc_max_value = (1 << 12);
 

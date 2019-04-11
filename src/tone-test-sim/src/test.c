@@ -33,7 +33,7 @@ int main(int argc, char **argv)
 {
     printf("Hello, ver %s\n", vc_get_version());
     printf("Saving results to tone.csv\n");
-    printf("freq, threshold, num_samples, detector_output\n");
+    printf("freq, threshold, num_samples, detector_output, avg_rms\n");
 
     FILE *fd = fopen("tone.csv", "w");
     if (!fd) {
@@ -48,12 +48,19 @@ int main(int argc, char **argv)
         for (int threshold = 100000; threshold < 4000000; threshold += 100000) {
             tone_init(threshold);
 
-            for (size_t j = 0; j < 200; j++) {
-                float samplef = cosf(j * 2.0f * FLOAT_PI * freq / AUDIO_IN_RATE);
-                int16_t sample = samplef * 32767.0f;
+            double accu = 0;
+
+            for (size_t j = 0; j < 100; j++) {
+                const float samplef = cosf(j * 2.0f * FLOAT_PI * freq / AUDIO_IN_RATE);
+                const float noisef = (drand48() * 2.0f) - 1;
+                int16_t sample = (0.9f * samplef + 0.1f * noisef) * 32767.0f;
+
+                accu += (sample * sample);
+
                 int r = tone_detect_1750(sample);
                 if (r != -1) {
-                    fprintf(fd, "%d,%d,%zu,%d\n",freq, threshold, j, r);
+                    const double rms = sqrt(accu / (double)j);
+                    fprintf(fd, "%d,%d,%zu,%d,%f\n",freq, threshold, j, r, rms);
                 }
             }
         }

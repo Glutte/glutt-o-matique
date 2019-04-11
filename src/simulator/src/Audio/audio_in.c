@@ -26,15 +26,31 @@
 #include <assert.h>
 #include <pulse/simple.h>
 #include "Audio/audio_in.h"
+#include "Audio/tone.h"
 #include "FreeRTOS.h"
 #include "task.h"
+#include "queue.h"
 
 pa_simple *s_in = NULL;
 
+static QueueHandle_t adc2_values_queue;
 
-static void audio_buffer_reader(void *args);
+static void audio_buffer_reader(void __attribute__((unused))*args)
+{
+    while (1) {
+        int16_t buffer[AUDIO_IN_BUF_LEN];
+        pa_simple_read(s_in, buffer, AUDIO_IN_BUF_LEN * sizeof(int16_t), NULL);
+        int success = xQueueSendToBack(
+                adc2_values_queue,
+                buffer,
+                portMAX_DELAY);
+        assert(success);
+        taskYIELD();
+    }
+}
 
-void audio_in_initialize_plateform(int rate) {
+
+void audio_in_initialize(int rate) {
     int error;
 
     static pa_sample_spec ss = {
@@ -46,8 +62,10 @@ void audio_in_initialize_plateform(int rate) {
     ss.rate = rate;
 
     s_in = pa_simple_new(NULL, "GlutteR", PA_STREAM_RECORD, NULL, "record", &ss, NULL, NULL, &error);
-
     assert(s_in);
+
+    adc2_values_queue = xQueueCreate(4, AUDIO_IN_BUF_LEN);
+    assert(adc2_values_queue);
 
     TaskHandle_t task_handle;
     xTaskCreate(
@@ -59,13 +77,8 @@ void audio_in_initialize_plateform(int rate) {
             &task_handle);
 }
 
-static void audio_buffer_reader(void __attribute__ ((unused)) *args) {
-
-    while(1) {
-        pa_simple_read(s_in, audio_in_buffer, AUDIO_IN_BUF_LEN * 2, NULL);
-        audio_in_buffer_ready();
-
-        taskYIELD();
-    }
-
+void audio_in_get_buffer(int16_t *buffer /*of length AUDIO_IN_BUF_LEN*/ )
+{
+    while (!xQueueReceive(adc2_values_queue, buffer, portMAX_DELAY)) {}
 }
+

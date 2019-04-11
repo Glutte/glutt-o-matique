@@ -24,10 +24,14 @@ Connexions Relais
 
 Analog signals
 --------------
--       in   NF (demod audio)   PB1 (ADC12 IN9)
+
+on ADC1, configured in single-shot mode, software trigger:
 -       in   Vcc 12V            PA5 (ADC12 IN5)
 -       in   SWR forward        PA6 (ADC12 IN6)
 -       in   SWR reflected      PA7 (ADC12 IN7)
+
+on ADC2, configured in single-shot mode, triggered by a timer:
+-       in   NF (demod audio)   PB1 (ADC12 IN9)
 
 u-blox NEO-M8N GPS module connection
 ------------------------------------
@@ -52,10 +56,20 @@ I2C to Audio Codec
 
 STM32DISCOVERY onboard things
 -----------------------------
--       out   Green LED         PD12
--       out   Orange LED        PD13
--       out   Red LED           PD14
--       out   Blue LED          PD15
--       in    Blue Push Button  PA0
+-       out  Green LED (launcher) PD12
+-       out  Orange LED (fsm)     PD13
+-       out  Red LED (audio)      PD14
+-       out  Blue LED (audio in)  PD15
+-       in   Blue Push Button     PA0
 
+
+Analog audio input for 1750 tone detector
+-----------------------------------------
+
+1. Timer 6 set to 8kHz triggers ADC2 sample.
+1. Timer 6 ISR accumulates N samples into a buffer.
+1. When buffer full, copy it into queue.
+1. `nf_analyse` task retrieves audio from queue, and gives it to tone detector.
+1. Tone detector returns one of [yes, no, more samples needed].
+1. `nf_analyse` task updates FSM input accordingly.
 

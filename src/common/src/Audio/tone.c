@@ -37,7 +37,12 @@
 
 static struct tone_detector detector_1750;
 
-int TONE_1750_DETECTED = 0;
+static int tone_1750_detected = 0;
+
+int tone_1750_status()
+{
+    return tone_1750_detected;
+}
 
 static void init_tone(struct tone_detector* detector, int freq, int threshold) {
     detector->coef = 2.0f * arm_cos_f32(2.0f * FLOAT_PI * freq / AUDIO_IN_RATE);
@@ -68,6 +73,12 @@ static inline int analyse_sample(int16_t sample, struct tone_detector *detector)
                 detector->Q2 * detector->Q2 -
                 detector->coef * detector->Q1 * detector->Q2);
 
+#ifdef SIMULATOR
+#define FRMT "%- 12.4f"
+        fprintf(stderr, "1750: Q1 " FRMT "  Q2 " FRMT " m " FRMT " thresh " FRMT "\n", detector->Q1, detector->Q2, m, detector->threshold);
+#endif
+
+
         detector->Q1 = 0;
         detector->Q2 = 0;
         detector->num_samples_analysed = 0;
@@ -84,12 +95,13 @@ static inline int analyse_sample(int16_t sample, struct tone_detector *detector)
     }
 }
 
-int tone_detect_1750(int16_t sample)
+void tone_detect_1750(const int16_t *samples, int len)
 {
-    int r = analyse_sample(sample, &detector_1750);
-    if (r == 0 || r == 1) {
-        TONE_1750_DETECTED = r;
+    for (int i = 0; i < len; i++) {
+        int r = analyse_sample(samples[i], &detector_1750);
+        if (r == 0 || r == 1) {
+            tone_1750_detected = r;
+        }
     }
-    return r;
 }
 

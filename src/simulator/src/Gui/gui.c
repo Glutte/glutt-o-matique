@@ -152,6 +152,7 @@ int gui_in_sq_n = 1;
 int gui_in_u = 0;
 int gui_in_d = 0;
 int gui_in_replie = 0;
+int gui_in_tone_1750 = 0;
 static const char *replie_status[] = {"In vent", "Replié"};
 int gui_in_fax_n = 1;
 
@@ -162,8 +163,6 @@ int in_sq_n = 1;
 int in_u = 0;
 int in_d = 0;
 int in_fax_n = 1;
-
-extern int TONE_1750_DETECTED;
 
 
 /**
@@ -821,7 +820,7 @@ void main_gui() {
                 nk_property_float(ctx, "V", 0.0f, &gui_measured_voltage, 24.0f, 0.5f, 0.5f);
 
 
-                if (TONE_1750_DETECTED) {
+                if (gui_in_tone_1750) {
                     c = color_on;
                 } else {
                     c = color_off;

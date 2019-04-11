@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2016 Matthias P. Braendli, Maximilien Cuony
+ * Copyright (c) 2019 Matthias P. Braendli, Maximilien Cuony
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,17 +24,6 @@
 
 #pragma once
 
-#include "stm32f4xx_conf.h"
-#include "stm32f4xx_gpio.h"
 #include "GPIO/analog.h"
 
-#define PIN_SUPPLY GPIO_Pin_5
-#define PIN_SWR_FWD GPIO_Pin_6
-#define PIN_SWR_REFL GPIO_Pin_7
-
-#define PINS_ANALOG (GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7)
-
-#define ADC_CHANNEL_SUPPLY ADC_Channel_5
-#define ADC_CHANNEL_SWR_FWD ADC_Channel_6
-#define ADC_CHANNEL_SWR_REFL ADC_Channel_7
 

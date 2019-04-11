@@ -99,6 +99,9 @@ void usart_debug(const char *format, ...) {
 }
 
 void usart_debug_puts(const char* str) {
+#ifdef SIMULATOR
+    fprintf(stderr, "DEBUG: %s", str);
+#endif
     vTaskSuspendAll();
     usart_debug_timestamp();
     usart_puts(USART2, str);
