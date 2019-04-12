@@ -191,11 +191,11 @@ void fsm_update() {
     fsm_out.cw_psk31_trigger = 0;
     fsm_out.cw_dit_duration = 50;
     fsm_out.msg_frequency = 960;
+    fsm_out.require_tone_detector = 0;
     // other output signals keep their value
 
     switch (current_state) {
         case FSM_OISIF:
-
             // Check the length of the last QSO, and reset the SHORT_BEACON counter if needed
             if (last_qso_start_timestamp != 0) {
 
@@ -211,6 +211,9 @@ void fsm_update() {
                 short_beacon_counter_last_update++;
                 short_beacon_counter_s++;
             }
+
+            // SQ is debounced inside pio.c (300ms)
+            fsm_out.require_tone_detector = fsm_in.sq;
 
             if ((fsm_in.sq && fsm_in.det_1750) | (fsm_in.sq && sstv_state == SSTV_FSM_ON)) {
                 next_state = FSM_OPEN1;
@@ -230,6 +233,7 @@ void fsm_update() {
             /* Do not enable TX_ON here, otherwise we could get stuck transmitting
              * forever if SQ never goes low.
              */
+            fsm_out.require_tone_detector = 1;
             if (!fsm_in.sq && !fsm_in.det_1750) {
                 next_state = FSM_OPEN2;
             }
@@ -238,6 +242,7 @@ void fsm_update() {
         case FSM_OPEN2:
             fsm_out.tx_on = 1;
             fsm_out.modulation = 1;
+            fsm_out.require_tone_detector = 1;
             qso_info.qso_occurred = 0;
             qso_info.qso_start_time = timestamp_now();
 
@@ -249,6 +254,7 @@ void fsm_update() {
         case FSM_LETTRE:
             fsm_out.tx_on = 1;
             fsm_out.modulation = 1;
+            fsm_out.require_tone_detector = 1;
             fsm_out.msg = fsm_select_letter();
             if (fsm_out.msg[0] == 'G') {
                 // The letter 'G' is a bit different
@@ -264,6 +270,7 @@ void fsm_update() {
         case FSM_ECOUTE:
             fsm_out.tx_on = 1;
             fsm_out.modulation = 1;
+            fsm_out.require_tone_detector = 1;
 
             /* Time checks:
              * We need to check the total TX_ON duration to decide the text to
@@ -314,6 +321,7 @@ void fsm_update() {
 
         case FSM_ATTENTE:
             if (fsm_in.sq) {
+                fsm_out.require_tone_detector = 1;
                 next_state = FSM_ECOUTE;
             }
             else if (fsm_current_state_time_s() > 15) {
@@ -324,6 +332,7 @@ void fsm_update() {
         case FSM_QSO:
             fsm_out.tx_on = 1;
             fsm_out.modulation = 1;
+            fsm_out.require_tone_detector = 1;
             qso_info.qso_occurred = 1;
 
             // Save the starting timestamp, if there is none
@@ -369,6 +378,7 @@ void fsm_update() {
         case FSM_TEXTE_73:
             fsm_out.tx_on = 1;
             fsm_out.modulation = 1;
+            fsm_out.require_tone_detector = 1;
             fsm_out.msg_frequency    = 696;
             fsm_out.cw_dit_duration = 70;
             fsm_out.msg = " 73" CW_POSTDELAY;
@@ -386,6 +396,7 @@ void fsm_update() {
         case FSM_TEXTE_HB9G:
             fsm_out.tx_on = 1;
             fsm_out.modulation = 1;
+            fsm_out.require_tone_detector = 1;
             fsm_out.msg_frequency   = 696;
             fsm_out.cw_dit_duration = 70;
             // No need for CW_PREDELAY, since we are already transmitting
@@ -404,6 +415,7 @@ void fsm_update() {
         case FSM_TEXTE_LONG:
             fsm_out.tx_on = 1;
             fsm_out.modulation = 1;
+            fsm_out.require_tone_detector = 1;
 
             fsm_out.msg_frequency   = 696;
             fsm_out.cw_dit_duration = 70;
@@ -540,21 +552,17 @@ void fsm_update() {
             fsm_out.cw_psk31_trigger = 1;
 
             if (current_state == FSM_BALISE_COURTE) {
-
                 if (fsm_in.sq) {
                     next_state = FSM_BALISE_COURTE_OPEN;
-                } else {
-                    if (fsm_in.cw_psk31_done) {
-                        next_state = FSM_OISIF;
-                    }
                 }
-
-            } else { //FSM_BALISE_COURTE_OPEN
-
+                else if (fsm_in.cw_psk31_done) {
+                    next_state = FSM_OISIF;
+                }
+            }
+            else { //FSM_BALISE_COURTE_OPEN
                 if (fsm_in.cw_psk31_done) {
                     next_state = FSM_OPEN2;
                 }
-
             }
 
             break;
@@ -615,7 +623,6 @@ void fsm_balise_update() {
                 next_state = BALISE_FSM_EVEN_HOUR;
             }
             break;
-
         default:
             // Should never happen
             next_state = BALISE_FSM_EVEN_HOUR;
@@ -627,7 +634,6 @@ void fsm_balise_update() {
     }
 
     balise_state = next_state;
-
 }
 
 void fsm_sstv_update() {

@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2018 Matthias P. Braendli, Maximilien Cuony
+ * Copyright (c) 2019 Matthias P. Braendli, Maximilien Cuony
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -42,10 +42,14 @@ struct tone_detector {
 
 void tone_init(void);
 
+void tone_detector_enable(int enable);
+
 /* Return 1 when 1750 detected, 0 otherwise */
 int tone_1750_status(void);
 
-/* Update 1750 tone detection status */
-void tone_detect_1750(const int16_t *samples, int len);
+int tone_fax_status(void);
+
+/* Update all tone detection status */
+void tone_detect_push_samples(const int16_t *samples, int len);
 
 #endif

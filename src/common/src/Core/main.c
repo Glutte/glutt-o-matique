@@ -244,13 +244,16 @@ static void launcher_task(void __attribute__ ((unused))*pvParameters)
             i = 1;
             leds_turn_on(LED_GREEN);
 
-        } else {
+        }
+        else {
             i = 0;
             leds_turn_off(LED_GREEN);
         }
 
         struct fsm_output_signals_t fsm_out;
         fsm_get_outputs(&fsm_out);
+
+        tone_detector_enable(fsm_out.require_tone_detector);
 
         if (fsm_out.tx_on) {
             int swr_fwd_mv, swr_refl_mv;
@@ -283,7 +286,6 @@ static void launcher_task(void __attribute__ ((unused))*pvParameters)
 
                 pio_set_qrp(qrp_from_supply);
             }
-
         }
 
         if (timestamp_now() - timestamp_last_audio_callback > 1000) {
@@ -291,7 +293,8 @@ static void launcher_task(void __attribute__ ((unused))*pvParameters)
                 send_audio_callback_warning = 1;
                 usart_debug("[HOHO] timestamp_last_audio_callback > 1000\r\n");
             }
-        } else {
+        }
+        else {
             if (send_audio_callback_warning == 1) {
                 send_audio_callback_warning = 0;
                 usart_debug("[HOHO] Fix ? Now timestamp_last_audio_callback < 1000\r\n");
@@ -639,7 +642,7 @@ static void nf_analyse(void __attribute__ ((unused))*pvParameters)
             usart_debug("Number of input samples lost: %d\r\n", new_num_fails);
         }
         num_fails = new_num_fails;
-        tone_detect_1750(audio_in_buffer, AUDIO_IN_BUF_LEN);
+        tone_detect_push_samples(audio_in_buffer, AUDIO_IN_BUF_LEN);
 
         total_samples_analysed += AUDIO_IN_BUF_LEN;
         if (++timestamp == 80) {

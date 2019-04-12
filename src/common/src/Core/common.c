@@ -229,7 +229,7 @@ static void common_increase_timestamp(TimerHandle_t __attribute__ ((unused))t)
 
 uint64_t timestamp_now(void)
 {
-    return common_timestamp;
+    return common_timestamp; // ms
 }
 
 

@@ -105,6 +105,8 @@ struct fsm_output_signals_t {
     int cw_psk31_trigger;  // Set to true to trigger a CW or PSK31 transmission.
                            // PSK31 is sent if cw_dit_duration is 0
 
+    /* Tone detector */
+    int require_tone_detector; // Enables audio input and detector for DTMF and 1750
 };
 
 // Initialise local structures

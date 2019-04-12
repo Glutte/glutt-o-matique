@@ -36,6 +36,8 @@ pa_simple *s_in = NULL;
 static int16_t buffers[2][AUDIO_IN_BUF_LEN];
 static int current_buffer = 0;
 
+static int enabled = 0; // TODO concurrent access: must be protected by a mutex :-/
+
 static QueueHandle_t adc2_values_queue;
 
 static void audio_buffer_reader(void __attribute__((unused))*args)
@@ -43,11 +45,13 @@ static void audio_buffer_reader(void __attribute__((unused))*args)
     while (1) {
         pa_simple_read(s_in, buffers[current_buffer], AUDIO_IN_BUF_LEN * sizeof(int16_t), NULL);
 
-        int success = xQueueSendToBack(
-                adc2_values_queue,
-                &current_buffer,
-                portMAX_DELAY);
-        assert(success);
+        if (enabled) {
+            int success = xQueueSendToBack(
+                    adc2_values_queue,
+                    &current_buffer,
+                    portMAX_DELAY);
+            assert(success);
+        }
 
         current_buffer = (current_buffer + 1) % 2;
 
@@ -81,6 +85,11 @@ void audio_in_initialize() {
             (void*) NULL,
             tskIDLE_PRIORITY + 2UL,
             &task_handle);
+}
+
+void audio_in_enable(int enable)
+{
+    enabled = enable;
 }
 
 int32_t audio_in_get_buffer(int16_t **buffer /*of length AUDIO_IN_BUF_LEN*/ )

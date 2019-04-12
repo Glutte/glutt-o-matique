@@ -93,7 +93,7 @@ void ADC_IRQHandler()
 }
 
 // Timer6 is used for ADC2 sampling
-static void enable_timer6()
+static void setup_timer()
 {
     /* TIM6 Periph clock enable */
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM6, ENABLE);
@@ -116,8 +116,6 @@ static void enable_timer6()
     NVIC_SetPriority(TIM6_DAC_IRQn, 5);
 
     TIM_ITConfig(TIM6, TIM_IT_Update, ENABLE);
-    ADC_SoftwareStartConv(ADC2);
-    TIM_Cmd(TIM6, ENABLE);
 }
 
 
@@ -159,13 +157,17 @@ void audio_in_initialize()
 
     ADC_Cmd(ADC2, ENABLE);
 
-
     adc2_values_queue = xQueueCreate(4, sizeof(adc2_current_buffer));
     if (adc2_values_queue == 0) {
         trigger_fault(FAULT_SOURCE_ADC2_QUEUE);
     }
 
-    enable_timer6();
+    setup_timer();
+}
+
+void audio_in_enable(int enable)
+{
+    TIM_Cmd(TIM6, enable ? ENABLE : DISABLE);
 }
 
 int32_t audio_in_get_buffer(int16_t **buffer /*of length AUDIO_IN_BUF_LEN*/ )
@@ -178,3 +180,8 @@ int32_t audio_in_get_buffer(int16_t **buffer /*of length AUDIO_IN_BUF_LEN*/ )
     return adc2_lost_samples;
 }
 
+
+#warning "Test tone detector activation from FSM"
+#warning "Test 1750 not triggered by start bip my yaesu makes"
+#warning "Test DTMF detector"
+#warning "Test if FAX mode gets enabled after 0-7-*"

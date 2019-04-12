@@ -53,6 +53,16 @@
 #define DET_ROW_STAR 3
 #define DET_1750 4
 #define NUM_DETECTORS 5
+
+// Incomplete because not all frequencies decoded
+enum dtmf_code {
+    DTMF_NONE = 0,
+    DTMF_0,
+    DTMF_7,
+    DTMF_8,
+    DTMF_STAR,
+};
+
 static struct tone_detector detectors[NUM_DETECTORS];
 
 // Apply an IIR filter with alpha = 5/16 to smooth out variations.
@@ -60,6 +70,81 @@ static struct tone_detector detectors[NUM_DETECTORS];
 static int32_t normalised_results[NUM_DETECTORS];
 
 static int tone_1750_detected = 0;
+static int detectors_enabled = 0;
+
+static enum dtmf_code dtmf_last_seen = 0;
+static uint64_t dtmf_last_seen_at = 0;
+
+// Store the sequence of dtmf codes in this FIFO. If no DTMF code gets
+// decoded in the interval, a NONE gets inserted into the sequence
+#define NUM_DTMF_SEQ 3
+#define DTMF_MAX_TONE_INTERVAL 1500
+static enum dtmf_code dtmf_sequence[NUM_DTMF_SEQ];
+
+static inline void push_dtmf_code(enum dtmf_code code)
+{
+    for (int i = 0; i < NUM_DTMF_SEQ-1; i++) {
+        dtmf_sequence[i] = dtmf_sequence[i+1];
+    }
+    dtmf_sequence[NUM_DTMF_SEQ-1] = code;
+}
+
+const int thresh = 400; // TODO: Does that depend on TONE_N?
+
+static void analyse_dtmf()
+{
+    // Bits 0 to 9 are numbers, bit 10 to 13 letters, bit 14 is star, 15 is hash
+    const uint16_t pattern =
+        ((normalised_results[DET_COL_1] > thresh &&
+          normalised_results[DET_ROW_7] > thresh) ? (1 << 7) : 0) +
+        ((normalised_results[DET_COL_2] > thresh &&
+          normalised_results[DET_ROW_7] > thresh) ? (1 << 8) : 0) +
+        ((normalised_results[DET_COL_1] > thresh &&
+          normalised_results[DET_ROW_STAR] > thresh) ? (1 << 14) : 0) +
+        ((normalised_results[DET_COL_2] > thresh &&
+          normalised_results[DET_ROW_STAR] > thresh) ? (1 << 0) : 0);
+
+    // Match patterns exactly to exclude multiple simultaneous DTMF codes.
+    if (pattern == (1 << 0)) {
+        if (dtmf_last_seen != DTMF_0) {
+            push_dtmf_code(DTMF_0);
+        }
+
+        dtmf_last_seen = DTMF_0;
+        dtmf_last_seen_at = timestamp_now();
+    }
+    else if (pattern == (1 << 7)) {
+        if (dtmf_last_seen != DTMF_7) {
+            push_dtmf_code(DTMF_7);
+        }
+
+        dtmf_last_seen = DTMF_7;
+        dtmf_last_seen_at = timestamp_now();
+    }
+    else if (pattern == (1 << 8)) {
+        if (dtmf_last_seen != DTMF_8) {
+            push_dtmf_code(DTMF_8);
+        }
+
+        dtmf_last_seen = DTMF_8;
+        dtmf_last_seen_at = timestamp_now();
+    }
+    else if (pattern == (1 << 14)) {
+        if (dtmf_last_seen != DTMF_STAR) {
+            push_dtmf_code(DTMF_STAR);
+        }
+
+        dtmf_last_seen = DTMF_STAR;
+        dtmf_last_seen_at = timestamp_now();
+    }
+    else if (dtmf_last_seen_at + DTMF_MAX_TONE_INTERVAL > timestamp_now()) {
+        // Flush out all codes
+        push_dtmf_code(DTMF_NONE);
+
+        dtmf_last_seen = DTMF_NONE;
+        dtmf_last_seen_at = timestamp_now();
+    }
+}
 
 
 int tone_1750_status()
@@ -67,7 +152,14 @@ int tone_1750_status()
     return tone_1750_detected;
 }
 
-static void init_tone(struct tone_detector* detector, int freq) {
+int tone_fax_status()
+{
+    return dtmf_sequence[0] == DTMF_0 &&
+           dtmf_sequence[1] == DTMF_7 &&
+           dtmf_sequence[2] == DTMF_STAR;
+}
+
+static inline void init_detector(struct tone_detector* detector, int freq) {
     detector->coef = 2.0f * arm_cos_f32(2.0f * FLOAT_PI * freq / AUDIO_IN_RATE);
     detector->Q1 = 0;
     detector->Q2 = 0;
@@ -75,11 +167,32 @@ static void init_tone(struct tone_detector* detector, int freq) {
 }
 
 void tone_init() {
-    init_tone(&detectors[DET_COL_1], 1209);
-    init_tone(&detectors[DET_COL_2], 1336);
-    init_tone(&detectors[DET_ROW_7], 852);
-    init_tone(&detectors[DET_ROW_STAR], 941);
-    init_tone(&detectors[DET_1750], 1750);
+    for (int i = 0; i < NUM_DTMF_SEQ; i++) {
+        dtmf_sequence[i] = DTMF_NONE;
+    }
+
+    init_detector(&detectors[DET_COL_1], 1209);
+    init_detector(&detectors[DET_COL_2], 1336);
+    init_detector(&detectors[DET_ROW_7], 852);
+    init_detector(&detectors[DET_ROW_STAR], 941);
+    init_detector(&detectors[DET_1750], 1750);
+}
+
+void tone_detector_enable(int enable)
+{
+    if (enable && !detectors_enabled) {
+        for (int det = 0; det < NUM_DETECTORS; det++) {
+            detectors[det].Q1 = 0;
+            detectors[det].Q2 = 0;
+            detectors[det].num_samples_analysed = 0;
+        }
+        audio_in_enable(1);
+        detectors_enabled = 1;
+    }
+    else if (!enable && detectors_enabled) {
+        audio_in_enable(0);
+        detectors_enabled = 0;
+    }
 }
 
 /* Analyse a sample. Returns -1 if more samples needed, 0 if no tone detected,
@@ -110,7 +223,7 @@ static inline float analyse_sample(int16_t sample, struct tone_detector *detecto
     }
 }
 
-void tone_detect_1750(const int16_t *samples, int len)
+void tone_detect_push_samples(const int16_t *samples, int len)
 {
     int32_t mean = 0;
     int32_t min = 0x7fffffff;
@@ -153,6 +266,10 @@ void tone_detect_1750(const int16_t *samples, int len)
         }
     }
 
+    /* Normalise the results so that a relative comparison of
+     * the different detectors can be done. This is more reliable
+     * than looking at the detector outputs independently, especially
+     * in the presence of noise whose amplitude varies. */
     float inv_mean = 0;
     for (int det = 0; det < NUM_DETECTORS; det++) {
         inv_mean += results[det];
@@ -166,7 +283,8 @@ void tone_detect_1750(const int16_t *samples, int len)
             >> 4; // divide by 16
     }
 
-    tone_1750_detected = (normalised_results[DET_1750] > 400);
+    tone_1750_detected = (normalised_results[DET_1750] > thresh);
+    analyse_dtmf();
 
     static int printcounter = 0;
     if (++printcounter == 5) {
