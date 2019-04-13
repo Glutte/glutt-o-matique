@@ -81,28 +81,48 @@ static uint64_t dtmf_last_seen_at = 0;
 #define DTMF_MAX_TONE_INTERVAL 1500
 static enum dtmf_code dtmf_sequence[NUM_DTMF_SEQ];
 
+static char* dtmf_to_str(enum dtmf_code code)
+{
+    char *codestr;
+    switch (code) {
+        case DTMF_0: codestr = "0"; break;
+        case DTMF_7: codestr = "7"; break;
+        case DTMF_8: codestr = "8"; break;
+        case DTMF_STAR: codestr = "*"; break;
+        case DTMF_NONE: codestr = "x"; break;
+    }
+    return codestr;
+}
+
 static inline void push_dtmf_code(enum dtmf_code code)
 {
     for (int i = 0; i < NUM_DTMF_SEQ-1; i++) {
         dtmf_sequence[i] = dtmf_sequence[i+1];
     }
     dtmf_sequence[NUM_DTMF_SEQ-1] = code;
+
+    usart_debug("DTMF: [%s, %s, %s]\r\n",
+            dtmf_to_str(dtmf_sequence[0]),
+            dtmf_to_str(dtmf_sequence[1]),
+            dtmf_to_str(dtmf_sequence[2]));
 }
 
-const int thresh = 400; // TODO: Does that depend on TONE_N?
+// TODO: Does that depend on TONE_N?
+const int thresh_dtmf = 200;
+const int thresh_1750 = 200;
 
 static void analyse_dtmf()
 {
     // Bits 0 to 9 are numbers, bit 10 to 13 letters, bit 14 is star, 15 is hash
     const uint16_t pattern =
-        ((normalised_results[DET_COL_1] > thresh &&
-          normalised_results[DET_ROW_7] > thresh) ? (1 << 7) : 0) +
-        ((normalised_results[DET_COL_2] > thresh &&
-          normalised_results[DET_ROW_7] > thresh) ? (1 << 8) : 0) +
-        ((normalised_results[DET_COL_1] > thresh &&
-          normalised_results[DET_ROW_STAR] > thresh) ? (1 << 14) : 0) +
-        ((normalised_results[DET_COL_2] > thresh &&
-          normalised_results[DET_ROW_STAR] > thresh) ? (1 << 0) : 0);
+        ((normalised_results[DET_COL_1] > thresh_dtmf &&
+          normalised_results[DET_ROW_7] > thresh_dtmf) ? (1 << 7) : 0) +
+        ((normalised_results[DET_COL_2] > thresh_dtmf &&
+          normalised_results[DET_ROW_7] > thresh_dtmf) ? (1 << 8) : 0) +
+        ((normalised_results[DET_COL_1] > thresh_dtmf &&
+          normalised_results[DET_ROW_STAR] > thresh_dtmf) ? (1 << 14) : 0) +
+        ((normalised_results[DET_COL_2] > thresh_dtmf &&
+          normalised_results[DET_ROW_STAR] > thresh_dtmf) ? (1 << 0) : 0);
 
     // Match patterns exactly to exclude multiple simultaneous DTMF codes.
     if (pattern == (1 << 0)) {
@@ -137,7 +157,7 @@ static void analyse_dtmf()
         dtmf_last_seen = DTMF_STAR;
         dtmf_last_seen_at = timestamp_now();
     }
-    else if (dtmf_last_seen_at + DTMF_MAX_TONE_INTERVAL > timestamp_now()) {
+    else if (dtmf_last_seen_at + DTMF_MAX_TONE_INTERVAL < timestamp_now()) {
         // Flush out all codes
         push_dtmf_code(DTMF_NONE);
 
@@ -283,7 +303,7 @@ void tone_detect_push_samples(const int16_t *samples, int len)
             >> 4; // divide by 16
     }
 
-    tone_1750_detected = (normalised_results[DET_1750] > thresh);
+    tone_1750_detected = (normalised_results[DET_1750] > thresh_1750);
     analyse_dtmf();
 
     static int printcounter = 0;

@@ -585,7 +585,9 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
         gui_in_tone_1750 =
 #endif
         fsm_input.det_1750 = tone_1750_status();
-        fsm_input.fax_mode = 0;
+        pio_set_det_1750(fsm_input.det_1750);
+        fsm_input.fax_mode = tone_fax_status();
+        pio_set_fax(fsm_input.fax_mode);
 
         fsm_input.swr_high = swr_error_flag;
         fsm_input.hour_is_even = hour_is_even;

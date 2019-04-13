@@ -35,6 +35,9 @@ void pio_set_tx(int on);
 void pio_set_mod_off(int mod_off);
 void pio_set_qrp(int on);
 void pio_set_gps_epps(int on);
+void pio_set_fax(int on);
+void pio_set_det_1750(int on);
+void pio_set_sq2(int on);
 
 void pio_set_fsm_signals(struct fsm_input_signals_t* sig);
 

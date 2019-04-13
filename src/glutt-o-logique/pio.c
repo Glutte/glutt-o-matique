@@ -317,5 +317,37 @@ void pio_set_gps_epps(int on)
     }
 }
 
-#warning "TODO: add output functions for SQ2, DET 1750 and FAX"
+void pio_set_fax(int on)
+{
+    if (on) {
+        GPIO_SetBits(GPIOC, GPIOC_PIN_FAX);
+    }
+    else {
+        GPIO_ResetBits(GPIOC, GPIOC_PIN_FAX);
+    }
+}
+
+void pio_set_det_1750(int on)
+{
+    if (on) {
+        GPIO_ResetBits(GPIOA, GPIOA_PIN_DET_1750);
+    }
+    else {
+        GPIO_SetBits(GPIOA, GPIOA_PIN_DET_1750);
+    }
+}
+
+void pio_set_sq2(int on)
+{
+    if (on) {
+        GPIO_SetBits(GPIOC, GPIOC_PIN_SQ2);
+    }
+    else {
+        GPIO_ResetBits(GPIOC, GPIOC_PIN_SQ2);
+    }
+}
+
+#warning "TODO Test SQ2 out"
+#warning "TODO Test 1750 out"
+#warning "TODO Test FAX out"
 
