@@ -27,8 +27,8 @@
 #include <stdio.h>
 #include "FreeRTOS.h"
 
-#define AUDIO_IN_RATE 8000
-#define AUDIO_IN_BUF_LEN 400
+#define AUDIO_IN_RATE 16000
+#define AUDIO_IN_BUF_LEN 1600
 
 void audio_in_initialize(void);
 

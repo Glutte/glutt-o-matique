@@ -36,6 +36,8 @@
 #include "arm_math.h"
 #endif
 
+#define TONE_N 800
+
 /* DTMF frequencies
  *      COL_1  COL_2  COL_3  COL_A
  *      1209   1336   1477   1633

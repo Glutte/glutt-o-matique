@@ -30,8 +30,6 @@
 
 #define TONE_BUFFER_LEN AUDIO_IN_BUF_LEN
 
-#define TONE_N 400
-
 struct tone_detector {
     float coef;
     float Q1;
