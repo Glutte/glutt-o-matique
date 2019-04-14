@@ -134,7 +134,9 @@ void usart_process_char(char c) {
     usart_debug("Unknown command %c\r\n", c);
 }
 
-void usart_gps_process_char(char c) {
+void usart_gps_process_char(char c)
+{
+    BaseType_t require_context_switch = pdFALSE;
 
     if (nmea_sentence_last_written == 0) {
         if (c == '$') {
@@ -151,7 +153,7 @@ void usart_gps_process_char(char c) {
             int success = xQueueSendToBackFromISR(
                     usart_nmea_queue,
                     nmea_sentence,
-                    NULL);
+                    &require_context_switch);
 
             if (success == pdFALSE) {
                 trigger_fault(FAULT_SOURCE_USART);
@@ -165,4 +167,5 @@ void usart_gps_process_char(char c) {
         usart_clear_nmea_buffer();
     }
 
+    portYIELD_FROM_ISR(require_context_switch);
 }

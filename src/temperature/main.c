@@ -99,9 +99,7 @@ static void detect_button_press(void *pvParameters)
 
 static void update_temperature(void *pvParameters)
 {
-
     while (1) {
-
         vTaskDelay(pdMS_TO_TICKS(1000));
 
         GPIO_SetBits(GPIOD, GPIO_Pin_13);

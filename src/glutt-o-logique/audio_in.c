@@ -65,6 +65,8 @@ void TIM6_DAC_IRQHandler()
 void ADC_IRQHandler(void);
 void ADC_IRQHandler()
 {
+    BaseType_t require_context_switch = pdFALSE;
+
     if (ADC_GetFlagStatus(ADC2, ADC_FLAG_EOC) == SET) {
         uint16_t value = ADC_GetConversionValue(ADC2);
 
@@ -77,7 +79,7 @@ void ADC_IRQHandler()
             int success = xQueueSendToBackFromISR(
                     adc2_values_queue,
                     &adc2_current_buffer,
-                    NULL);
+                    &require_context_switch);
 
             adc2_values_end = 0;
             adc2_current_buffer = (adc2_current_buffer + 1) % 2;
@@ -90,6 +92,8 @@ void ADC_IRQHandler()
     else {
         adc2_lost_samples++;
     }
+
+    portYIELD_FROM_ISR(require_context_switch);
 }
 
 // Timer6 is used for ADC2 sampling
@@ -157,7 +161,7 @@ void audio_in_initialize()
 
     ADC_Cmd(ADC2, ENABLE);
 
-    adc2_values_queue = xQueueCreate(4, sizeof(adc2_current_buffer));
+    adc2_values_queue = xQueueCreate(2, sizeof(adc2_current_buffer));
     if (adc2_values_queue == 0) {
         trigger_fault(FAULT_SOURCE_ADC2_QUEUE);
     }

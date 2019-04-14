@@ -225,7 +225,7 @@ static void launcher_task(void __attribute__ ((unused))*pvParameters)
             "TaskNF",
             3*configMINIMAL_STACK_SIZE,
             (void*) NULL,
-            tskIDLE_PRIORITY + 2UL,
+            tskIDLE_PRIORITY + 3UL,
             &task_handle);
 
     if (!task_handle) {
