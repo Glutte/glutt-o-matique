@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2016 Matthias P. Braendli, Maximilien Cuony
+ * Copyright (c) 2018 Matthias P. Braendli, Maximilien Cuony
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -53,6 +53,8 @@
 #ifdef SIMULATOR
 extern int gui_in_tone_1750;
 #endif
+
+static void print_task_stats(void);
 
 static int tm_trigger_button = 0;
 
@@ -244,6 +246,7 @@ static void launcher_task(void __attribute__ ((unused))*pvParameters)
             i = 1;
             leds_turn_on(LED_GREEN);
 
+            print_task_stats();
         }
         else {
             i = 0;
@@ -652,8 +655,62 @@ static void nf_analyse(void __attribute__ ((unused))*pvParameters)
             usart_debug("Total samples analysed: %d in %ldms = %d\r\n",
                     total_samples_analysed,
                     t1 - t0,
-                    1000 * total_samples_analysed / (int)(t1 - t0));
+                    (int)(1000.0f * total_samples_analysed / (float)(t1 - t0)));
             timestamp = 0;
         }
     }
 }
+
+#if configGENERATE_RUN_TIME_STATS
+#include "stm32f4xx_conf.h"
+#include "stm32f4xx_tim.h"
+
+void vConfigureTimerForRunTimeStats()
+{
+    TIM_TimeBaseInitTypeDef SetupTimer;
+    /* Enable timer 2, using the Reset and Clock Control register */
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
+    SetupTimer.TIM_Prescaler = 0x0000;
+    SetupTimer.TIM_CounterMode = TIM_CounterMode_Up;
+    SetupTimer.TIM_Period = 0xFFFFFFFF;
+    SetupTimer.TIM_ClockDivision = TIM_CKD_DIV1;
+    TIM_TimeBaseInit(TIM2, &SetupTimer);
+    TIM_Cmd(TIM2, ENABLE); /* start counting by enabling CEN in CR1 */
+}
+
+unsigned long vGetTimerForRunTimeStats( void ) {
+    return TIM_GetCounter(TIM2);
+}
+
+static TaskStatus_t taskstats[12];
+static void print_task_stats(void) {
+    uint32_t total_time;
+    int n_tasks = uxTaskGetSystemState(taskstats, 12, &total_time);
+    total_time /= 100UL;
+    for (int t = 0; t < n_tasks; t++) {
+        char status_indicator;
+        switch(taskstats[t].eCurrentState )
+        {
+            case eReady:      status_indicator = 'R'; break;
+            case eBlocked:    status_indicator = 'B'; break;
+            case eSuspended:  status_indicator = 'S'; break;
+            case eDeleted:    status_indicator = 'D'; break;
+            case eRunning:    status_indicator = 'R'; break;
+        }
+
+        uint32_t task_time_percent = 0;
+        if (total_time > 0) {
+            task_time_percent = taskstats[t].ulRunTimeCounter / total_time;
+        }
+
+        usart_debug("TASK %d %s %c [%d] %d\r\n",
+                taskstats[t].xTaskNumber,
+                taskstats[t].pcTaskName,
+                status_indicator,
+                taskstats[t].usStackHighWaterMark,
+                task_time_percent);
+    }
+}
+#else
+static void print_task_stats(void) {}
+#endif
