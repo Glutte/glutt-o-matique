@@ -238,7 +238,7 @@ void tone_detector_enable(int enable)
     }
 }
 
-void tone_detect_push_sample_from_irq(const uint16_t sample)
+void tone_detect_push_sample(const uint16_t sample, int is_irq)
 {
     num_samples_analysed++;
 
@@ -273,10 +273,19 @@ void tone_detect_push_sample_from_irq(const uint16_t sample)
             }
 
             BaseType_t require_context_switch = 0;
-            int success = xQueueSendToBackFromISR(
-                    m_squared_queue,
-                    &m_squared,
-                    &require_context_switch);
+            int success;
+            if (is_irq) {
+                success = xQueueSendToBackFromISR(
+                        m_squared_queue,
+                        &m_squared,
+                        &require_context_switch);
+            }
+            else {
+                success = xQueueSendToBack(
+                        m_squared_queue,
+                        &m_squared,
+                        0);
+            }
 
             if (success == pdFALSE) {
                 lost_results++;

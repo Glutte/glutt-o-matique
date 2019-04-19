@@ -63,7 +63,7 @@ void ADC_IRQHandler()
 
         ADC_ClearITPendingBit(ADC2, ADC_IT_EOC);
 
-        tone_detect_push_sample_from_irq(value);
+        tone_detect_push_sample(value, 1);
     }
     else if (ADC_GetFlagStatus(ADC2, ADC_FLAG_STRT) == SET) {
         // This sometimes happens...

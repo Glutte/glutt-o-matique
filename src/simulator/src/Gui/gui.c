@@ -86,6 +86,9 @@ char led_green = 0;
 char led_orange = 0;
 char led_red = 0;
 char led_gps = 0;
+char led_fax = 0;
+char led_det_1750 = 0;
+char led_sq2 = 0;
 
 /**
  * GPS
@@ -458,16 +461,12 @@ void main_gui() {
             nk_end(ctx);
 
 
-            if (nk_begin(ctx, &layout, "LEDs", nk_rect(50, 390, 150, 155), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
+            if (nk_begin(ctx, &layout, "LEDs", nk_rect(50, 390, 150, 155), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_SCALABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
 
                 nk_layout_row_static(ctx, 20, 20, 5);
-
                 struct nk_color color;
 
-                nk_text(ctx, "", 0, NK_TEXT_LEFT);
-
                 color.r = 255; color.g = 165; color.b = 0;
-
                 if (led_orange == 1) {
                     color.a = 255;
                 } else {
@@ -475,15 +474,7 @@ void main_gui() {
                 }
                 nk_button_color(ctx, color, NK_BUTTON_DEFAULT);
 
-
-                nk_text(ctx, "", 0, NK_TEXT_LEFT);
-                nk_text(ctx, "", 0, NK_TEXT_LEFT);
-                nk_text(ctx, "", 0, NK_TEXT_LEFT);
-
-                /**/
-
                 color.r = 0; color.g = 255; color.b = 0;
-
                 if (led_green == 1) {
                     color.a = 255;
                 } else {
@@ -491,10 +482,7 @@ void main_gui() {
                 }
                 nk_button_color(ctx, color, NK_BUTTON_DEFAULT);
 
-                nk_text(ctx, "", 0, NK_TEXT_LEFT);
-
                 color.r = 255; color.g = 0; color.b = 0;
-
                 if (led_red == 1) {
                     color.a = 255;
                 } else {
@@ -502,23 +490,7 @@ void main_gui() {
                 }
                 nk_button_color(ctx, color, NK_BUTTON_DEFAULT);
 
-                nk_text(ctx, "", 0, NK_TEXT_LEFT);
-
-                color.r = 0; color.g = 255; color.b = 255;
-
-                if (led_gps == 1) {
-                    color.a = 255;
-                } else {
-                    color.a = 30;
-                }
-                nk_button_color(ctx, color, NK_BUTTON_DEFAULT);
-
-                /**/
-
-                nk_text(ctx, "", 0, NK_TEXT_LEFT);
-
                 color.r = 0; color.g = 0; color.b = 255;
-
                 if (led_blue == 1) {
                     color.a = 255;
                 } else {
@@ -526,9 +498,17 @@ void main_gui() {
                 }
                 nk_button_color(ctx, color, NK_BUTTON_DEFAULT);
 
-                nk_text(ctx, "", 0, NK_TEXT_LEFT);
-                nk_text(ctx, "", 0, NK_TEXT_LEFT);
-                nk_text(ctx, "", 0, NK_TEXT_LEFT);
+#define SW_LED(var, name) \
+                nk_layout_row_static(ctx, 20, 20, 5); \
+                color.r = 0; color.g = 255; color.b = 255; \
+                if (var == 1) { color.a = 255; } else { color.a = 30; } \
+                nk_button_color(ctx, color, NK_BUTTON_DEFAULT); \
+                nk_label(ctx, name, NK_TEXT_LEFT);
+
+                SW_LED(led_gps, "GPS")
+                SW_LED(led_fax, "FAX")
+                SW_LED(led_det_1750, "TONE")
+                SW_LED(led_sq2, "SQ2")
 
             }
             nk_end(ctx);

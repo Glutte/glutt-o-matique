@@ -43,7 +43,7 @@ int tone_fax_status(void);
 /* Must be called by task to do the analysis */
 void tone_do_analysis(void);
 
-/* Push a sample from the ADC ISR */
-void tone_detect_push_sample_from_irq(const uint16_t sample);
+/* Push a sample from the ADC ISR or Pulseaudio task */
+void tone_detect_push_sample(const uint16_t sample, int is_irq);
 
 #endif

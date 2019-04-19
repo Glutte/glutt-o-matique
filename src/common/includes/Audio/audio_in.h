@@ -35,7 +35,6 @@ void audio_in_initialize(void);
 /* Enable or disable the audio input */
 void audio_in_enable(int enable);
 
-// After calling this function, *buffer will point to new audio data.
-// Returns the number of times filling the internal buffer failed.
-int32_t audio_in_get_buffer(int16_t **buffer /*of length AUDIO_IN_BUF_LEN*/ );
-
+/* The audio input layer must call tone_detect_push_sample() to
+ * send the samples
+ */

@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2018 Maximilien Cuony
+ * Copyright (c) 2019 Matthias P. Braendli, Maximilien Cuony
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,27 +33,20 @@
 
 pa_simple *s_in = NULL;
 
-static int16_t buffers[2][AUDIO_IN_BUF_LEN];
-static int current_buffer = 0;
+static int16_t buffer[AUDIO_IN_BUF_LEN];
 
 static int enabled = 0; // TODO concurrent access: must be protected by a mutex :-/
-
-static QueueHandle_t adc2_values_queue;
 
 static void audio_buffer_reader(void __attribute__((unused))*args)
 {
     while (1) {
-        pa_simple_read(s_in, buffers[current_buffer], AUDIO_IN_BUF_LEN * sizeof(int16_t), NULL);
+        pa_simple_read(s_in, buffer, AUDIO_IN_BUF_LEN * sizeof(int16_t), NULL);
 
         if (enabled) {
-            int success = xQueueSendToBack(
-                    adc2_values_queue,
-                    &current_buffer,
-                    portMAX_DELAY);
-            assert(success);
+            for (int i = 0; i < AUDIO_IN_BUF_LEN; i++) {
+                tone_detect_push_sample(buffer[i] + (INT16_MAX >> 1), 0);
+            }
         }
-
-        current_buffer = (current_buffer + 1) % 2;
 
         taskYIELD();
     }
@@ -74,9 +67,6 @@ void audio_in_initialize() {
     s_in = pa_simple_new(NULL, "GlutteR", PA_STREAM_RECORD, NULL, "record", &ss, NULL, NULL, &error);
     assert(s_in);
 
-    adc2_values_queue = xQueueCreate(4, sizeof(current_buffer));
-    assert(adc2_values_queue);
-
     TaskHandle_t task_handle;
     xTaskCreate(
             audio_buffer_reader,
@@ -90,15 +80,5 @@ void audio_in_initialize() {
 void audio_in_enable(int enable)
 {
     enabled = enable;
-}
-
-int32_t audio_in_get_buffer(int16_t **buffer /*of length AUDIO_IN_BUF_LEN*/ )
-{
-    int last_written_buffer = 0;
-    while (!xQueueReceive(adc2_values_queue, &last_written_buffer, portMAX_DELAY)) {}
-
-    *buffer = buffers[last_written_buffer];
-
-    return 0;
 }
 
