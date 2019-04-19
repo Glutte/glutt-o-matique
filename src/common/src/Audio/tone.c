@@ -319,6 +319,7 @@ void tone_do_analysis()
     tone_1750_detected = (normalised_results[DET_1750] > thresh_1750);
     analyse_dtmf();
 
+#if PRINT_TONES_STATS
     static int printcounter = 0;
     if (++printcounter == 5) {
         usart_debug("Tones: % 3d % 3d % 3d % 3d % 3d\r\n",
@@ -330,5 +331,6 @@ void tone_do_analysis()
 
         printcounter = 0;
     }
+#endif // PRINT_TONES_STATS
 }
 
