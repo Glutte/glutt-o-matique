@@ -44,6 +44,6 @@ int tone_fax_status(void);
 void tone_do_analysis(void);
 
 /* Push a sample from the ADC ISR */
-void tone_detect_push_sample_from_irq(const int16_t sample);
+void tone_detect_push_sample_from_irq(const uint16_t sample);
 
 #endif

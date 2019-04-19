@@ -65,6 +65,7 @@ int random_bool(void);
 #define FAULT_SOURCE_ADC1 7
 #define FAULT_SOURCE_TIM6_ISR 8
 #define FAULT_SOURCE_ADC2_QUEUE 9
+#define FAULT_SOURCE_ADC2_IRQ 10
 void trigger_fault(int source);
 
 int find_last_sunday(const struct tm*);

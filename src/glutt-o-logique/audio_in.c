@@ -29,7 +29,7 @@
 #include "GPIO/usart.h"
 #include "Core/common.h"
 #include "Audio/audio_in.h"
-#include "queue.h"
+#include "Audio/tone.h"
 
 // APB1 prescaler = 4, see bsp/system_stm32f4xx.c
 #define APB1_FREQ (168000000ul / 4)
@@ -37,15 +37,6 @@
 
 // see doc/pio.txt for allocation
 #define PINS_ADC2 /* PB1 on ADC2 IN9 */ (GPIO_Pin_1)
-
-// The TIM6 ISR reads from ADC2 and writes into these double buffers
-static int16_t adc2_values[2][AUDIO_IN_BUF_LEN];
-static int     adc2_current_buffer = 0; // which buffer is being written into
-static int     adc2_values_end = 0;
-static int32_t adc2_lost_samples = 0;
-
-// ADC2 data from interrupt to userspace. The queue contains the buffer index
-static QueueHandle_t adc2_values_queue;
 
 /* ISR for Timer6 and DAC1&2 underrun */
 void TIM6_DAC_IRQHandler(void);
@@ -57,7 +48,7 @@ void TIM6_DAC_IRQHandler()
         TIM_ClearITPendingBit(TIM6, TIM_IT_Update);
     }
     else {
-        usart_debug("%x\r\n", TIM6->SR);
+        usart_debug("Spurious TIM6 IRQ: SR=%x\r\n", TIM6->SR);
         trigger_fault(FAULT_SOURCE_TIM6_ISR);
     }
 }
@@ -73,28 +64,13 @@ void ADC_IRQHandler()
         ADC_ClearITPendingBit(ADC2, ADC_IT_EOC);
 
         tone_detect_push_sample_from_irq(value);
-
-#if 0
-        /* input range: 0 to 2^12
-         * output range: -32768 to 32767 */
-        adc2_values[adc2_current_buffer][adc2_values_end++] = (int32_t)value - (1 << 11);
-        if (adc2_values_end == AUDIO_IN_BUF_LEN) {
-            int success = xQueueSendToBackFromISR(
-                    adc2_values_queue,
-                    &adc2_current_buffer,
-                    &require_context_switch);
-
-            adc2_values_end = 0;
-            adc2_current_buffer = (adc2_current_buffer + 1) % 2;
-
-            if (success == pdFALSE) {
-                adc2_lost_samples += AUDIO_IN_BUF_LEN;
-            }
-        }
-#endif
+    }
+    else if (ADC_GetFlagStatus(ADC2, ADC_FLAG_STRT) == SET) {
+        // This sometimes happens...
     }
     else {
-        adc2_lost_samples++;
+        usart_debug("Spurious ADC2 IRQ: SR=%x\r\n", ADC2->SR);
+        trigger_fault(FAULT_SOURCE_ADC2_IRQ);
     }
 
     portYIELD_FROM_ISR(require_context_switch);
@@ -165,11 +141,6 @@ void audio_in_initialize()
 
     ADC_Cmd(ADC2, ENABLE);
 
-    adc2_values_queue = xQueueCreate(2, sizeof(adc2_current_buffer));
-    if (adc2_values_queue == 0) {
-        trigger_fault(FAULT_SOURCE_ADC2_QUEUE);
-    }
-
     setup_timer();
 }
 
@@ -177,17 +148,6 @@ void audio_in_enable(int enable)
 {
     TIM_Cmd(TIM6, enable ? ENABLE : DISABLE);
 }
-
-int32_t audio_in_get_buffer(int16_t **buffer /*of length AUDIO_IN_BUF_LEN*/ )
-{
-    int buf_ix = 0;
-    while (!xQueueReceive(adc2_values_queue, &buf_ix, portMAX_DELAY)) {}
-
-    *buffer = adc2_values[buf_ix];
-
-    return adc2_lost_samples;
-}
-
 
 #warning "Test tone detector activation from FSM"
 #warning "Test 1750 not triggered by start bip my yaesu makes"

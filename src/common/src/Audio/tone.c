@@ -70,13 +70,13 @@ struct tone_detector {
     float coef;
     float Q1;
     float Q2;
-
-    int num_samples_analysed;
 };
 
 static struct tone_detector detectors[NUM_DETECTORS];
 
 static int num_samples_analysed = 0;
+static float prev_mean = 0;
+static uint32_t accum = 0;
 static int lost_results = 0;
 static QueueHandle_t m_squared_queue;
 
@@ -116,15 +116,17 @@ static inline void push_dtmf_code(enum dtmf_code code)
     }
     dtmf_sequence[NUM_DTMF_SEQ-1] = code;
 
-    usart_debug("DTMF: [%s, %s, %s]\r\n",
-            dtmf_to_str(dtmf_sequence[0]),
-            dtmf_to_str(dtmf_sequence[1]),
-            dtmf_to_str(dtmf_sequence[2]));
+    if (code != DTMF_NONE) {
+        usart_debug("DTMF: [%s, %s, %s]\r\n",
+                dtmf_to_str(dtmf_sequence[0]),
+                dtmf_to_str(dtmf_sequence[1]),
+                dtmf_to_str(dtmf_sequence[2]));
+    }
 }
 
 // TODO: Does that depend on TONE_N?
 const int thresh_dtmf = 200;
-const int thresh_1750 = 200;
+const int thresh_1750 = 300;
 
 static void analyse_dtmf()
 {
@@ -198,7 +200,6 @@ static inline void init_detector(struct tone_detector* detector, int freq) {
     detector->coef = 2.0f * arm_cos_f32(2.0f * FLOAT_PI * freq / AUDIO_IN_RATE);
     detector->Q1 = 0;
     detector->Q2 = 0;
-    detector->num_samples_analysed = 0;
 }
 
 void tone_init() {
@@ -221,10 +222,12 @@ void tone_init() {
 void tone_detector_enable(int enable)
 {
     if (enable && !detectors_enabled) {
+        num_samples_analysed = 0;
+        prev_mean = 0;
+        accum = 0;
         for (int det = 0; det < NUM_DETECTORS; det++) {
             detectors[det].Q1 = 0;
             detectors[det].Q2 = 0;
-            detectors[det].num_samples_analysed = 0;
         }
         audio_in_enable(1);
         detectors_enabled = 1;
@@ -235,65 +238,53 @@ void tone_detector_enable(int enable)
     }
 }
 
-/* Analyse a sample. Returns -1 if more samples needed, 0 if no tone detected,
- * 1 if a tone was detected.
- */
-static inline float analyse_sample(int16_t sample, struct tone_detector *detector)
+void tone_detect_push_sample_from_irq(const uint16_t sample)
 {
-    float Q0 = detector->coef * detector->Q1 - detector->Q2 + sample;
-    detector->Q2 = detector->Q1;
-    detector->Q1 = Q0;
-
-    detector->num_samples_analysed++;
-
-    if (detector->num_samples_analysed == TONE_N) {
-        const float m = sqrtf(
-                detector->Q1 * detector->Q1 +
-                detector->Q2 * detector->Q2 -
-                detector->coef * detector->Q1 * detector->Q2);
-
-        detector->Q1 = 0;
-        detector->Q2 = 0;
-        detector->num_samples_analysed = 0;
-
-        return m;
-    }
-    else {
-        return 0;
-    }
-}
-
-void tone_detect_push_sample_from_irq(const int16_t sample)
-{
-    for (int det = 0; det < NUM_DETECTORS; det++) {
-        struct tone_detector *detector = &detectors[det];
-        float Q0 = detector->coef * detector->Q1 - detector->Q2 + sample;
-        detector->Q2 = detector->Q1;
-        detector->Q1 = Q0;
-    }
     num_samples_analysed++;
 
-    if (num_samples_analysed == TONE_N) {
-        float m_squared[NUM_DETECTORS];
+    accum += sample;
+
+    // Do not do tone detection before we have calculated a mean
+    if (prev_mean > 0) {
+        const float s = sample - prev_mean;
+
         for (int det = 0; det < NUM_DETECTORS; det++) {
             struct tone_detector *detector = &detectors[det];
-            m_squared[det] =
-                detector->Q1 * detector->Q1 +
-                detector->Q2 * detector->Q2 -
-                detector->coef * detector->Q1 * detector->Q2;
-            detector->Q1 = 0;
-            detector->Q2 = 0;
+
+            float Q0 = detector->coef * detector->Q1 - detector->Q2 + s;
+            detector->Q2 = detector->Q1;
+            detector->Q1 = Q0;
+        }
+    }
+
+    if (num_samples_analysed == TONE_N) {
+        num_samples_analysed = 0;
+
+        if (prev_mean > 0) {
+            float m_squared[NUM_DETECTORS];
+            for (int det = 0; det < NUM_DETECTORS; det++) {
+                struct tone_detector *detector = &detectors[det];
+                m_squared[det] =
+                    detector->Q1 * detector->Q1 +
+                    detector->Q2 * detector->Q2 -
+                    detector->coef * detector->Q1 * detector->Q2;
+                detector->Q1 = 0;
+                detector->Q2 = 0;
+            }
+
+            BaseType_t require_context_switch = 0;
+            int success = xQueueSendToBackFromISR(
+                    m_squared_queue,
+                    &m_squared,
+                    &require_context_switch);
+
+            if (success == pdFALSE) {
+                lost_results++;
+            }
         }
 
-        BaseType_t require_context_switch = 0;
-        int success = xQueueSendToBackFromISR(
-                m_squared_queue,
-                &m_squared,
-                &require_context_switch);
-
-        if (success == pdFALSE) {
-            lost_results++;
-        }
+        prev_mean = (float)accum / (float)TONE_N;
+        accum = 0;
     }
 }
 
@@ -332,80 +323,3 @@ void tone_do_analysis()
     }
 }
 
-#if 0
-void tone_detect_push_samples(const int16_t *samples, int len)
-{
-    int32_t mean = 0;
-    int32_t min = 0x7fffffff;
-    int32_t max = -0x7fffffff;
-    for (int i = 0; i < len; i++) {
-        const int16_t s = samples[i];
-        mean += s;
-        if (s < min) {
-            min = s;
-        }
-        if (s > max) {
-            max = s;
-        }
-    }
-    mean /= len;
-
-    max -= mean;
-    min -= mean;
-
-    /* min and max should now be more or less opposite, assuming the
-     * signal is symmetric around its mean. Take the larger of the two,
-     * for the scalefactor calculation. */
-    const int32_t dev = (max > -min) ? max : -min;
-
-    /* Scale the signal [min - max] -> [-2^15, 2^15] by doing
-     * dev -> 2^15
-     */
-    const int32_t scalefactor = (1<<15) / dev;
-
-    float results[NUM_DETECTORS];
-    for (int det = 0; det < NUM_DETECTORS; det++) {
-        results[det] = 0;
-    }
-
-    for (int i = 0; i < len; i++) {
-        const int16_t s = scalefactor * (samples[i] - mean);
-
-        for (int det = 0; det < NUM_DETECTORS; det++) {
-            results[det] += analyse_sample(s, &detectors[det]);
-        }
-    }
-
-    /* Normalise the results so that a relative comparison of
-     * the different detectors can be done. This is more reliable
-     * than looking at the detector outputs independently, especially
-     * in the presence of noise whose amplitude varies. */
-    float inv_mean = 0;
-    for (int det = 0; det < NUM_DETECTORS; det++) {
-        inv_mean += results[det];
-    }
-    inv_mean = NUM_DETECTORS / inv_mean;
-
-    for (int det = 0; det < NUM_DETECTORS; det++) {
-        normalised_results[det] =
-            (11 * normalised_results[det] +
-             (int)(5 * 100 * results[det] * inv_mean))
-            >> 4; // divide by 16
-    }
-
-    tone_1750_detected = (normalised_results[DET_1750] > thresh_1750);
-    analyse_dtmf();
-
-    static int printcounter = 0;
-    if (++printcounter == 5) {
-        usart_debug("Tones: % 3d % 3d % 3d % 3d % 3d\r\n",
-                normalised_results[0],
-                normalised_results[1],
-                normalised_results[2],
-                normalised_results[3],
-                normalised_results[4]);
-
-        printcounter = 0;
-    }
-}
-#endif

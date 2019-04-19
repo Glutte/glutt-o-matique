@@ -617,40 +617,25 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
     }
 }
 
-static int led_phase = 0;
+const int BLUE_LED_INTVL = 4;
+static int blue_led_phase = 0;
 static void nf_analyse(void __attribute__ ((unused))*pvParameters)
 {
-    int num_fails = 0;
-    int total_samples_analysed = 0;
-    int timestamp = 0;
-
-    uint64_t t0 = timestamp_now();
-
     while (1) {
-        if (led_phase == 0) {
+        if (blue_led_phase == 0) {
             leds_turn_on(LED_BLUE);
         }
-        else if (led_phase == 40) {
+        else if (blue_led_phase == BLUE_LED_INTVL) {
             leds_turn_off(LED_BLUE);
         }
 
-        led_phase++;
+        blue_led_phase++;
 
-        if (led_phase >= 80) {
-            led_phase = 0;
+        if (blue_led_phase >= BLUE_LED_INTVL * 2) {
+            blue_led_phase = 0;
         }
 
         tone_do_analysis();
-
-        total_samples_analysed += AUDIO_IN_BUF_LEN;
-        if (++timestamp == 80) {
-            uint64_t t1 = timestamp_now();
-            usart_debug("Total samples analysed: %d in %ldms = %d\r\n",
-                    total_samples_analysed,
-                    t1 - t0,
-                    (int)(1000.0f * total_samples_analysed / (float)(t1 - t0)));
-            timestamp = 0;
-        }
     }
 }
 
