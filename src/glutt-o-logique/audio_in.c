@@ -72,6 +72,9 @@ void ADC_IRQHandler()
 
         ADC_ClearITPendingBit(ADC2, ADC_IT_EOC);
 
+        tone_detect_push_sample_from_irq(value);
+
+#if 0
         /* input range: 0 to 2^12
          * output range: -32768 to 32767 */
         adc2_values[adc2_current_buffer][adc2_values_end++] = (int32_t)value - (1 << 11);
@@ -88,6 +91,7 @@ void ADC_IRQHandler()
                 adc2_lost_samples += AUDIO_IN_BUF_LEN;
             }
         }
+#endif
     }
     else {
         adc2_lost_samples++;

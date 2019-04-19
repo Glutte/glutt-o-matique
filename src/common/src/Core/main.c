@@ -640,14 +640,7 @@ static void nf_analyse(void __attribute__ ((unused))*pvParameters)
             led_phase = 0;
         }
 
-        int16_t *audio_in_buffer;
-        const int new_num_fails = num_fails + audio_in_get_buffer(&audio_in_buffer);
-
-        if (new_num_fails != num_fails) {
-            usart_debug("Number of input samples lost: %d\r\n", new_num_fails);
-        }
-        num_fails = new_num_fails;
-        tone_detect_push_samples(audio_in_buffer, AUDIO_IN_BUF_LEN);
+        tone_do_analysis();
 
         total_samples_analysed += AUDIO_IN_BUF_LEN;
         if (++timestamp == 80) {

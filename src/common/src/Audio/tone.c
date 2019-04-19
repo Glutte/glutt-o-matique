@@ -27,6 +27,7 @@
 #include "GPIO/usart.h"
 
 #include <stdlib.h>
+#include "queue.h"
 
 #ifdef SIMULATOR
 #include <math.h>
@@ -65,7 +66,19 @@ enum dtmf_code {
     DTMF_STAR,
 };
 
+struct tone_detector {
+    float coef;
+    float Q1;
+    float Q2;
+
+    int num_samples_analysed;
+};
+
 static struct tone_detector detectors[NUM_DETECTORS];
+
+static int num_samples_analysed = 0;
+static int lost_results = 0;
+static QueueHandle_t m_squared_queue;
 
 // Apply an IIR filter with alpha = 5/16 to smooth out variations.
 // Values are normalised s.t. the mean corresponds to 100
@@ -189,6 +202,11 @@ static inline void init_detector(struct tone_detector* detector, int freq) {
 }
 
 void tone_init() {
+    m_squared_queue = xQueueCreate(2, NUM_DETECTORS * sizeof(float));
+    if (m_squared_queue == 0) {
+        trigger_fault(FAULT_SOURCE_ADC2_QUEUE);
+    }
+
     for (int i = 0; i < NUM_DTMF_SEQ; i++) {
         dtmf_sequence[i] = DTMF_NONE;
     }
@@ -245,6 +263,76 @@ static inline float analyse_sample(int16_t sample, struct tone_detector *detecto
     }
 }
 
+void tone_detect_push_sample_from_irq(const int16_t sample)
+{
+    for (int det = 0; det < NUM_DETECTORS; det++) {
+        struct tone_detector *detector = &detectors[det];
+        float Q0 = detector->coef * detector->Q1 - detector->Q2 + sample;
+        detector->Q2 = detector->Q1;
+        detector->Q1 = Q0;
+    }
+    num_samples_analysed++;
+
+    if (num_samples_analysed == TONE_N) {
+        float m_squared[NUM_DETECTORS];
+        for (int det = 0; det < NUM_DETECTORS; det++) {
+            struct tone_detector *detector = &detectors[det];
+            m_squared[det] =
+                detector->Q1 * detector->Q1 +
+                detector->Q2 * detector->Q2 -
+                detector->coef * detector->Q1 * detector->Q2;
+            detector->Q1 = 0;
+            detector->Q2 = 0;
+        }
+
+        BaseType_t require_context_switch = 0;
+        int success = xQueueSendToBackFromISR(
+                m_squared_queue,
+                &m_squared,
+                &require_context_switch);
+
+        if (success == pdFALSE) {
+            lost_results++;
+        }
+    }
+}
+
+void tone_do_analysis()
+{
+    float m[NUM_DETECTORS];
+    while (!xQueueReceive(m_squared_queue, &m, portMAX_DELAY)) {}
+
+    float inv_mean = 0;
+    for (int det = 0; det < NUM_DETECTORS; det++) {
+        m[det] = sqrtf(m[det]);
+        inv_mean += m[det];
+    }
+    inv_mean = NUM_DETECTORS / inv_mean;
+
+    for (int det = 0; det < NUM_DETECTORS; det++) {
+        normalised_results[det] =
+            (11 * normalised_results[det] +
+             (int)(5 * 100 * m[det] * inv_mean))
+            >> 4; // divide by 16
+    }
+
+    tone_1750_detected = (normalised_results[DET_1750] > thresh_1750);
+    analyse_dtmf();
+
+    static int printcounter = 0;
+    if (++printcounter == 5) {
+        usart_debug("Tones: % 3d % 3d % 3d % 3d % 3d\r\n",
+                normalised_results[0],
+                normalised_results[1],
+                normalised_results[2],
+                normalised_results[3],
+                normalised_results[4]);
+
+        printcounter = 0;
+    }
+}
+
+#if 0
 void tone_detect_push_samples(const int16_t *samples, int len)
 {
     int32_t mean = 0;
@@ -320,4 +408,4 @@ void tone_detect_push_samples(const int16_t *samples, int len)
         printcounter = 0;
     }
 }
-
+#endif

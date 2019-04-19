@@ -30,14 +30,6 @@
 
 #define TONE_BUFFER_LEN AUDIO_IN_BUF_LEN
 
-struct tone_detector {
-    float coef;
-    float Q1;
-    float Q2;
-
-    int num_samples_analysed;
-};
-
 void tone_init(void);
 
 void tone_detector_enable(int enable);
@@ -48,7 +40,10 @@ int tone_1750_status(void);
 /* The FAX status is 1 if the recently decoded DTMF is the 0-7-* sequence. */
 int tone_fax_status(void);
 
-/* Update all tone detection status */
-void tone_detect_push_samples(const int16_t *samples, int len);
+/* Must be called by task to do the analysis */
+void tone_do_analysis(void);
+
+/* Push a sample from the ADC ISR */
+void tone_detect_push_sample_from_irq(const int16_t sample);
 
 #endif
