@@ -117,7 +117,9 @@ void fsm_update(void);
 
 void fsm_balise_update(void);
 
-void fsm_sstv_update(void);
+// Update the FAX/SSTV state machine and return 1 if the 1750 notch filter must be
+// disabled
+int fsm_sstv_update(void);
 
 // Force a BALISE
 void fsm_balise_force(void);

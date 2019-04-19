@@ -590,15 +590,14 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
         fsm_input.det_1750 = tone_1750_status();
         pio_set_det_1750(fsm_input.det_1750);
         fsm_input.fax_mode = tone_fax_status();
-        pio_set_fax(fsm_input.fax_mode);
-
         fsm_input.swr_high = swr_error_flag;
         fsm_input.hour_is_even = hour_is_even;
 
         fsm_update_inputs(&fsm_input);
         fsm_update();
         fsm_balise_update();
-        fsm_sstv_update();
+        const int disable_1750_filter = fsm_sstv_update();
+        pio_set_fax(disable_1750_filter);
 
         struct fsm_output_signals_t fsm_out;
         fsm_get_outputs(&fsm_out);

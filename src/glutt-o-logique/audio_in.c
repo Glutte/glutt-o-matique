@@ -149,7 +149,6 @@ void audio_in_enable(int enable)
     TIM_Cmd(TIM6, enable ? ENABLE : DISABLE);
 }
 
-#warning "Test tone detector activation from FSM"
-#warning "Test 1750 not triggered by start bip my yaesu makes"
+#warning "Do an analog anti-aliasing filter"
 #warning "Test DTMF detector"
 #warning "Test if FAX mode gets enabled after 0-7-*"

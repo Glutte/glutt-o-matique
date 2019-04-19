@@ -72,7 +72,6 @@
                           GPIOC_PIN_U | \
                           GPIOC_PIN_D | \
                           GPIOC_PIN_REPLIE | \
-                          GPIOC_PIN_FAX | \
                           0 )
 
 #define GPIOD_OUTPUT_PINS ( \

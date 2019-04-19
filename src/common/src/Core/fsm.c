@@ -173,7 +173,7 @@ static const char* fsm_select_letter(void) {
     else if (fsm_in.qrp) {
         return letter_qrp;
     }
-    else if (fsm_in.fax_mode || sstv_state == SSTV_FSM_ON) {
+    else if (sstv_state == SSTV_FSM_ON) {
         return letter_sstv;
     }
 
@@ -636,7 +636,7 @@ void fsm_balise_update() {
     balise_state = next_state;
 }
 
-void fsm_sstv_update() {
+int fsm_sstv_update() {
 
     sstv_fsm_state_t next_state = sstv_state;
 
@@ -653,6 +653,7 @@ void fsm_sstv_update() {
             ) {
                 next_state = SSTV_FSM_OFF;
             }
+#warning "Disable FAX mode if 1750 is active for 5 seconds"
             break;
 
         default:
@@ -667,4 +668,5 @@ void fsm_sstv_update() {
 
     sstv_state = next_state;
 
+    return sstv_state == SSTV_FSM_ON;
 }
