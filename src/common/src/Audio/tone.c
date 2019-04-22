@@ -84,7 +84,7 @@ static QueueHandle_t m_squared_queue;
 // Values are normalised s.t. the mean corresponds to 100
 static int32_t normalised_results[NUM_DETECTORS];
 
-static int tone_1750_detected = 0;
+static int num_tone_1750_detected = 0;
 static int detectors_enabled = 0;
 
 static enum dtmf_code dtmf_last_seen = 0;
@@ -127,6 +127,7 @@ static inline void push_dtmf_code(enum dtmf_code code)
 // TODO: Does that depend on TONE_N?
 const int thresh_dtmf = 200;
 const int thresh_1750 = 300;
+const int num_1750_required = 5;
 
 static void analyse_dtmf()
 {
@@ -186,7 +187,7 @@ static void analyse_dtmf()
 
 int tone_1750_status()
 {
-    return tone_1750_detected;
+    return num_tone_1750_detected >= num_1750_required;
 }
 
 int tone_fax_status()
@@ -316,7 +317,14 @@ void tone_do_analysis()
             >> 4; // divide by 16
     }
 
-    tone_1750_detected = (normalised_results[DET_1750] > thresh_1750);
+    if (num_tone_1750_detected < num_1750_required &&
+            normalised_results[DET_1750] > thresh_1750) {
+        num_tone_1750_detected++;
+    }
+    else if (num_tone_1750_detected > 0) {
+        num_tone_1750_detected--;
+    }
+
     analyse_dtmf();
 
 #if PRINT_TONES_STATS
