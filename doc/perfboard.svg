@@ -2312,15 +2312,15 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.8284272"
-     inkscape:cx="442.8626"
-     inkscape:cy="320.50152"
+     inkscape:zoom="4.525404"
+     inkscape:cx="423.50319"
+     inkscape:cy="328.94893"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:snap-object-midpoints="true"
-     inkscape:window-width="1876"
-     inkscape:window-height="1044"
+     inkscape:window-width="1570"
+     inkscape:window-height="874"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
@@ -2356,7 +2356,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
         <cc:license
            rdf:resource="http://creativecommons.org/publicdomain/zero/1.0/" />
       </cc:Work>
@@ -22398,12 +22398,6 @@
        d="m 372.75592,793.70078 4.25197,-7.08662 -8.50394,10e-6 z"
        style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
     <path
-       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:bevel;stroke-opacity:1"
-       d="m 354.33072,783.07086 h -14.17323 -7.08661 v 4.25197 h -4.25197 8.50394"
-       id="path29318"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cccccc" />
-    <path
        sodipodi:nodetypes="ccccccccc"
        inkscape:connector-curvature="0"
        id="path29320"
@@ -29794,6 +29788,12 @@
        id="path33298-1"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cccc" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:bevel;stroke-opacity:1"
+       d="m 354.33072,783.07086 h -14.17323 -7.08661 v 4.25197 h -4.25197 8.50394"
+       id="path29318"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccccc" />
   </g>
   <g
      inkscape:groupmode="layer"
