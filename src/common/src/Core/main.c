@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2018 Matthias P. Braendli, Maximilien Cuony
+ * Copyright (c) 2019 Matthias P. Braendli, Maximilien Cuony
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -613,6 +613,8 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
         }
         cw_last_trigger = fsm_out.cw_psk31_trigger;
 
+#warning "Do the proper thing with SQ2"
+        pio_set_sq2((timestamp_now() % 4000) > 2000 ? 1 : 0);
     }
 }
 

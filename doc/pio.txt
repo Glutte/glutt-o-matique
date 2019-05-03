@@ -17,7 +17,7 @@ Connexions Relais
 -       in   REPLIE             PC13
 -       out  FAX                PC14
 -       out  GPS EPPS           PC15
--       out  SQ2                PC0
+-       out  SQ2                PC0 (ATTN: is also enabling 5V USB OTG, turns on LD7)
 -       out  DET 1750           PA8
 
 -       i/o  Dallas 1-wire      PA1

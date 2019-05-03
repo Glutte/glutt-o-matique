@@ -212,10 +212,12 @@ void fsm_update() {
                 short_beacon_counter_s++;
             }
 
-            // SQ is debounced inside pio.c (300ms)
+            // SQ and button 1750 are debounced inside pio.c (300ms)
             fsm_out.require_tone_detector = fsm_in.sq;
 
-            if ((fsm_in.sq && fsm_in.det_1750) | (fsm_in.sq && sstv_state == SSTV_FSM_ON)) {
+            if ( (fsm_in.sq && fsm_in.det_1750) ||
+                 (fsm_in.sq && sstv_state == SSTV_FSM_ON) ||
+                 (fsm_in.button_1750)) {
                 next_state = FSM_OPEN1;
             }
             else if (balise_state == BALISE_FSM_PENDING) {
