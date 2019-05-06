@@ -196,9 +196,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.8284271"
-     inkscape:cx="891.2114"
-     inkscape:cy="468.29081"
+     inkscape:zoom="1.2508214"
+     inkscape:cx="529.42295"
+     inkscape:cy="440.94725"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -259,23 +259,6 @@
        width="293.12836"
        id="rect29923"
        style="fill:none;stroke:#000000;stroke-width:0.80000001;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
-    <text
-       transform="translate(0,-308.26771)"
-       xml:space="preserve"
-       style="font-style:normal;font-weight:normal;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
-       x="718.53662"
-       y="965.82874"
-       id="text29925"><tspan
-         sodipodi:role="line"
-         id="tspan29927"
-         x="718.53662"
-         y="965.82874"
-         style="font-size:14px;line-height:1.25;font-family:sans-serif">Glutt-o-matique schéma</tspan><tspan
-         sodipodi:role="line"
-         x="718.53662"
-         y="983.32874"
-         id="tspan29929"
-         style="font-size:14px;line-height:1.25;font-family:sans-serif">2019-03-22 HB9EGM</tspan></text>
   </g>
   <g
      inkscape:label="Layer 1"
@@ -8398,6 +8381,55 @@
          x="315"
          y="992.86224"
          style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:6.75px;line-height:1.25;font-family:Sans;-inkscape-font-specification:'Sans Italic';stroke-width:0.75">0.5–2.9V</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:10.546875px;font-family:Sans;text-align:start;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.9375px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="463.211"
+       y="975.34546"
+       id="text2501"><tspan
+         sodipodi:role="line"
+         id="tspan2499"
+         x="463.211"
+         y="975.34546"
+         style="font-size:7.5px;line-height:0;text-align:start;text-anchor:start;stroke-width:0.9375px">2mA sortent de RESET_N quand on le tire à la masse,</tspan><tspan
+         sodipodi:role="line"
+         x="463.211"
+         y="988.52905"
+         style="font-size:7.5px;line-height:0;text-align:start;text-anchor:start;stroke-width:0.9375px"
+         id="tspan2575">le pont diviseur ne fonctionne pas. Une diode Si a une</tspan><tspan
+         sodipodi:role="line"
+         x="463.211"
+         y="1001.7126"
+         style="font-size:7.5px;line-height:0;text-align:start;text-anchor:start;stroke-width:0.9375px"
+         id="tspan2577">chute de tension trop élevée, alors une schottky fait l'affaire.</tspan></text>
+    <text
+       transform="translate(0,1.2204394e-5)"
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+       x="718.53662"
+       y="965.82874"
+       id="text29925"><tspan
+         sodipodi:role="line"
+         id="tspan29927"
+         x="718.53662"
+         y="965.82874"
+         style="font-size:14px;line-height:1.25;font-family:sans-serif">Glutt-o-matique schéma</tspan><tspan
+         sodipodi:role="line"
+         x="718.53662"
+         y="983.32874"
+         id="tspan29929"
+         style="font-size:14px;line-height:1.25;font-family:sans-serif">2019-05-06 HB9EGM</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:10.546875px;font-family:Sans;text-align:start;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.9375px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="101.40443"
+       y="485.26328"
+       id="text2501-3"><tspan
+         sodipodi:role="line"
+         x="101.40443"
+         y="485.26328"
+         style="font-size:7.5px;line-height:0;text-align:start;text-anchor:start;stroke-width:0.9375px"
+         id="tspan2577-5">Signaux de contrôle relais: 8V en logique inversée.</tspan></text>
   </g>
   <g
      inkscape:groupmode="layer"
