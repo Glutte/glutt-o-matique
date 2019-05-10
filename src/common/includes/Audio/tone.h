@@ -37,6 +37,10 @@ void tone_detector_enable(int enable);
 /* Return 1 when 1750 detected, 0 otherwise */
 int tone_1750_status(void);
 
+/* Return 1 if 1750 is currently detected, and has been already for at
+ * least 5s */
+int tone_1750_for_5_seconds(void);
+
 /* The FAX status is 1 if the recently decoded DTMF is the 0-7-* sequence. */
 int tone_fax_status(void);
 

@@ -651,11 +651,11 @@ int fsm_sstv_update() {
         case SSTV_FSM_ON:
             if (current_state == FSM_BALISE_LONGUE ||
                 current_state == FSM_ANTI_BAVARD ||
-                current_state == FSM_BALISE_SPECIALE
+                current_state == FSM_BALISE_SPECIALE ||
+                fsm_in.long_1750
             ) {
                 next_state = SSTV_FSM_OFF;
             }
-#warning "Disable FAX mode if 1750 is active for 5 seconds"
             break;
 
         default:

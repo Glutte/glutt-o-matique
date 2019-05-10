@@ -85,6 +85,7 @@ static QueueHandle_t m_squared_queue;
 static int32_t normalised_results[NUM_DETECTORS];
 
 static int num_tone_1750_detected = 0;
+static uint64_t tone_1750_detected_since = 0;
 static int detectors_enabled = 0;
 
 static enum dtmf_code dtmf_last_seen = 0;
@@ -188,6 +189,12 @@ static void analyse_dtmf()
 int tone_1750_status()
 {
     return num_tone_1750_detected >= num_1750_required;
+}
+
+int tone_1750_for_5_seconds()
+{
+    return (num_tone_1750_detected >= num_1750_required) &&
+        tone_1750_detected_since + 5000 < timestamp_now();
 }
 
 int tone_fax_status()
@@ -320,8 +327,13 @@ void tone_do_analysis()
     if (num_tone_1750_detected < num_1750_required &&
             normalised_results[DET_1750] > thresh_1750) {
         num_tone_1750_detected++;
+
+        if (num_tone_1750_detected == num_1750_required) {
+            tone_1750_detected_since = timestamp_now();
+        }
     }
-    else if (num_tone_1750_detected > 0) {
+    else if (num_tone_1750_detected > 0 &&
+            normalised_results[DET_1750] <= thresh_1750) {
         num_tone_1750_detected--;
     }
 
@@ -330,12 +342,14 @@ void tone_do_analysis()
 #if PRINT_TONES_STATS
     static int printcounter = 0;
     if (++printcounter == 5) {
-        usart_debug("Tones: % 3d % 3d % 3d % 3d % 3d\r\n",
+        usart_debug("Tones: % 3d % 3d % 3d % 3d % 3d since %d\r\n",
                 normalised_results[0],
                 normalised_results[1],
                 normalised_results[2],
                 normalised_results[3],
-                normalised_results[4]);
+                normalised_results[4],
+                (int)(timestamp_now() - tone_1750_detected_since)
+                );
 
         printcounter = 0;
     }
