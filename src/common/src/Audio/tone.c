@@ -94,7 +94,7 @@ static uint64_t dtmf_last_seen_at = 0;
 // Store the sequence of dtmf codes in this FIFO. If no DTMF code gets
 // decoded in the interval, a NONE gets inserted into the sequence
 #define NUM_DTMF_SEQ 3
-#define DTMF_MAX_TONE_INTERVAL 1500
+#define DTMF_MAX_TONE_INTERVAL 2500
 static enum dtmf_code dtmf_sequence[NUM_DTMF_SEQ];
 
 static char* dtmf_to_str(enum dtmf_code code)
