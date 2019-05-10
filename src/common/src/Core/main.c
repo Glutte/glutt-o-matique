@@ -579,16 +579,18 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
         }
 
 
+        const int current_tone_1750_status = tone_1750_status();
 #ifdef SIMULATOR
-        gui_in_tone_1750 =
+        gui_in_tone_1750 = current_tone_1750_status;
 #endif
-        fsm_input.det_1750 = tone_1750_status();
+        fsm_input.det_1750 = current_tone_1750_status;
+        pio_set_det_1750(current_tone_1750_status);
+
         fsm_input.long_1750 = tone_1750_for_5_seconds();
 
         // TODO implement a DTMF controlled state machine for setting SQ2
         pio_set_sq2(0);
 
-        pio_set_det_1750(fsm_input.det_1750);
         fsm_input.fax_mode = tone_fax_status();
         fsm_input.swr_high = swr_error_flag;
         fsm_input.hour_is_even = hour_is_even;

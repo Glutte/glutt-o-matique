@@ -329,10 +329,10 @@ void pio_set_fax(int on)
 void pio_set_det_1750(int on)
 {
     if (on) {
-        GPIO_ResetBits(GPIOA, GPIOA_PIN_DET_1750);
+        GPIO_SetBits(GPIOA, GPIOA_PIN_DET_1750);
     }
     else {
-        GPIO_SetBits(GPIOA, GPIOA_PIN_DET_1750);
+        GPIO_ResetBits(GPIOA, GPIOA_PIN_DET_1750);
     }
 }
 

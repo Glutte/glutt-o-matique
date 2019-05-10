@@ -196,9 +196,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.2508214"
-     inkscape:cx="529.42295"
-     inkscape:cy="440.94725"
+     inkscape:zoom="2.5016428"
+     inkscape:cx="764.10391"
+     inkscape:cy="449.8461"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -234,7 +234,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -7825,10 +7825,10 @@
       <path
          sodipodi:nodetypes="cc"
          style="color:#000000;display:inline;overflow:visible;visibility:visible;fill:none;stroke:#000000;stroke-width:0.80000001;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;enable-background:accumulate"
-         d="m 950,457.3622 h 56"
+         d="m 925,457.36223 81,-3e-5"
          id="path10598"
          inkscape:path-effect="#path-effect36408-1-1"
-         inkscape:original-d="m 950,457.3622 h 56"
+         inkscape:original-d="m 925,457.36223 81,-3e-5"
          inkscape:connector-curvature="0" />
       <text
          xml:space="preserve"
@@ -7841,40 +7841,6 @@
            x="953.33081"
            y="455.9155"
            style="font-weight:bold;font-size:10px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'Sans Bold'">DET 1750</tspan></text>
-    </g>
-    <g
-       id="g10616"
-       transform="matrix(0.75,0,0,0.75,644.27746,19.340556)">
-      <rect
-         style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         id="rect10606"
-         width="5.99998"
-         height="13"
-         x="-880.36218"
-         y="281"
-         transform="rotate(-90)" />
-      <path
-         style="fill:none;stroke:#000000;stroke-width:0.80000001;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         d="m 275,877.3622 h 5.97933"
-         id="path10608"
-         inkscape:connector-curvature="0" />
-      <path
-         sodipodi:nodetypes="cc"
-         style="fill:none;stroke:#000000;stroke-width:0.80000001;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         d="m 301,877.3622 h -6.97934"
-         id="path10610"
-         inkscape:connector-curvature="0" />
-      <text
-         xml:space="preserve"
-         style="font-style:normal;font-weight:normal;line-height:0%;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
-         x="287.63007"
-         y="890.64972"
-         id="text10614"><tspan
-           sodipodi:role="line"
-           x="287.63007"
-           y="890.64972"
-           style="font-weight:bold;font-size:9px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'Sans Bold';text-align:center;text-anchor:middle"
-           id="tspan10612">3k3</tspan></text>
     </g>
     <path
        style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.60000002;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
