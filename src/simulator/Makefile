@@ -72,6 +72,7 @@ CWARNS += -Wunused-parameter
 CWARNS += -Wunused-value
 CWARNS += -Wunused-variable
 CWARNS += -Wmissing-prototypes
+CWARNS += -Wno-implicit-fallthrough # in nuklear
 
 CFLAGS += -DDEBUG=1
 CFLAGS += -g -DUSE_STDIO=1 -D__GCC_POSIX__=1 -lX11 -lm -lGL -lm -lGLU -lpulse-simple -lpulse

@@ -151,6 +151,3 @@ void audio_in_enable(int enable)
     TIM_Cmd(TIM6, enable ? ENABLE : DISABLE);
 }
 
-#warning "Do an analog anti-aliasing filter"
-#warning "Test DTMF detector"
-#warning "Test if FAX mode gets enabled after 0-7-*"
