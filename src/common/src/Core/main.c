@@ -569,6 +569,7 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
 
             if (cw_done) {
                 fsm_input.cw_psk31_done = cw_done;
+                leds_turn_off(LED_ORANGE);
             }
 
             last_cw_done = cw_done;
@@ -577,12 +578,6 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
             fsm_input.cw_psk31_done = 0;
         }
 
-        if (fsm_input.cw_psk31_done) {
-            leds_turn_off(LED_ORANGE);
-        }
-        else {
-            leds_turn_on(LED_ORANGE);
-        }
 
 #ifdef SIMULATOR
         gui_in_tone_1750 =
@@ -609,7 +604,7 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
         if (fsm_out.cw_psk31_trigger && !cw_last_trigger) {
             cw_psk31_push_message(fsm_out.msg, fsm_out.cw_dit_duration, fsm_out.msg_frequency);
 
-            usart_debug_puts("Out CW trigger\r\n");
+            leds_turn_on(LED_ORANGE);
         }
         cw_last_trigger = fsm_out.cw_psk31_trigger;
 
