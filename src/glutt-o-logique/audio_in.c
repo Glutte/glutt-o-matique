@@ -25,6 +25,7 @@
 #include "stm32f4xx_conf.h"
 #include "stm32f4xx_gpio.h"
 #include "stm32f4xx_adc.h"
+#include "stm32f4xx_dac.h"
 
 #include "GPIO/usart.h"
 #include "Core/common.h"
@@ -48,7 +49,8 @@ void TIM6_DAC_IRQHandler()
         TIM_ClearITPendingBit(TIM6, TIM_IT_Update);
     }
     else {
-        usart_debug("Spurious TIM6 IRQ: SR=%x\r\n", TIM6->SR);
+        usart_debug("Spurious TIM6 IRQ: SR=%x, DAC SR=%x\r\n",
+                TIM6->SR, DAC->SR);
         trigger_fault(FAULT_SOURCE_TIM6_ISR);
     }
 }
