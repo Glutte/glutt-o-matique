@@ -583,6 +583,10 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
         gui_in_tone_1750 =
 #endif
         fsm_input.det_1750 = tone_1750_status();
+
+        // TODO implement a DTMF controlled state machine for setting SQ2
+        pio_set_sq2(0);
+
         pio_set_det_1750(fsm_input.det_1750);
         fsm_input.fax_mode = tone_fax_status();
         fsm_input.swr_high = swr_error_flag;
@@ -608,8 +612,6 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
         }
         cw_last_trigger = fsm_out.cw_psk31_trigger;
 
-#warning "Do the proper thing with SQ2"
-        pio_set_sq2((timestamp_now() % 4000) > 2000 ? 1 : 0);
     }
 }
 
