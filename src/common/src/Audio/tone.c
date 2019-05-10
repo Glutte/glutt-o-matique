@@ -99,7 +99,7 @@ static enum dtmf_code dtmf_sequence[NUM_DTMF_SEQ];
 
 static char* dtmf_to_str(enum dtmf_code code)
 {
-    char *codestr;
+    char *codestr = "?";
     switch (code) {
         case DTMF_0: codestr = "0"; break;
         case DTMF_7: codestr = "7"; break;
