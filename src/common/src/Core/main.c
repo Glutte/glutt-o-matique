@@ -391,11 +391,20 @@ static void gps_monit_task(void __attribute__ ((unused))*pvParameters) {
     int t_gps_print_latch = 0;
     int t_gps_hours_handeled = 0;
     uint64_t last_hour_timestamp = 0;
+    uint64_t last_volt_and_temp_timestamp = timestamp_now();
 
     int last_even = -1;
 
-
     while (1) {
+        if (last_volt_and_temp_timestamp + 20000 < timestamp_now()) {
+            usart_debug("ALIM %d mV\r\n", (int)roundf(1000.0f * analog_measure_12v()));
+
+            const float temp = temperature_get();
+            usart_debug("TEMP %d.%02d\r\n", (int)temp, (int)(temp * 100.0f - (int)(temp) * 100.0f));
+
+            last_volt_and_temp_timestamp = timestamp_now();
+        }
+
         struct tm time = {0};
         int time_valid = local_time(&time);
         int derived_mode = 0;
@@ -411,7 +420,6 @@ static void gps_monit_task(void __attribute__ ((unused))*pvParameters) {
             derived_mode = 0;
         }
         else {
-
             time_valid = local_derived_time(&time);
 
             if (time_valid) {
@@ -424,7 +432,6 @@ static void gps_monit_task(void __attribute__ ((unused))*pvParameters) {
 
                 derived_mode = 1;
             }
-
         }
 
         if (time_valid) {
@@ -434,7 +441,6 @@ static void gps_monit_task(void __attribute__ ((unused))*pvParameters) {
                 last_even = hour_is_even;
 
                 usart_debug("Even changed: %i %i %i\r\n", hour_is_even, time.tm_hour, derived_mode);
-
             }
         }
 
@@ -447,7 +453,7 @@ static void gps_monit_task(void __attribute__ ((unused))*pvParameters) {
                 gps_time.tm_hour, gps_time.tm_min, gps_time.tm_sec,
                 num_sv_used);
 
-            char * mode;
+            char *mode = "";
 
             if (derived_mode) {
                 mode = "Derived";
@@ -462,14 +468,7 @@ static void gps_monit_task(void __attribute__ ((unused))*pvParameters) {
                 time.tm_hour, time.tm_min, time.tm_sec,
                 mode);
 
-
             t_gps_print_latch = 1;
-
-            usart_debug("ALIM %d mV\r\n", (int)roundf(1000.0f * analog_measure_12v()));
-
-            const float temp = temperature_get();
-            usart_debug("TEMP %d.%02d\r\n", (int)temp, (int)(temp * 100.0f - (int)(temp) * 100.0f));
-
         }
 
         if (time.tm_sec % 30 > 0) {
