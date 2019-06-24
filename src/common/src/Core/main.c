@@ -455,7 +455,8 @@ static void gps_monit_task(void __attribute__ ((unused))*pvParameters) {
                 usart_debug("Even changed: %i %i %s\r\n", hour_is_even, time.tm_hour, derived_mode ? "DERIVED" : "GPS");
             }
         }
-        else if (last_hour_is_even_change_timestamp + 2 * 3600 < now) {
+        else if (last_hour_is_even_change_timestamp + (2 * 3600 * 1000) < now) {
+            hour_is_even = (hour_is_even + 1) % 2;
             last_even = hour_is_even;
 
             usart_debug("Even changed: %i %i FREE-RUNNING\r\n", hour_is_even, time.tm_hour);
