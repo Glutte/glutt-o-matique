@@ -386,23 +386,35 @@ static void audio_callback(void __attribute__ ((unused))*context, int select_buf
 static struct tm gps_time;
 static void gps_monit_task(void __attribute__ ((unused))*pvParameters) {
 
+    /* There are two types of non GPS clocks: the DERIVED one which works if
+     * GPS time was known at some point, and the free-running that only depends
+     * on timestamp_now(). The free-running one is used to ensure 2h beacons are
+     * transmitted even if GPS never gave us time. The DERIVED kicks in when GPS
+     * fails after having output time information and tries to keep accurate absolute
+     * time.
+     */
+
     pio_set_gps_epps(1);
 
     int t_gps_print_latch = 0;
     int t_gps_hours_handeled = 0;
     uint64_t last_hour_timestamp = 0;
-    uint64_t last_volt_and_temp_timestamp = timestamp_now();
+
+    uint64_t last_volt_and_temp_timestamp, last_hour_is_even_change_timestamp;
+    last_volt_and_temp_timestamp = last_hour_is_even_change_timestamp = timestamp_now();
 
     int last_even = -1;
 
     while (1) {
-        if (last_volt_and_temp_timestamp + 20000 < timestamp_now()) {
+        const uint64_t now = timestamp_now();
+
+        if (last_volt_and_temp_timestamp + 20000 < now) {
             usart_debug("ALIM %d mV\r\n", (int)roundf(1000.0f * analog_measure_12v()));
 
             const float temp = temperature_get();
             usart_debug("TEMP %d.%02d\r\n", (int)temp, (int)(temp * 100.0f - (int)(temp) * 100.0f));
 
-            last_volt_and_temp_timestamp = timestamp_now();
+            last_volt_and_temp_timestamp = now;
         }
 
         struct tm time = {0};
@@ -440,8 +452,14 @@ static void gps_monit_task(void __attribute__ ((unused))*pvParameters) {
             if (last_even != hour_is_even) {
                 last_even = hour_is_even;
 
-                usart_debug("Even changed: %i %i %i\r\n", hour_is_even, time.tm_hour, derived_mode);
+                usart_debug("Even changed: %i %i %s\r\n", hour_is_even, time.tm_hour, derived_mode ? "DERIVED" : "GPS");
             }
+        }
+        else if (last_hour_is_even_change_timestamp + 2 * 3600 < now) {
+            last_even = hour_is_even;
+
+            usart_debug("Even changed: %i %i FREE-RUNNING\r\n", hour_is_even, time.tm_hour);
+            last_hour_is_even_change_timestamp = now;
         }
 
         int num_sv_used = 0;
@@ -476,21 +494,18 @@ static void gps_monit_task(void __attribute__ ((unused))*pvParameters) {
         }
 
         if (time_valid && derived_mode == 0 && gps_time.tm_sec == 0 && gps_time.tm_min == 0 && t_gps_hours_handeled == 0) {
-
-            uint64_t current_timestamp = timestamp_now();
-
             if (last_hour_timestamp == 0) {
-                usart_debug("DERIV INIT TS=%lld\r\n", current_timestamp);
+                usart_debug("DERIV INIT TS=%lld\r\n", now);
             }
             else {
                 usart_debug("DERIV TS=%lld Excepted=%lld Delta=%lld\r\n",
-                    current_timestamp,
+                    now,
                     last_hour_timestamp + 3600000,
-                    last_hour_timestamp + 3600000 - current_timestamp
+                    last_hour_timestamp + 3600000 - now
                 );
             }
 
-            last_hour_timestamp = timestamp_now();
+            last_hour_timestamp = now;
 
             t_gps_hours_handeled = 1;
         }
