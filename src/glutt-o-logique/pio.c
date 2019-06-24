@@ -346,6 +346,3 @@ void pio_set_sq2(int on)
     }
 }
 
-#warning "TODO Test SQ2 out"
-#warning "TODO Test 1750 out"
-
