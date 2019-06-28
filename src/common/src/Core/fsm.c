@@ -554,11 +554,16 @@ void fsm_update() {
             fsm_out.cw_psk31_trigger = 1;
 
             if (current_state == FSM_BALISE_COURTE) {
-                if (fsm_in.sq) {
-                    next_state = FSM_BALISE_COURTE_OPEN;
+                if (fsm_in.cw_psk31_done) {
+                    if (fsm_in.sq) {
+                        next_state = FSM_OPEN2;
+                    }
+                    else {
+                        next_state = FSM_OISIF;
+                    }
                 }
-                else if (fsm_in.cw_psk31_done) {
-                    next_state = FSM_OISIF;
+                else if (fsm_in.sq) {
+                    next_state = FSM_BALISE_COURTE_OPEN;
                 }
             }
             else { //FSM_BALISE_COURTE_OPEN
