@@ -43,7 +43,7 @@ C_FILES			+= $(SRC_SOURCES)
 INCLUDES        += -I$(SRCROOT)/Source/include
 INCLUDES        += -I$(SRCROOT)/Source/portable/GCC/POSIX/
 INCLUDES        += -I$(SRCROOT)/src/Core
-INCLUDES        += -I$(SRCROOT)/../common/includes/
+INCLUDES        += -I$(SRCROOT)/../common/
 INCLUDES        += -I$(SRCROOT)
 
 # Generate OBJS names

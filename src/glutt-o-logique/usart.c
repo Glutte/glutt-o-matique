@@ -37,7 +37,7 @@ const uint16_t GPIOD_PIN_GPS_RESET_N = GPIO_Pin_10;
 const uint16_t GPIOA_PIN_USART2_RX = GPIO_Pin_3;
 const uint16_t GPIOA_PIN_USART2_TX = GPIO_Pin_2;
 
-#include "../common/includes/GPIO/usart.h"
+#include "GPIO/usart.h"
 
 #define USART2_RECEIVE_ENABLE 0 // TODO something is not working
 

@@ -22,7 +22,7 @@ COMMON_SOURCE_LIST=$(shell cat ../common/sourcelist.txt)
 CSOURCES+=$(COMMON_SOURCE_LIST:%.c=../common/%.c)
 
 INC=$(shell find -L $(SRCDIR) -name '*.h' -exec dirname {} \; | uniq)
-INC+=$(COMMON_DIR)/includes
+INC+=$(COMMON_DIR)
 INCLUDES=$(INC:%=-I%)
 
 # Create object list
