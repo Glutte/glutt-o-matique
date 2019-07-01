@@ -30,10 +30,10 @@
 #include "vc.h"
 
 static int values_valid = 0;
-static uint32_t num_beacons_sent = 0;
-static uint32_t num_wind_generator_movements = 0;
-static uint32_t num_tx_switch = 0;
-static uint32_t num_antibavard = 0;
+static int num_beacons_sent = 0;
+static int num_wind_generator_movements = 0;
+static int num_tx_switch = 0;
+static int num_antibavard = 0;
 static float battery_min = -1.0f;
 static float battery_max = -1.0f;
 static float battery_per_hour[24];
@@ -160,11 +160,11 @@ const char* stats_build_text(void)
     int time_valid = local_time(&time);
 
     uint64_t uptime = timestamp_now();
-    uint32_t uptime_j = uptime / (24 * 3600 * 1000);
+    int uptime_j = uptime / (24 * 3600 * 1000);
     uptime -= uptime_j * (24 * 3600 * 1000);
-    uint32_t uptime_h = uptime / (3600 * 1000);
+    int uptime_h = uptime / (3600 * 1000);
     uptime -= uptime_h * (24 * 3600 * 1000);
-    uint32_t uptime_m = uptime / (60 * 1000);
+    int uptime_m = uptime / (60 * 1000);
 
     stats_end_ix = snprintf(stats_text + stats_end_ix, STATS_LEN - 1 - stats_end_ix,
             "HB9G www.glutte.ch HB9G www.glutte.ch\n");
