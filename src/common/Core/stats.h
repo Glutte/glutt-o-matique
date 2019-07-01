@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2019 Matthias P. Braendli
+ * Copyright (c) 2019 Matthias P. Braendli, Maximilien Cuony
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,40 +20,18 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
-*/
+ */
 
 #pragma once
-
 #include <stdint.h>
-#include <stddef.h>
 
-// Setup the CW generator to create audio samples at the given
-// samplerate.
-void cw_psk_init(unsigned int samplerate);
+void stats_voltage_at_full_hour(int hour, float u_bat);
+void stats_voltage(float u_bat);
 
-// Append new CW or PSK text to transmit
-// CW/PSK audio centre frequency in Hz
-//
-// Supported characters for CW:
-// All ASCII between '+' and '\', which includes
-// numerals and capital letters.
-//
-// Supported characters for PSK: 7-bit clean ASCII
-//
-// if dit_duration == -1, message is sent in PSK31
-// if dit_duration == -2, message is sent in PSK63
-// if dit_duration == -3, message is sent in PSK125
-// otherwise it is sent in CW, with dit_duration in ms
-// returns 0 on failure, 1 on success
-int cw_psk_push_message(const char* text, int frequency, int dit_duration);
+void stats_temp(float temp);
+void stats_wind_generator_moved(void);
+void stats_beacon_sent(void);
+void stats_tx_switched(void);
+void stats_anti_bavard_triggered(void);
 
-// Write the waveform into the buffer (stereo), both for cw and psk
-size_t cw_psk_fill_buffer(int16_t *buf, size_t bufsize);
-
-// Return 1 if the CW or PSK generator is running
-int cw_psk_busy(void);
-
-void cw_message_sent(const char*);
-
-size_t cw_symbol(uint8_t, uint8_t *, size_t);
-
+const char* stats_build_text(void);

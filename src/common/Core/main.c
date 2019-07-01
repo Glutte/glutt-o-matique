@@ -42,6 +42,7 @@
 #include "GPIO/i2c.h"
 #include "GPS/gps.h"
 #include "Core/fsm.h"
+#include "Core/stats.h"
 #include "Core/common.h"
 #include "GPIO/usart.h"
 #include "Core/delay.h"
@@ -140,7 +141,7 @@ int main(void) {
 static void launcher_task(void __attribute__ ((unused))*pvParameters)
 {
     usart_debug_puts("CW init\r\n");
-    cw_psk31_init(16000);
+    cw_psk_init(16000);
 
     usart_debug_puts("PIO init\r\n");
     pio_init();
@@ -356,7 +357,7 @@ static void audio_callback(void __attribute__ ((unused))*context, int select_buf
         leds_turn_on(LED_RED);
     }
 
-    size_t samples_len = cw_psk31_fill_buffer(samples, AUDIO_BUF_LEN);
+    size_t samples_len = cw_psk_fill_buffer(samples, AUDIO_BUF_LEN);
 
     if (samples_len == 0) {
         for (int i = 0; i < AUDIO_BUF_LEN; i++) {
@@ -408,15 +409,6 @@ static void gps_monit_task(void __attribute__ ((unused))*pvParameters) {
     while (1) {
         const uint64_t now = timestamp_now();
 
-        if (last_volt_and_temp_timestamp + 20000 < now) {
-            usart_debug("ALIM %d mV\r\n", (int)roundf(1000.0f * analog_measure_12v()));
-
-            const float temp = temperature_get();
-            usart_debug("TEMP %d.%02d\r\n", (int)temp, (int)(temp * 100.0f - (int)(temp) * 100.0f));
-
-            last_volt_and_temp_timestamp = now;
-        }
-
         struct tm time = {0};
         int time_valid = local_time(&time);
         int derived_mode = 0;
@@ -461,6 +453,22 @@ static void gps_monit_task(void __attribute__ ((unused))*pvParameters) {
 
             usart_debug("Even changed: %i %i FREE-RUNNING\r\n", hour_is_even, time.tm_hour);
             last_hour_is_even_change_timestamp = now;
+        }
+
+        if (last_volt_and_temp_timestamp + 20000 < now) {
+            const float u_bat = analog_measure_12v();
+            usart_debug("ALIM %d mV\r\n", (int)roundf(1000.0f * u_bat));
+
+            stats_voltage(u_bat);
+            if (time_valid && time.tm_min == 0) {
+                stats_voltage_at_full_hour(time.tm_hour, u_bat);
+            }
+
+            const float temp = temperature_get();
+            stats_temp(temp);
+            usart_debug("TEMP %d.%02d\r\n", (int)temp, (int)(temp * 100.0f - (int)(temp) * 100.0f));
+
+            last_volt_and_temp_timestamp = now;
         }
 
         int num_sv_used = 0;
@@ -531,6 +539,7 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
     int cw_last_trigger = 0;
     int last_tm_trigger_button = 0;
 
+    int last_tx_on = 0;
     int last_sq = 0;
     int last_qrp = 0;
     int last_cw_done = 0;
@@ -567,30 +576,26 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
         }
         if (last_wind_generator_ok != fsm_input.wind_generator_ok) {
             last_wind_generator_ok = fsm_input.wind_generator_ok;
+            stats_wind_generator_moved();
             usart_debug("In eolienne %s\r\n", last_wind_generator_ok ? "vent" : "replie");
         }
 
-        if (tm_trigger_button == 1 && last_tm_trigger_button == 0) {
-            fsm_balise_force();
-        }
-        last_tm_trigger_button = tm_trigger_button;
-
-        const int cw_psk31_done = !cw_psk31_busy();
-        const int cw_done = cw_psk31_done && only_zero_in_audio_buffer;
+        const int cw_psk_done = !cw_psk_busy();
+        const int cw_done = cw_psk_done && only_zero_in_audio_buffer;
 
         // Set the done flag to 1 only once, when cw_done switches from 0 to 1
         if (last_cw_done != cw_done) {
             usart_debug("In cw_done change %d %d\r\n", cw_done, only_zero_in_audio_buffer);
 
             if (cw_done) {
-                fsm_input.cw_psk31_done = cw_done;
+                fsm_input.cw_psk_done = cw_done;
                 leds_turn_off(LED_ORANGE);
             }
 
             last_cw_done = cw_done;
         }
         else {
-            fsm_input.cw_psk31_done = 0;
+            fsm_input.cw_psk_done = 0;
         }
 
 
@@ -610,7 +615,21 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
         fsm_input.swr_high = swr_error_flag;
         fsm_input.hour_is_even = hour_is_even;
 
+        struct tm time = {0};
+        int time_valid = local_time(&time);
+        // TODO use derived too?
+        if (time_valid) {
+            fsm_input.send_stats = (time.tm_hour == 22) ? 1 : 0;
+        }
+
         fsm_update_inputs(&fsm_input);
+
+        if (tm_trigger_button == 1 && last_tm_trigger_button == 0) {
+            fsm_update_inputs(&fsm_input);
+            fsm_balise_force();
+        }
+        last_tm_trigger_button = tm_trigger_button;
+
         fsm_update();
         fsm_balise_update();
         const int disable_1750_filter = fsm_sstv_update();
@@ -620,15 +639,22 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
         fsm_get_outputs(&fsm_out);
 
         pio_set_tx(fsm_out.tx_on);
+        if (fsm_out.tx_on != last_tx_on) {
+            stats_tx_switched();
+            last_tx_on = fsm_out.tx_on;
+        }
         pio_set_mod_off(!fsm_out.modulation);
 
         // Add message to CW generator only on rising edge of trigger
-        if (fsm_out.cw_psk31_trigger && !cw_last_trigger) {
-            cw_psk31_push_message(fsm_out.msg, fsm_out.cw_dit_duration, fsm_out.msg_frequency);
+        if (fsm_out.cw_psk_trigger && !cw_last_trigger) {
+            const int success = cw_psk_push_message(fsm_out.msg, fsm_out.cw_dit_duration, fsm_out.msg_frequency);
+            if (!success) {
+                usart_debug_puts("cw_psk_push_message failed");
+            }
 
             leds_turn_on(LED_ORANGE);
         }
-        cw_last_trigger = fsm_out.cw_psk31_trigger;
+        cw_last_trigger = fsm_out.cw_psk_trigger;
 
     }
 }
