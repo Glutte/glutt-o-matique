@@ -33,5 +33,9 @@ void stats_wind_generator_moved(void);
 void stats_beacon_sent(void);
 void stats_tx_switched(void);
 void stats_anti_bavard_triggered(void);
+void stats_num_gnss_sv(int num_sv);
+
+// Must be called in regular intervals
+void stats_qrp(int is_qrp);
 
 const char* stats_build_text(void);

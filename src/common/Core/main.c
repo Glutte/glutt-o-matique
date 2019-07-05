@@ -381,7 +381,6 @@ static void audio_callback(void __attribute__ ((unused))*context, int select_buf
     }
 
     timestamp_last_audio_callback = timestamp_now();
-
 }
 
 static struct tm gps_time;
@@ -547,6 +546,8 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
     int last_discrim_u = 0;
     int last_wind_generator_ok = 0;
 
+    uint64_t last_qrp_stats_updated = timestamp_now();
+
     fsm_input.humidity = 0;
     fsm_input.temp = 15;
     fsm_input.swr_high = 0;
@@ -557,6 +558,14 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
         vTaskDelay(pdMS_TO_TICKS(10));
 
         pio_set_fsm_signals(&fsm_input);
+
+        const uint64_t now = timestamp_now();
+
+        // QRP/QRO doesn't change too often, updating every 10s is good enough
+        if (last_qrp_stats_updated + 10000 < now) {
+            stats_qrp(fsm_input.qrp);
+            last_qrp_stats_updated = now;
+        }
 
         if (last_sq != fsm_input.sq) {
             last_sq = fsm_input.sq;
@@ -617,7 +626,9 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
 
         struct tm time = {0};
         int time_valid = local_time(&time);
-        // TODO use derived too?
+        if (!time_valid) {
+            time_valid = local_derived_time(&time);
+        }
         if (time_valid) {
             fsm_input.send_stats = (time.tm_hour == 22) ? 1 : 0;
         }
