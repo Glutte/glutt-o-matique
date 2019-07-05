@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2016 Matthias P. Braendli, Maximilien Cuony
+ * Copyright (c) 2019 Matthias P. Braendli, Maximilien Cuony
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -40,6 +40,9 @@ enum fsm_state_e {
     FSM_TEXTE_HB9G,      // Transmit HB9G after QSO
     FSM_TEXTE_LONG,      // Transmit either HB9G JN36BK or HB9G 1628M after QSO
     FSM_BALISE_LONGUE,   // Full-length 2-hour beacon
+    FSM_BALISE_STATS1,   // Full-length 2-hour beacon at 22:00, 1st part in CW
+    FSM_BALISE_STATS2,   // Full-length 2-hour beacon at 22:00, 2nd part in PSK
+    FSM_BALISE_STATS3,   // Full-length 2-hour beacon at 22:00, 3nd part in CW
     FSM_BALISE_SPECIALE, // 2-hour beacon when in QRP or with high power return mode
     FSM_BALISE_COURTE,   // Short intermittent beacon
     FSM_BALISE_COURTE_OPEN,   // Short intermittent beacon, need to switch to OPEN
@@ -74,6 +77,7 @@ struct fsm_input_signals_t {
     int discrim_u;         // FM discriminator says RX is too high in frequency
     int qrp;               // The relay is currently running with low power
     int hour_is_even;      // 1 if hour is even
+    int send_stats;        // 1 if the balise should contain stats
     float temp;            // temperature in degrees C
     float humidity;        // relative humidity, range [0-100] %
     int wind_generator_ok; // false if the generator is folded out of the wind
@@ -86,7 +90,7 @@ struct fsm_input_signals_t {
     int long_1750;         // 1750Hz detected for more than 5s
 
     /* Signals coming from CW and PSK generator */
-    int cw_psk31_done;     // The CW and PSK generator has finished transmitting the message
+    int cw_psk_done;       // The CW and PSK generator has finished transmitting the message
 
     /* Signal coming from the standing wave ratio meter */
     int swr_high;          // We see a lot of return power
@@ -102,9 +106,8 @@ struct fsm_output_signals_t {
     /* Signals to the CW and PSK generator */
     const char* msg;       // The message to transmit
     int msg_frequency;     // What audio frequency for the CW or PSK message
-    int cw_dit_duration;   // CW speed, dit duration in ms
-    int cw_psk31_trigger;  // Set to true to trigger a CW or PSK31 transmission.
-                           // PSK31 is sent if cw_dit_duration is 0
+    int cw_dit_duration;   // CW speed, dit duration in ms or PSK speed (see enum cw_psk_types_e)
+    int cw_psk_trigger;    // Set to true to trigger a CW or PSK transmission.
 
     /* Tone detector */
     int require_tone_detector; // Enables audio input and detector for DTMF and 1750

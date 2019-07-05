@@ -32,7 +32,7 @@
 #include <time.h>
 
 /* Feature defines */
-#define ENABLE_PSK31 0
+#define ENABLE_PSK 1
 
 #define FLOAT_PI 3.1415926535897932384f
 
@@ -66,6 +66,7 @@ int random_bool(void);
 #define FAULT_SOURCE_TIM6_ISR 8
 #define FAULT_SOURCE_ADC2_QUEUE 9
 #define FAULT_SOURCE_ADC2_IRQ 10
+#define FAULT_SOURCE_CW_QUEUE 11
 void trigger_fault(int source);
 
 int find_last_sunday(const struct tm*);

@@ -22,15 +22,15 @@
  * SOFTWARE.
 */
 
-/* CW and PSK31 generator
+/* CW and BPSK{31,63,125} generator
  *
  * Concept:
  *
  * +-------------------+                    +----------------+
- * | cw_push_message() | -> cw_msg_queue -> | cw_psk31task() | -> cw_audio_queue
+ * | cw_push_message() | -> cw_msg_queue -> | cw_psktask() | -> cw_audio_queue
  * +-------------------+                    +----------------+
  *
- * The cw_psk31_fill_buffer() function can be called to fetch audio from the
+ * The cw_psk_fill_buffer() function can be called to fetch audio from the
  * audio_queue
  */
 
@@ -119,12 +119,12 @@ const uint8_t cw_mapping[60] = { // {{{
     0b1010111, // SK , ASCII '\'
 }; //}}}
 
-#if ENABLE_PSK31
+#if ENABLE_PSK
 /*
- * PSK31 Varicode
+ * PSK Varicode
  * http://aintel.bi.ehu.es/psk31.html
  */
-const char *psk31_varicode[] = { // {{{
+const char *psk_varicode[] = { // {{{
     "1010101011",
     "1011011011",
     "1011101101",
@@ -265,7 +265,7 @@ struct cw_message_s {
 
     int           freq;
 
-    // If dit_duration is 0, the message is sent in PSK31
+    // If dit_duration is negative, the message is sent in PSK
     int           dit_duration;
 };
 
@@ -274,15 +274,15 @@ QueueHandle_t cw_msg_queue;
 
 // Queue that contains audio data
 QueueHandle_t cw_audio_queue;
-static int    cw_psk31_samplerate;
+static int    cw_psk_samplerate;
 
 static int    cw_transmit_ongoing;
 
-static void cw_psk31_task(void *pvParameters);
+static void cw_psk_task(void *pvParameters);
 
-void cw_psk31_init(unsigned int samplerate)
+void cw_psk_init(unsigned int samplerate)
 {
-    cw_psk31_samplerate = samplerate;
+    cw_psk_samplerate = samplerate;
     cw_transmit_ongoing = 0;
 
     cw_msg_queue = xQueueCreate(10, sizeof(struct cw_message_s));
@@ -296,7 +296,7 @@ void cw_psk31_init(unsigned int samplerate)
     }
 
     xTaskCreate(
-            cw_psk31_task,
+            cw_psk_task,
             "CWPSKTask",
             8*configMINIMAL_STACK_SIZE,
             (void*) NULL,
@@ -349,12 +349,7 @@ size_t cw_symbol(uint8_t sym, uint8_t *on_buffer, size_t on_buffer_size)
     return pos;
 }
 
-// Transmit a string in morse code or PSK31.
-// Supported range for CW:
-// All ASCII between '+' and '\', which includes
-// numerals and capital letters.
-// Distinction between CW and PSK31 is done on dit_duration==0
-int cw_psk31_push_message(const char* text, int dit_duration, int frequency)
+int cw_psk_push_message(const char* text, int dit_duration, int frequency)
 {
     const int text_len = strlen(text);
 
@@ -375,7 +370,9 @@ int cw_psk31_push_message(const char* text, int dit_duration, int frequency)
     msg.freq = frequency;
     msg.dit_duration = dit_duration;
 
-    xQueueSendToBack(cw_msg_queue, &msg, portMAX_DELAY); /* Send Message */
+    if (xQueueSendToBack(cw_msg_queue, &msg, portMAX_DELAY) != pdTRUE) {
+        trigger_fault(FAULT_SOURCE_CW_QUEUE);
+    }
 
     cw_message_sent(msg.message);
 
@@ -407,17 +404,17 @@ static size_t cw_text_to_on_buffer(const char *msg, uint8_t *on_buffer, size_t o
 }
 
 
-#if ENABLE_PSK31
+#if ENABLE_PSK
 /*
  * Turn a null terminated ASCII string into a uint8_t buffer
- * of 0 and 1 representing the PSK31 varicode for the input.
+ * of 0 and 1 representing the PSK varicode for the input.
  *
  * outstr must be at least size 20 + strlen(instr)*12 + 20 to accomodate
  * the header and tail.
  *
  * Returns number of bytes written.
  */
-static size_t psk31_text_to_phase_buffer(const char* instr, uint8_t* outbits)
+static size_t psk_text_to_phase_buffer(const char* instr, uint8_t* outbits)
 {
     int i=0, j, k;
 
@@ -428,12 +425,14 @@ static size_t psk31_text_to_phase_buffer(const char* instr, uint8_t* outbits)
 
     /* Encode the message, with 00 between letters */
     for (j=0; j < strlen(instr); j++) {
-        const char* varicode_bits = psk31_varicode[(int)instr[j]];
-        for(k=0; k < strlen(varicode_bits); k++) {
-            outbits[i++] = (varicode_bits[k] == '1') ? 1 : 0;
+        if (instr[j] < sizeof(psk_varicode)) {
+            const char* varicode_bits = psk_varicode[(int)instr[j]];
+            for(k=0; k < strlen(varicode_bits); k++) {
+                outbits[i++] = (varicode_bits[k] == '1') ? 1 : 0;
+            }
+            outbits[i++] = 0;
+            outbits[i++] = 0;
         }
-        outbits[i++] = 0;
-        outbits[i++] = 0;
     }
 
     /* Tail of 0s */
@@ -446,7 +445,7 @@ static size_t psk31_text_to_phase_buffer(const char* instr, uint8_t* outbits)
 #endif
 
 
-size_t cw_psk31_fill_buffer(int16_t *buf, size_t bufsize)
+size_t cw_psk_fill_buffer(int16_t *buf, size_t bufsize)
 {
     if (xQueueReceiveFromISR(cw_audio_queue, buf, NULL)) {
         return bufsize;
@@ -457,7 +456,7 @@ size_t cw_psk31_fill_buffer(int16_t *buf, size_t bufsize)
 }
 
 static int16_t cw_audio_buf[AUDIO_BUF_LEN];
-static uint8_t cw_psk31_buffer[MAX_ON_BUFFER_LEN];
+static uint8_t cw_psk_buffer[MAX_ON_BUFFER_LEN];
 static struct cw_message_s cw_fill_msg_current;
 
 // Routine to generate CW audio
@@ -467,7 +466,7 @@ static int16_t cw_generate_audio(float omega, int i, int __attribute__ ((unused)
 {
     int16_t s = 0;
     // Remove clicks from CW
-    if (cw_psk31_buffer[i]) {
+    if (cw_psk_buffer[i]) {
         const float remaining = 32768.0f - cw_generate_audio_ampl;
         cw_generate_audio_ampl += remaining / 64.0f;
     }
@@ -488,82 +487,93 @@ static int16_t cw_generate_audio(float omega, int i, int __attribute__ ((unused)
     return s;
 }
 
-#if ENABLE_PSK31
-static float psk31_generate_audio_nco = 0.0f;
-static int   psk31_current_psk_phase = 1;
-static int16_t psk31_generate_audio(float omega, int i, int t, int samples_per_symbol)
+#if ENABLE_PSK
+static float psk_generate_audio_nco = 0.0f;
+static int   psk_current_psk_phase = 1;
+static int16_t psk_generate_audio(float omega, int i, int t, int samples_per_symbol)
 {
     int16_t s = 0;
-    const float base_ampl = 20000.0f;
-    float psk31_generate_audio_ampl = 0.0f;
+    const float base_ampl = 10000.0f;
+    float psk_generate_audio_ampl = 0.0f;
 
-    if (cw_psk31_buffer[i] == 1) {
-        psk31_generate_audio_ampl = base_ampl;
+    if (cw_psk_buffer[i] == 1) {
+        psk_generate_audio_ampl = base_ampl;
     }
     else {
-        psk31_generate_audio_ampl = base_ampl * arm_cos_f32(
+        psk_generate_audio_ampl = base_ampl * arm_cos_f32(
                 FLOAT_PI*(float)t/(float)samples_per_symbol);
     }
 
-    psk31_generate_audio_nco += omega;
-    if (psk31_generate_audio_nco > FLOAT_PI) {
-        psk31_generate_audio_nco -= 2.0f * FLOAT_PI;
+    psk_generate_audio_nco += omega;
+    if (psk_generate_audio_nco > FLOAT_PI) {
+        psk_generate_audio_nco -= 2.0f * FLOAT_PI;
     }
 
-    s = psk31_generate_audio_ampl *
-        arm_sin_f32(psk31_generate_audio_nco +
-            (psk31_current_psk_phase == 1 ? 0.0f : FLOAT_PI));
+    s = psk_generate_audio_ampl *
+        arm_sin_f32(psk_generate_audio_nco +
+            (psk_current_psk_phase == 1 ? 0.0f : FLOAT_PI));
 
     return s;
 }
 #endif
 
-static void cw_psk31_task(void __attribute__ ((unused))*pvParameters)
+static void cw_psk_task(void __attribute__ ((unused))*pvParameters)
 {
-    int     buf_pos = 0;
+    int buf_pos = 0;
 
     while (1) {
         int status = xQueueReceive(cw_msg_queue, &cw_fill_msg_current, portMAX_DELAY);
         if (status == pdTRUE) {
-
-            size_t cw_psk31_buffer_len = 0;
+            size_t cw_psk_buffer_len = 0;
 
             cw_transmit_ongoing = 1;
 
-            if (cw_fill_msg_current.dit_duration) {
-                cw_psk31_buffer_len = cw_text_to_on_buffer(
+            if (cw_fill_msg_current.dit_duration == 0) {
+                // Illegal
+                cw_transmit_ongoing = 0;
+                continue;
+            }
+            else if (cw_fill_msg_current.dit_duration > 0) {
+                cw_psk_buffer_len = cw_text_to_on_buffer(
                         cw_fill_msg_current.message,
-                        cw_psk31_buffer,
+                        cw_psk_buffer,
                         MAX_ON_BUFFER_LEN);
 
             }
-#if ENABLE_PSK31
+#if ENABLE_PSK
             else {
-                cw_psk31_buffer_len = psk31_text_to_phase_buffer(
+                cw_psk_buffer_len = psk_text_to_phase_buffer(
                         cw_fill_msg_current.message,
-                        cw_psk31_buffer);
+                        cw_psk_buffer);
             }
 #endif
 
             // Angular frequency of NCO
             const float omega = 2.0f * FLOAT_PI * cw_fill_msg_current.freq /
-                (float)cw_psk31_samplerate;
+                (float)cw_psk_samplerate;
 
-            const int samples_per_symbol = (cw_fill_msg_current.dit_duration != 0) ?
-                (cw_psk31_samplerate * cw_fill_msg_current.dit_duration) / 1000 :
+            const int samples_per_symbol = (cw_fill_msg_current.dit_duration == -1) ?
                 /* BPSK31 is at 31.25 symbols per second. */
-                 cw_psk31_samplerate * 100 / 3125;
+                cw_psk_samplerate * 100 / 3125 :
+                (cw_fill_msg_current.dit_duration == -2) ?
+                /* BPSK63 is at 2*31.25 symbols per second. */
+                cw_psk_samplerate * 50 / 3125 :
+                (cw_fill_msg_current.dit_duration == -3) ?
+                /* BPSK125 is at 4*31.25 symbols per second. */
+                cw_psk_samplerate * 25 / 3125 :
+                /* CW directly depends on dit_duration, which is in ms */
+                (cw_psk_samplerate * cw_fill_msg_current.dit_duration) / 1000;
 
-#if ENABLE_PSK31
-            psk31_current_psk_phase = 1;
+#if ENABLE_PSK
+            psk_current_psk_phase = 1;
 #endif
 
-            for (int i = 0; i < cw_psk31_buffer_len; i++) {
+            for (int i = 0; i < cw_psk_buffer_len; i++) {
                 for (int t = 0; t < samples_per_symbol; t++) {
-#if ENABLE_PSK31
-                    int16_t s = (cw_fill_msg_current.dit_duration != 0) ?
+#if ENABLE_PSK
+                    int16_t s = (cw_fill_msg_current.dit_duration > 0) ?
                         cw_generate_audio(omega, i, t) :
-                        psk31_generate_audio(omega, i, t, samples_per_symbol);
+                        psk_generate_audio(omega, i, t, samples_per_symbol);
 #else
                     int16_t s = cw_generate_audio(omega, i, t);
 #endif
@@ -571,9 +581,9 @@ static void cw_psk31_task(void __attribute__ ((unused))*pvParameters)
                     // Stereo
                     for (int channel = 0; channel < 2; channel++) {
                         if (buf_pos == AUDIO_BUF_LEN) {
-                            // It should take AUDIO_BUF_LEN/cw_psk31_samplerate seconds to send one buffer.
+                            // It should take AUDIO_BUF_LEN/cw_psk_samplerate seconds to send one buffer.
                             // If it takes more than 4 times as long, we think there is a problem.
-                            const TickType_t reasonable_delay = pdMS_TO_TICKS(4000 * AUDIO_BUF_LEN / cw_psk31_samplerate);
+                            const TickType_t reasonable_delay = pdMS_TO_TICKS(4000 * AUDIO_BUF_LEN / cw_psk_samplerate);
                             if (xQueueSendToBack(cw_audio_queue, &cw_audio_buf, reasonable_delay) != pdTRUE) {
                                 trigger_fault(FAULT_SOURCE_CW_AUDIO_QUEUE);
                             }
@@ -584,21 +594,20 @@ static void cw_psk31_task(void __attribute__ ((unused))*pvParameters)
 
                 }
 
-#if ENABLE_PSK31
-                if (cw_psk31_buffer[i] == 0) {
-                    psk31_current_psk_phase *= -1;
+#if ENABLE_PSK
+                if (cw_psk_buffer[i] == 0) {
+                    psk_current_psk_phase *= -1;
                 }
 #endif
             }
 
             // We have completed this message
-
             cw_transmit_ongoing = 0;
         }
     }
 }
 
-int cw_psk31_busy(void)
+int cw_psk_busy(void)
 {
     return cw_transmit_ongoing;
 }
