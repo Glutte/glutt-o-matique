@@ -171,12 +171,10 @@ void stats_tx_switched(int tx_on)
 
     if (tx_on) {
         last_tx_on = timestamp_now();
-        fprintf(stderr, "TX on at %lu\n", last_tx_on);
         last_tx_on_valid = 1;
     }
     else if (last_tx_on_valid) {
         const uint64_t qso_duration = timestamp_now() - last_tx_on;
-        fprintf(stderr, "TX off with dur=%lu\n", qso_duration);
         if (qso_duration > max_qso_duration) {
             max_qso_duration = qso_duration;
         }

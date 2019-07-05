@@ -463,8 +463,7 @@ void fsm_update() {
         case FSM_BALISE_STATS1:
             fsm_out.tx_on = 1;
             fsm_out.msg_frequency   = 588;
-#warning "dit duration = 110"
-            fsm_out.cw_dit_duration = 30;
+            fsm_out.cw_dit_duration = 110;
 
             {
                 const float supply_voltage = round_float_to_half_steps(analog_measure_12v());
@@ -491,12 +490,6 @@ void fsm_update() {
                 }
 
                 if (balise_message_empty()) {
-#warning "only for debug"
-                    if (current_state == FSM_BALISE_STATS1) {
-                        snprintf(balise_message, BALISE_MESSAGE_LEN-1,
-                                CW_PREDELAY "HB9G " CW_POSTDELAY);
-                    }
-                    else
                     if (temperature_valid()) {
                         snprintf(balise_message, BALISE_MESSAGE_LEN-1,
                                 CW_PREDELAY "HB9G JN36BK  1628M U %dV%01d %c  T %d  %s" CW_POSTDELAY,
