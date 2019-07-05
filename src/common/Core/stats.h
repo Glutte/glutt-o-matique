@@ -31,7 +31,7 @@ void stats_voltage(float u_bat);
 void stats_temp(float temp);
 void stats_wind_generator_moved(void);
 void stats_beacon_sent(void);
-void stats_tx_switched(void);
+void stats_tx_switched(int tx_on);
 void stats_anti_bavard_triggered(void);
 void stats_num_gnss_sv(int num_sv);
 

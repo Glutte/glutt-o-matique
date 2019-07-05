@@ -525,8 +525,11 @@ void fsm_update() {
 
             if (fsm_in.cw_psk_done) {
                 balise_message_clear();
+                // The exercise_fsm loop needs to see a 1 to 0 transition on cw_psk_trigger
+                // so that it considers the STATS2 message.
                 fsm_out.cw_psk_trigger = 0;
                 if (current_state == FSM_BALISE_STATS1) {
+                    fsm_out.msg = NULL;
                     next_state = FSM_BALISE_STATS2;
                 }
                 else {
@@ -540,7 +543,10 @@ void fsm_update() {
             fsm_out.msg_frequency   = 588;
             fsm_out.cw_dit_duration = -3; // PSK125
 
-            fsm_out.msg = stats_build_text();
+            // All predecessor states must NULL the fsm_out.msg field!
+            if (fsm_out.msg == NULL) {
+                fsm_out.msg = stats_build_text();
+            }
             fsm_out.cw_psk_trigger = 1;
 
             if (fsm_in.cw_psk_done) {

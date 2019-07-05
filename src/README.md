@@ -41,6 +41,12 @@ Debug avec OpenOCD et GDB
     load
     continue
 
+Debug simulateur avec GDB
+=========================
+
+    handle SIGUSR1 nostop noignore noprint
+    handle SIG34 nostop noignore noprint
+
 Analyse statique avec clang
 ===========================
 

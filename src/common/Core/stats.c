@@ -43,6 +43,10 @@ static float battery_per_hour[24];
 static float temp_min = -1.0f;
 static float temp_max = -1.0f;
 
+static int last_tx_on_valid = 0;
+static uint64_t last_tx_on = 0;
+static uint64_t max_qso_duration = 0;
+
 /* Ideas
  *
  * Version
@@ -76,6 +80,8 @@ static void clear_stats()
     temp_max = -1.0f;
     num_qro = 0;
     num_qrp = 0;
+    last_tx_on_valid = 0;
+    max_qso_duration = 0;
     for (int i = 0; i < 24; i++) {
         battery_per_hour[i] = -1.0f;
     }
@@ -155,13 +161,26 @@ void stats_beacon_sent()
     num_beacons_sent++;
 }
 
-void stats_tx_switched()
+void stats_tx_switched(int tx_on)
 {
     if (values_valid == 0) {
         clear_stats();
     }
 
     num_tx_switch++;
+
+    if (tx_on) {
+        last_tx_on = timestamp_now();
+        fprintf(stderr, "TX on at %lu\n", last_tx_on);
+        last_tx_on_valid = 1;
+    }
+    else if (last_tx_on_valid) {
+        const uint64_t qso_duration = timestamp_now() - last_tx_on;
+        fprintf(stderr, "TX off with dur=%lu\n", qso_duration);
+        if (qso_duration > max_qso_duration) {
+            max_qso_duration = qso_duration;
+        }
+    }
 }
 
 void stats_anti_bavard_triggered()
@@ -212,17 +231,23 @@ const char* stats_build_text(void)
 
     stats_end_ix += snprintf(stats_text + stats_end_ix, STATS_LEN - 1 - stats_end_ix,
             "Version= %s\n"
-            "Uptime= %dj%dh%dm\n"
+            "Uptime= %dj%dh%dm\n",
+            vc_get_version(),
+            uptime_j, uptime_h, uptime_m);
+
+    if (values_valid == 0) {
+        return stats_text;
+    }
+
+    stats_end_ix += snprintf(stats_text + stats_end_ix, STATS_LEN - 1 - stats_end_ix,
             "U min,max= %dV%01d,%dV%01d\n"
             "Temps QRP= %d%%\n",
-            vc_get_version(),
-            uptime_j, uptime_h, uptime_m,
             battery_min_decivolt / 10, battery_min_decivolt % 10,
             battery_max_decivolt / 10, battery_max_decivolt % 10,
             100 * num_qrp / (num_qrp + num_qro));
 
     stats_end_ix += snprintf(stats_text + stats_end_ix, STATS_LEN - 1 - stats_end_ix,
-            "U heures pleines=\n");
+            "U heures pleines= ");
 
     for (int h = 0; h < 24; h++) {
         if (battery_per_hour[h] == -1.0f) {
@@ -242,12 +267,20 @@ const char* stats_build_text(void)
     const int temp_min_decidegree = 10.0f * temp_min;
     const int temp_max_decidegree = 10.0f * temp_max;
 
+    uint64_t qso_duration = max_qso_duration;
+    int qso_duration_h = qso_duration / (3600 * 1000);
+    qso_duration -= qso_duration_h * ( 3600 * 1000);
+    int qso_duration_m = qso_duration / (60 * 1000);
+    qso_duration -= qso_duration_m * (60 * 1000);
+    int qso_duration_s = qso_duration / (1000);
+
     stats_end_ix += snprintf(stats_text + stats_end_ix, STATS_LEN - 1 - stats_end_ix,
             "Nbre de commutations eolienne= %d\n"
             "Temp min,max= %dC%01d,%dC%01d\n"
             "Nbre de balises= %d\n"
             "Nbre de TX ON/OFF= %d\n"
             "Nbre anti-bavard= %d\n"
+            "QSO le plus long= %dh%dm%ds\n"
             "Sat GPS= %d\n",
             num_wind_generator_movements,
             temp_min_decidegree / 10, temp_min_decidegree % 10,
@@ -255,6 +288,7 @@ const char* stats_build_text(void)
             num_beacons_sent,
             num_tx_switch,
             num_antibavard,
+            qso_duration_h, qso_duration_m, qso_duration_s,
             num_sv_used
             );
 

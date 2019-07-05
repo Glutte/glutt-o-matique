@@ -651,13 +651,14 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
 
         pio_set_tx(fsm_out.tx_on);
         if (fsm_out.tx_on != last_tx_on) {
-            stats_tx_switched();
+            stats_tx_switched(fsm_out.tx_on);
             last_tx_on = fsm_out.tx_on;
         }
         pio_set_mod_off(!fsm_out.modulation);
 
         // Add message to CW generator only on rising edge of trigger
-        if (fsm_out.cw_psk_trigger && !cw_last_trigger) {
+        if (fsm_out.cw_psk_trigger && !cw_last_trigger && fsm_out.msg != NULL) {
+            fprintf(stderr, "TRIG CW %s\n", fsm_out.msg);
             const int success = cw_psk_push_message(fsm_out.msg, fsm_out.cw_dit_duration, fsm_out.msg_frequency);
             if (!success) {
                 usart_debug_puts("cw_psk_push_message failed");
@@ -666,7 +667,6 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
             leds_turn_on(LED_ORANGE);
         }
         cw_last_trigger = fsm_out.cw_psk_trigger;
-
     }
 }
 
