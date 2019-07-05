@@ -26,6 +26,10 @@
 
 #define SUPPLY_HISTORY_LEN 10
 
+// Hysteresis:
+#define SUPPLY_QRP 12.1f
+#define SUPPLY_QRO 12.5f
+
 static float supply_history[SUPPLY_HISTORY_LEN];
 static int supply_history_ix = 0;
 static int supply_history_ready = 0;
@@ -34,10 +38,6 @@ static int last_qrp = 0;
 // Return 1 if analog supply is too low
 int analog_supply_too_low(void)
 {
-
-    // Hysteresis:
-    // Lower voltage 12.5V
-    // High  voltage 13V
     const float measure = analog_measure_12v();
 
     supply_history[supply_history_ix] = measure;
@@ -52,8 +52,8 @@ int analog_supply_too_low(void)
         for (int i = 0; i < SUPPLY_HISTORY_LEN; i++) {
             sum += supply_history[i];
         }
-        int above_lower_limit = (sum > 12.5f * SUPPLY_HISTORY_LEN);
-        int above_upper_limit = (sum > 13.0f * SUPPLY_HISTORY_LEN);
+        int above_lower_limit = (sum > SUPPLY_QRP * SUPPLY_HISTORY_LEN);
+        int above_upper_limit = (sum > SUPPLY_QRO * SUPPLY_HISTORY_LEN);
 
         if (!above_lower_limit) {
             last_qrp = 1;
