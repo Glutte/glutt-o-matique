@@ -425,8 +425,9 @@ static size_t psk_text_to_phase_buffer(const char* instr, uint8_t* outbits)
 
     /* Encode the message, with 00 between letters */
     for (j=0; j < strlen(instr); j++) {
-        if (instr[j] < sizeof(psk_varicode)) {
-            const char* varicode_bits = psk_varicode[(int)instr[j]];
+        const uint16_t ix = instr[j];
+        if (ix < sizeof(psk_varicode)) {
+            const char* varicode_bits = psk_varicode[ix];
             for(k=0; k < strlen(varicode_bits); k++) {
                 outbits[i++] = (varicode_bits[k] == '1') ? 1 : 0;
             }
