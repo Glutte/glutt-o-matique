@@ -658,7 +658,6 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
 
         // Add message to CW generator only on rising edge of trigger
         if (fsm_out.cw_psk_trigger && !cw_last_trigger && fsm_out.msg != NULL) {
-            fprintf(stderr, "TRIG CW %s\n", fsm_out.msg);
             const int success = cw_psk_push_message(fsm_out.msg, fsm_out.cw_dit_duration, fsm_out.msg_frequency);
             if (!success) {
                 usart_debug_puts("cw_psk_push_message failed");
