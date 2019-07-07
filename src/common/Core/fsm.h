@@ -27,26 +27,29 @@
 
 // List of all states the FSM of the relay can be in
 enum fsm_state_e {
-    FSM_OISIF = 0,       // Idle
-    FSM_OPEN1,           // 1750 Hz received and squelch open
-    FSM_OPEN2,           // Squelch closed
-    FSM_LETTRE,          // Transmit single status letter
-    FSM_ECOUTE,          // Repeater open, waiting for QSO
-    FSM_ATTENTE,         // No QSO after a short while
-    FSM_QSO,             // QSO ongoing
-    FSM_ANTI_BAVARD,     // QSO too long, cut transmission
-    FSM_BLOQUE,          // Backoff after ANTI_BAVARD
-    FSM_TEXTE_73,        // Transmit 73 after QSO
-    FSM_TEXTE_HB9G,      // Transmit HB9G after QSO
-    FSM_TEXTE_LONG,      // Transmit either HB9G JN36BK or HB9G 1628M after QSO
-    FSM_BALISE_LONGUE,   // Full-length 2-hour beacon
-    FSM_BALISE_STATS1,   // Full-length 2-hour beacon at 22:00, 1st part in CW
-    FSM_BALISE_STATS2,   // Full-length 2-hour beacon at 22:00, 2nd part in PSK
-    FSM_BALISE_STATS3,   // Full-length 2-hour beacon at 22:00, 3nd part in CW
-    FSM_BALISE_SPECIALE, // 2-hour beacon when in QRP or with high power return mode
-    FSM_BALISE_COURTE,   // Short intermittent beacon
-    FSM_BALISE_COURTE_OPEN,   // Short intermittent beacon, need to switch to OPEN
-    _NUM_FSM_STATES      // Dummy state to count the number of states
+    FSM_OISIF = 0,              // Idle
+    FSM_OPEN1,                  // 1750 Hz received and squelch open
+    FSM_OPEN2,                  // Squelch closed
+    FSM_LETTRE,                 // Transmit single status letter
+    FSM_ECOUTE,                 // Repeater open, waiting for QSO
+    FSM_ATTENTE,                // No QSO after a short while
+    FSM_QSO,                    // QSO ongoing
+    FSM_ANTI_BAVARD,            // QSO too long, cut transmission
+    FSM_BLOQUE,                 // Backoff after ANTI_BAVARD
+    FSM_TEXTE_73,               // Transmit 73 after QSO
+    FSM_TEXTE_HB9G,             // Transmit HB9G after QSO
+    FSM_TEXTE_LONG,             // Transmit either HB9G JN36BK or HB9G 1628M after QSO
+    FSM_BALISE_LONGUE,          // Full-length 2-hour beacon
+    FSM_BALISE_STATS1,          // Full-length 2-hour beacon at 22:00, 1st part in CW
+    FSM_BALISE_STATS2,          // Full-length 2-hour beacon at 22:00, 2nd part in PSK
+    FSM_BALISE_STATS3,          // Full-length 2-hour beacon at 22:00, 3nd part in CW
+    FSM_BALISE_SPECIALE,        // 2-hour beacon when in QRP or with high power return mode
+    FSM_BALISE_SPECIALE_STATS1, // QRP 2-hour beacon at 22:00, 1st part in CW
+    FSM_BALISE_SPECIALE_STATS2, // QRP 2-hour beacon at 22:00, 2nd part in PSK
+    FSM_BALISE_SPECIALE_STATS3, // QRP 2-hour beacon at 22:00, 3nd part in CW
+    FSM_BALISE_COURTE,          // Short intermittent beacon
+    FSM_BALISE_COURTE_OPEN,     // Short intermittent beacon, need to switch to OPEN
+    _NUM_FSM_STATES             // Dummy state to count the number of states
 };
 
 typedef enum fsm_state_e fsm_state_t;

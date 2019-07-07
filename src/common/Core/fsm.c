@@ -129,6 +129,9 @@ static const char* state_name(fsm_state_t state) {
         case FSM_BALISE_STATS2: return "FSM_BALISE_STATS2";
         case FSM_BALISE_STATS3: return "FSM_BALISE_STATS3";
         case FSM_BALISE_SPECIALE: return "FSM_BALISE_SPECIALE";
+        case FSM_BALISE_SPECIALE_STATS1: return "FSM_BALISE_SPECIALE_STATS1";
+        case FSM_BALISE_SPECIALE_STATS2: return "FSM_BALISE_SPECIALE_STATS2";
+        case FSM_BALISE_SPECIALE_STATS3: return "FSM_BALISE_SPECIALE_STATS3";
         case FSM_BALISE_COURTE: return "FSM_BALISE_COURTE";
         case FSM_BALISE_COURTE_OPEN: return "FSM_BALISE_COURTE_OPEN";
         default: return "ERROR!";
@@ -154,7 +157,12 @@ static const char* sstv_state_name(sstv_fsm_state_t state) {
 
 static fsm_state_t select_grande_balise(void) {
     if (fsm_in.qrp || fsm_in.swr_high) {
-        return FSM_BALISE_SPECIALE;
+        if (fsm_in.send_stats) {
+            return FSM_BALISE_SPECIALE_STATS1;
+        }
+        else {
+            return FSM_BALISE_SPECIALE;
+        }
     }
     else if (fsm_in.send_stats) {
         return FSM_BALISE_STATS1;
@@ -532,6 +540,7 @@ void fsm_update() {
             break;
 
         case FSM_BALISE_STATS2:
+        case FSM_BALISE_SPECIALE_STATS2:
             fsm_out.tx_on = 1;
             fsm_out.msg_frequency   = 588;
             fsm_out.cw_dit_duration = -3; // PSK125
@@ -544,14 +553,23 @@ void fsm_update() {
 
             if (fsm_in.cw_psk_done) {
                 fsm_out.cw_psk_trigger = 0;
-                next_state = FSM_BALISE_STATS3;
+                next_state = (current_state == FSM_BALISE_STATS2) ?
+                    FSM_BALISE_STATS3 :
+                    FSM_BALISE_SPECIALE_STATS3;
             }
             break;
 
         case FSM_BALISE_STATS3:
+        case FSM_BALISE_SPECIALE_STATS3:
             fsm_out.tx_on = 1;
-            fsm_out.msg_frequency   = 588;
-            fsm_out.cw_dit_duration = 110;
+            if (current_state == FSM_BALISE_STATS3) {
+                fsm_out.msg_frequency   = 588;
+                fsm_out.cw_dit_duration = 110;
+            }
+            else {
+                fsm_out.msg_frequency   = 696;
+                fsm_out.cw_dit_duration = 70;
+            }
 
             if (balise_message_empty()) {
                 const char *eol_info = "73";
@@ -575,6 +593,7 @@ void fsm_update() {
             break;
 
         case FSM_BALISE_SPECIALE:
+        case FSM_BALISE_SPECIALE_STATS1:
             fsm_out.tx_on = 1;
             fsm_out.msg_frequency   = 696;
             fsm_out.cw_dit_duration = 70;
@@ -584,7 +603,10 @@ void fsm_update() {
                 const int supply_decivolts = supply_voltage * 10.0f;
 
                 const char *eol_info = "73";
-                if (!fsm_in.wind_generator_ok) {
+                if (current_state == FSM_BALISE_SPECIALE_STATS1) {
+                    eol_info = "PSK125";
+                }
+                else if (!fsm_in.wind_generator_ok) {
                     eol_info = "\\";
                     // The backslash is the SK digraph
                 }
@@ -603,7 +625,16 @@ void fsm_update() {
             if (fsm_in.cw_psk_done) {
                 stats_beacon_sent();
                 balise_message_clear();
-                next_state = FSM_OISIF;
+                // The exercise_fsm loop needs to see a 1 to 0 transition on cw_psk_trigger
+                // so that it considers the STATS2 message.
+                fsm_out.cw_psk_trigger = 0;
+                if (current_state == FSM_BALISE_SPECIALE_STATS1) {
+                    fsm_out.msg = NULL;
+                    next_state = FSM_BALISE_SPECIALE_STATS2;
+                }
+                else {
+                    next_state = FSM_OISIF;
+                }
             }
             break;
 
@@ -709,7 +740,8 @@ void fsm_balise_update() {
         case BALISE_FSM_PENDING:
             if (current_state == FSM_BALISE_SPECIALE ||
                     current_state == FSM_BALISE_LONGUE ||
-                    current_state == FSM_BALISE_STATS3) {
+                    current_state == FSM_BALISE_STATS3 ||
+                    current_state == FSM_BALISE_SPECIALE_STATS3) {
                 next_state = BALISE_FSM_EVEN_HOUR;
             }
             break;
