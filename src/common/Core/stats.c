@@ -40,8 +40,9 @@ static int num_qrp = 0;
 static float battery_min = -1.0f;
 static float battery_max = -1.0f;
 static float battery_per_hour[24];
-static float temp_min = -1.0f;
-static float temp_max = -1.0f;
+#define TEMP_INVALID -128.0f
+static float temp_min = TEMP_INVALID;
+static float temp_max = TEMP_INVALID;
 
 static int last_tx_on_valid = 0;
 static uint64_t last_tx_on = 0;
@@ -76,8 +77,8 @@ static void clear_stats()
     num_antibavard = 0;
     battery_min = -1.0f;
     battery_max = -1.0f;
-    temp_min = -1.0f;
-    temp_max = -1.0f;
+    temp_min = TEMP_INVALID;
+    temp_max = TEMP_INVALID;
     num_qro = 0;
     num_qrp = 0;
     last_tx_on_valid = 0;
@@ -120,11 +121,11 @@ void stats_temp(float temp)
         clear_stats();
     }
 
-    if (temp < temp_min || temp_min == -1.0f) {
+    if (temp < temp_min || temp_min == TEMP_INVALID) {
         temp_min = temp;
     }
 
-    if (temp > temp_max || temp_max == -1.0f) {
+    if (temp > temp_max || temp_max == TEMP_INVALID) {
         temp_max = temp;
     }
 }
@@ -204,13 +205,6 @@ const char* stats_build_text(void)
     struct tm time = {0};
     int time_valid = local_time(&time);
 
-    uint64_t uptime = timestamp_now();
-    int uptime_j = uptime / (24 * 3600 * 1000);
-    uptime -= uptime_j * (24 * 3600 * 1000);
-    int uptime_h = uptime / (3600 * 1000);
-    uptime -= uptime_h * (24 * 3600 * 1000);
-    int uptime_m = uptime / (60 * 1000);
-
     stats_end_ix = snprintf(stats_text + stats_end_ix, STATS_LEN - 1 - stats_end_ix,
             "HB9G www.glutte.ch HB9G www.glutte.ch\n");
 
@@ -224,8 +218,12 @@ const char* stats_build_text(void)
                 "Statistiques de la journee\n");
     }
 
-    const int battery_min_decivolt = 10.0f * battery_min;
-    const int battery_max_decivolt = 10.0f * battery_max;
+    uint64_t uptime = timestamp_now();
+    int uptime_j = uptime / (24 * 3600 * 1000);
+    uptime -= uptime_j * (24 * 3600 * 1000);
+    int uptime_h = uptime / (3600 * 1000);
+    uptime -= uptime_h * (3600 * 1000);
+    int uptime_m = uptime / (60 * 1000);
 
     stats_end_ix += snprintf(stats_text + stats_end_ix, STATS_LEN - 1 - stats_end_ix,
             "Version= %s\n"
@@ -236,6 +234,9 @@ const char* stats_build_text(void)
     if (values_valid == 0) {
         return stats_text;
     }
+
+    const int battery_min_decivolt = 10.0f * battery_min;
+    const int battery_max_decivolt = 10.0f * battery_max;
 
     stats_end_ix += snprintf(stats_text + stats_end_ix, STATS_LEN - 1 - stats_end_ix,
             "U min,max= %dV%01d,%dV%01d\n"
@@ -259,11 +260,20 @@ const char* stats_build_text(void)
                     battery_decivolts / 10, battery_decivolts % 10);
         }
     }
-    stats_end_ix += snprintf(stats_text + stats_end_ix, STATS_LEN - 1 - stats_end_ix,
-            "\n");
 
-    const int temp_min_decidegree = 10.0f * temp_min;
-    const int temp_max_decidegree = 10.0f * temp_max;
+    stats_end_ix += snprintf(stats_text + stats_end_ix, STATS_LEN - 1 - stats_end_ix,
+            "\n"
+            "Nbre de commutations eolienne= %d\n",
+            num_wind_generator_movements);
+
+    if (temp_min != TEMP_INVALID && temp_max != TEMP_INVALID) {
+        const int temp_min_decidegree = 10.0f * temp_min;
+        const int temp_max_decidegree = 10.0f * temp_max;
+        stats_end_ix += snprintf(stats_text + stats_end_ix, STATS_LEN - 1 - stats_end_ix,
+                "Temp min,max= %dC%01d,%dC%01d\n",
+                temp_min_decidegree / 10, temp_min_decidegree % 10,
+                temp_max_decidegree / 10, temp_max_decidegree % 10);
+    }
 
     uint64_t qso_duration = max_qso_duration;
     int qso_duration_h = qso_duration / (3600 * 1000);
@@ -273,16 +283,11 @@ const char* stats_build_text(void)
     int qso_duration_s = qso_duration / (1000);
 
     stats_end_ix += snprintf(stats_text + stats_end_ix, STATS_LEN - 1 - stats_end_ix,
-            "Nbre de commutations eolienne= %d\n"
-            "Temp min,max= %dC%01d,%dC%01d\n"
             "Nbre de balises= %d\n"
             "Nbre de TX ON/OFF= %d\n"
             "Nbre anti-bavard= %d\n"
             "QSO le plus long= %dh%dm%ds\n"
             "Sat GPS= %d\n",
-            num_wind_generator_movements,
-            temp_min_decidegree / 10, temp_min_decidegree % 10,
-            temp_max_decidegree / 10, temp_max_decidegree % 10,
             num_beacons_sent,
             num_tx_switch,
             num_antibavard,

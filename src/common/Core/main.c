@@ -463,9 +463,14 @@ static void gps_monit_task(void __attribute__ ((unused))*pvParameters) {
                 stats_voltage_at_full_hour(time.tm_hour, u_bat);
             }
 
-            const float temp = temperature_get();
-            stats_temp(temp);
-            usart_debug("TEMP %d.%02d\r\n", (int)temp, (int)(temp * 100.0f - (int)(temp) * 100.0f));
+            if (temperature_valid()) {
+                const float temp = temperature_get();
+                stats_temp(temp);
+                usart_debug("TEMP %d.%02d\r\n", (int)temp, (int)(temp * 100.0f - (int)(temp) * 100.0f));
+            }
+            else {
+                usart_debug("TEMP invalid\r\n");
+            }
 
             last_volt_and_temp_timestamp = now;
         }
