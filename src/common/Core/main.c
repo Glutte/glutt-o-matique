@@ -484,6 +484,8 @@ static void gps_monit_task(void __attribute__ ((unused))*pvParameters) {
                 gps_time.tm_hour, gps_time.tm_min, gps_time.tm_sec,
                 num_sv_used);
 
+            stats_num_gnss_sv(num_sv_used);
+
             char *mode = "";
 
             if (derived_mode) {
