@@ -19,3 +19,9 @@ Principle of operation
 
 Example for RTLSDR: `rtl_sdr -f 145700000 -n 204800000 iq.raw` will capture 100 seconds worth of IQ data.
 
+References
+----------
+
+https://sdradventure.wordpress.com/2011/10/15/gnuradio-psk31-decoder-part-1/
+
+https://sdradventure.wordpress.com/2011/10/15/gnuradio-psk31-decoder-part-2/

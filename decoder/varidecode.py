@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+#
+# This code is taken from
+# https://sdradventure.wordpress.com/2011/10/15/gnuradio-psk31-decoder-part-1/
+# https://sdradventure.wordpress.com/2011/10/15/gnuradio-psk31-decoder-part-2/
 import re
 import struct
 
