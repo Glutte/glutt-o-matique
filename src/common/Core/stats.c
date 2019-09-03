@@ -219,17 +219,17 @@ const char* stats_build_text(void)
     }
 
     uint64_t uptime = timestamp_now();
-    int uptime_j = uptime / (24 * 3600 * 1000);
+    uint64_t uptime_j = uptime / (24 * 3600 * 1000);
     uptime -= uptime_j * (24 * 3600 * 1000);
-    int uptime_h = uptime / (3600 * 1000);
+    uint64_t uptime_h = uptime / (3600 * 1000);
     uptime -= uptime_h * (3600 * 1000);
-    int uptime_m = uptime / (60 * 1000);
+    uint64_t uptime_m = uptime / (60 * 1000);
 
     stats_end_ix += snprintf(stats_text + stats_end_ix, STATS_LEN - 1 - stats_end_ix,
             "Version= %s\n"
             "Uptime= %dj%dh%dm\n",
             vc_get_version(),
-            uptime_j, uptime_h, uptime_m);
+            (int)uptime_j, (int)uptime_h, (int)uptime_m);
 
     if (values_valid == 0) {
         return stats_text;
