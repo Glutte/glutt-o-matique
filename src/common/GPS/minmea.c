@@ -14,10 +14,23 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 #include <stdarg.h>
 
 #define boolstr(s) ((s) ? "true" : "false")
+
+static int charisprint(char c)
+{
+    /* We do not use isprint() from ctype.h because it requires locale support.
+     *
+     * See https://en.cppreference.com/w/c/string/byte/isprint or the isprint manpage
+     * for more. */
+    return (c >= ' ' && c <= '~');
+}
+
+static int charisdigit(char c)
+{
+    return (c >= '0' && c <= '9');
+}
 
 static int hex2int(char c)
 {
@@ -58,7 +71,7 @@ bool minmea_check(const char *sentence, bool strict)
         return false;
 
     // The optional checksum is an XOR of all bytes between "$" and "*".
-    while (*sentence && *sentence != '*' && isprint((unsigned char) *sentence))
+    while (*sentence && *sentence != '*' && charisprint(*sentence))
         checksum ^= *sentence++;
 
     // If checksum is present...
@@ -89,7 +102,7 @@ bool minmea_check(const char *sentence, bool strict)
 }
 
 static inline bool minmea_isfield(char c) {
-    return isprint((unsigned char) c) && c != ',' && c != '*';
+    return charisprint(c) && c != ',' && c != '*';
 }
 
 bool minmea_scan(const char *sentence, const char *format, ...)
@@ -170,7 +183,7 @@ bool minmea_scan(const char *sentence, const char *format, ...)
                             sign = 1;
                         } else if (*field == '-' && !sign && value == -1) {
                             sign = -1;
-                        } else if (isdigit((unsigned char) *field)) {
+                        } else if (charisdigit(*field)) {
                             int digit = *field - '0';
                             if (value == -1)
                                 value = 0;
@@ -266,7 +279,7 @@ bool minmea_scan(const char *sentence, const char *format, ...)
                 if (field && minmea_isfield(*field)) {
                     // Always six digits.
                     for (int f=0; f<6; f++)
-                        if (!isdigit((unsigned char) field[f]))
+                        if (!charisdigit(field[f]))
                             goto parse_error;
 
                     d = strtol((char[]) {field[0], field[1], '\0'}, NULL, 10);
@@ -287,7 +300,7 @@ bool minmea_scan(const char *sentence, const char *format, ...)
                 if (field && minmea_isfield(*field)) {
                     // Minimum required: integer time.
                     for (int f=0; f<6; f++)
-                        if (!isdigit((unsigned char) field[f]))
+                        if (!charisdigit(field[f]))
                             goto parse_error;
 
                     h = strtol((char[]) {field[0], field[1], '\0'}, NULL, 10);
@@ -299,7 +312,7 @@ bool minmea_scan(const char *sentence, const char *format, ...)
                     if (*field++ == '.') {
                         int value = 0;
                         int scale = 1000000;
-                        while (isdigit((unsigned char) *field) && scale > 1) {
+                        while (charisdigit(*field) && scale > 1) {
                             value = (value * 10) + (*field++ - '0');
                             scale /= 10;
                         }
