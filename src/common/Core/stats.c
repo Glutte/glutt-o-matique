@@ -25,6 +25,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <math.h>
 #include "Core/stats.h"
 #include "Core/common.h"
 #include "vc.h"
@@ -267,11 +268,16 @@ const char* stats_build_text(void)
             num_wind_generator_movements);
 
     if (temp_min != TEMP_INVALID && temp_max != TEMP_INVALID) {
-        const int temp_min_decidegree = 10.0f * temp_min;
-        const int temp_max_decidegree = 10.0f * temp_max;
+        const int temp_min_positive = (temp_min > 0);
+        const int temp_max_positive = (temp_max > 0);
+
+        const int temp_min_decidegree = 10.0f * fabsf(temp_min);
+        const int temp_max_decidegree = 10.0f * fabsf(temp_max);
         stats_end_ix += snprintf(stats_text + stats_end_ix, STATS_LEN - 1 - stats_end_ix,
-                "Temp min,max= %dC%01d,%dC%01d\n",
+                "Temp min,max= %s%dC%01d,%s%dC%01d\n",
+                temp_min_positive ? "" : "-",
                 temp_min_decidegree / 10, temp_min_decidegree % 10,
+                temp_max_positive ? "" : "-",
                 temp_max_decidegree / 10, temp_max_decidegree % 10);
     }
 
