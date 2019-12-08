@@ -126,7 +126,7 @@ static inline void push_dtmf_code(enum dtmf_code code)
 // TODO: Does that depend on TONE_N?
 const int thresh_dtmf = 200;
 const int thresh_1750 = 300;
-const int num_1750_required = 5;
+const int num_1750_required = 3;
 
 static void analyse_dtmf()
 {
