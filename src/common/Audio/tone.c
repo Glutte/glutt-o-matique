@@ -47,11 +47,11 @@
  * 852  [7]    [8]    [9]    [C]      ROW_7
  * 941  [*]    [0]    [#]    [D]      ROW_STAR
  *
- * We need 0, 7, and 1750Hz for now, having detectors for
- * 1209, 1336, 852, 941 and 1750 is sufficient. */
+ * We need 1, 7, *, and 1750Hz for now, having detectors for
+ * 1209, 697, 852, 941 and 1750 is sufficient. */
 
 #define DET_COL_1 0
-#define DET_COL_2 1
+#define DET_ROW_1 1
 #define DET_ROW_7 2
 #define DET_ROW_STAR 3
 #define DET_1750 4
@@ -60,9 +60,8 @@
 // Incomplete because not all frequencies decoded
 enum dtmf_code {
     DTMF_NONE = 0,
-    DTMF_0,
+    DTMF_1,
     DTMF_7,
-    DTMF_8,
     DTMF_STAR,
 };
 
@@ -101,9 +100,8 @@ static char* dtmf_to_str(enum dtmf_code code)
 {
     char *codestr = "?";
     switch (code) {
-        case DTMF_0: codestr = "0"; break;
+        case DTMF_1: codestr = "1"; break;
         case DTMF_7: codestr = "7"; break;
-        case DTMF_8: codestr = "8"; break;
         case DTMF_STAR: codestr = "*"; break;
         case DTMF_NONE: codestr = "x"; break;
     }
@@ -136,20 +134,18 @@ static void analyse_dtmf()
     const uint16_t pattern =
         ((normalised_results[DET_COL_1] > thresh_dtmf &&
           normalised_results[DET_ROW_7] > thresh_dtmf) ? (1 << 7) : 0) +
-        ((normalised_results[DET_COL_2] > thresh_dtmf &&
-          normalised_results[DET_ROW_7] > thresh_dtmf) ? (1 << 8) : 0) +
         ((normalised_results[DET_COL_1] > thresh_dtmf &&
-          normalised_results[DET_ROW_STAR] > thresh_dtmf) ? (1 << 14) : 0) +
-        ((normalised_results[DET_COL_2] > thresh_dtmf &&
-          normalised_results[DET_ROW_STAR] > thresh_dtmf) ? (1 << 0) : 0);
+          normalised_results[DET_ROW_1] > thresh_dtmf) ? (1 << 1) : 0) +
+        ((normalised_results[DET_COL_1] > thresh_dtmf &&
+          normalised_results[DET_ROW_STAR] > thresh_dtmf) ? (1 << 14) : 0);
 
     // Match patterns exactly to exclude multiple simultaneous DTMF codes.
-    if (pattern == (1 << 0)) {
-        if (dtmf_last_seen != DTMF_0) {
-            push_dtmf_code(DTMF_0);
+    if (pattern == (1 << 1)) {
+        if (dtmf_last_seen != DTMF_1) {
+            push_dtmf_code(DTMF_1);
         }
 
-        dtmf_last_seen = DTMF_0;
+        dtmf_last_seen = DTMF_1;
         dtmf_last_seen_at = timestamp_now();
     }
     else if (pattern == (1 << 7)) {
@@ -158,14 +154,6 @@ static void analyse_dtmf()
         }
 
         dtmf_last_seen = DTMF_7;
-        dtmf_last_seen_at = timestamp_now();
-    }
-    else if (pattern == (1 << 8)) {
-        if (dtmf_last_seen != DTMF_8) {
-            push_dtmf_code(DTMF_8);
-        }
-
-        dtmf_last_seen = DTMF_8;
         dtmf_last_seen_at = timestamp_now();
     }
     else if (pattern == (1 << 14)) {
@@ -199,7 +187,7 @@ int tone_1750_for_5_seconds()
 
 int tone_fax_status()
 {
-    return dtmf_sequence[0] == DTMF_0 &&
+    return dtmf_sequence[0] == DTMF_1 &&
            dtmf_sequence[1] == DTMF_7 &&
            dtmf_sequence[2] == DTMF_STAR;
 }
@@ -221,7 +209,7 @@ void tone_init() {
     }
 
     init_detector(&detectors[DET_COL_1], 1209);
-    init_detector(&detectors[DET_COL_2], 1336);
+    init_detector(&detectors[DET_ROW_1], 697);
     init_detector(&detectors[DET_ROW_7], 852);
     init_detector(&detectors[DET_ROW_STAR], 941);
     init_detector(&detectors[DET_1750], 1750);
