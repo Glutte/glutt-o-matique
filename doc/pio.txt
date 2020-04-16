@@ -54,6 +54,10 @@ I2C to Audio Codec
 -       i/o  I2C1 SDA           PB9
 -       i/o  I2C1 SCL           PB6
 
+audio codec is at I2C address 0x4A
+
+I2C to Bosch BMP085 uses same I2C, and uses 0x77.
+
 STM32DISCOVERY onboard things
 -----------------------------
 -       out  Green LED (launcher) PD12

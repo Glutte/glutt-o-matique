@@ -11,6 +11,8 @@
 #include "semphr.h"
 
 #include "temperature.h"
+#include "i2c.h"
+#include "bmp085.h"
 
 #include "debug.h"
 
@@ -28,7 +30,6 @@ void init();
 
 // Tasks
 static void detect_button_press(void *pvParameters);
-static void update_temperature(void *pvParameters);
 
 
 void vApplicationStackOverflowHook( TaskHandle_t xTask,
@@ -38,7 +39,10 @@ void vApplicationStackOverflowHook( TaskHandle_t xTask,
 }
 extern void initialise_monitor_handles(void);
 
-int main(void) {
+// Launcher task is here to make sure the scheduler is
+// already running when calling the init functions.
+static void launcher_task(void __attribute__ ((unused))*pvParameters)
+{
     init();
 
     xTaskCreate(
@@ -46,16 +50,28 @@ int main(void) {
             "TaskButton",
             4*configMINIMAL_STACK_SIZE,
             (void*) NULL,
-            tskIDLE_PRIORITY + 2UL, 
-            NULL);
-
-    xTaskCreate(
-            update_temperature,
-            "TaskAudio",
-            configMINIMAL_STACK_SIZE,
-            (void*) NULL,
             tskIDLE_PRIORITY + 2UL,
             NULL);
+
+    while (1) {
+        vTaskDelay(pdMS_TO_TICKS(1000));
+
+        GPIO_SetBits(GPIOD, GPIO_Pin_13);
+        temperature_update();
+        GPIO_ResetBits(GPIOD, GPIO_Pin_13);
+        taskYIELD();
+    }
+}
+
+int main(void) {
+    TaskHandle_t task_handle;
+    xTaskCreate(
+            launcher_task,
+            "Launcher",
+            2*configMINIMAL_STACK_SIZE,
+            (void*) NULL,
+            tskIDLE_PRIORITY + 2UL,
+            &task_handle);
 
     /* Start the RTOS Scheduler */
     vTaskStartScheduler();
@@ -64,12 +80,11 @@ int main(void) {
     while(1);
 }
 
-
 static void detect_button_press(void *pvParameters)
 {
     GPIO_SetBits(GPIOD, GPIO_Pin_12);
 
-     while (1) {
+    while (1) {
         if (GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_0)>0) {
 
             while (GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_0) > 0) {
@@ -84,6 +99,12 @@ static void detect_button_press(void *pvParameters)
             // For debugging purposes only. snprinf has issues with %f
             snprintf(t, 32, "%d.%02d", (int)temperature_get(), (int)(temperature_get() * 100.0 - (int)(temperature_get()) * 100.0));
             debug_print(t);
+
+            int32_t pressure = 0;
+            int32_t temperature = 0;
+            int success = bmp085_get_temp_pressure(&temperature, &pressure);
+            snprintf(t, 32, " (%d) P=%ld, T=%ld", success, pressure, temperature);
+            debug_print(t);
             debug_print("\n");
 
             GPIO_ResetBits(GPIOD, GPIO_Pin_15);
@@ -96,19 +117,6 @@ static void detect_button_press(void *pvParameters)
         taskYIELD();
     }
 }
-
-static void update_temperature(void *pvParameters)
-{
-    while (1) {
-        vTaskDelay(pdMS_TO_TICKS(1000));
-
-        GPIO_SetBits(GPIOD, GPIO_Pin_13);
-        temperature_update();
-        GPIO_ResetBits(GPIOD, GPIO_Pin_13);
-        taskYIELD();
-    }
-}
-
 
 void init() {
     GPIO_InitTypeDef  GPIO_InitStructure;
@@ -202,5 +210,15 @@ void init() {
     // Enable ADC
     ADC_Cmd(ADC1, ENABLE);
 
+    debug_print("Init ADC done\n");
+
+    // Enable I2C
+    i2c_init();
+    if (! bmp085_init() ) {
+        debug_print("Init BMP085 fail\n");
+    }
+    else {
+        debug_print("Init BMP085 ok\n");
+    }
 }
 
