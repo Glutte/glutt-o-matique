@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2016 Matthias P. Braendli, Maximilien Cuony
+ * Copyright (c) 2020 Matthias P. Braendli, Maximilien Cuony
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,7 +25,8 @@
 /* This handles the USART 3 to the GPS receiver, and fills a queue of
  * NMEA messages.
  *
- * It also handles the debug USART 2 and allows sending messages to the PC.
+ * It also handles the debug USART 2 to send messages to the PC and
+ * receiv measurements from the Glutte-batteries coulomb counter.
  */
 
 #ifndef __USART_H_
@@ -40,6 +41,8 @@
 #endif
 
 #define MAX_NMEA_SENTENCE_LEN 256
+
+#define MAX_CCOUNTER_SENTENCE_LEN 64
 
 // Initialise USART2 for PC debugging
 void usart_init(void);
@@ -73,6 +76,10 @@ void usart_process_char(char);
 void usart_gps_process_char(char);
 
 void usart_puts(USART_TypeDef*, const char*);
+
+// Get a MAX_CCOUNTER_SENTENCE_LEN sized message from Coulomb counter
+// Return 1 on success
+int usart_get_ccounter_msg(char *msg);
 
 #endif //__USART_H_
 

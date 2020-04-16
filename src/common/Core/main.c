@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2019 Matthias P. Braendli, Maximilien Cuony
+ * Copyright (c) 2020 Matthias P. Braendli, Maximilien Cuony
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
 #include <math.h>
 
 /* Kernel includes. */
@@ -85,6 +86,7 @@ void init(void);
 static void detect_button_press(void *pvParameters);
 static void exercise_fsm(void *pvParameters);
 static void nf_analyse(void *pvParameters);
+static void read_in_coulomb_counter(void *pvParameters);
 static void gps_monit_task(void *pvParameters);
 static void launcher_task(void *pvParameters);
 
@@ -225,6 +227,20 @@ static void launcher_task(void __attribute__ ((unused))*pvParameters)
             nf_analyse,
             "TaskNF",
             3*configMINIMAL_STACK_SIZE,
+            (void*) NULL,
+            tskIDLE_PRIORITY + 3UL,
+            &task_handle);
+
+    if (!task_handle) {
+        trigger_fault(FAULT_SOURCE_MAIN);
+    }
+
+    usart_debug_puts("TaskCC init\r\n");
+
+    xTaskCreate(
+            read_in_coulomb_counter,
+            "TaskCC",
+            2*configMINIMAL_STACK_SIZE,
             (void*) NULL,
             tskIDLE_PRIORITY + 3UL,
             &task_handle);
@@ -695,6 +711,28 @@ static void nf_analyse(void __attribute__ ((unused))*pvParameters)
         }
 
         tone_do_analysis();
+    }
+}
+
+static char ccounter_msg[MAX_CCOUNTER_SENTENCE_LEN];
+static void read_in_coulomb_counter(void __attribute__ ((unused))*pvParameters)
+{
+    while (1) {
+        int ok = usart_get_ccounter_msg(ccounter_msg);
+        if (ok) {
+            size_t len = strlen(ccounter_msg);
+            /* Ignore if \n follows \r or not, as that should never happen, and in any case
+             * we don't want to send the \r or whatever could come after
+             */
+            if (len > 2 && ccounter_msg[len-2] == '\r') {
+                ccounter_msg[len-2] = '\0';
+            }
+            usart_debug_puts_header("CC:", ccounter_msg);
+        }
+        else {
+            usart_debug_puts("WARNING: Read from ccounter queue failed\r\n");
+            vTaskDelay(5000 / portTICK_PERIOD_MS);
+        }
     }
 }
 

@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2016 Matthias P. Braendli, Maximilien Cuony
+ * Copyright (c) 2020 Matthias P. Braendli, Maximilien Cuony
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,14 +33,19 @@
 #include "task.h"
 #include "queue.h"
 
-// The ISR writes into this buffer
+// The ISRs write into these buffer, for NMEA input and Coulomb counter
 static char nmea_sentence[MAX_NMEA_SENTENCE_LEN];
 static int  nmea_sentence_last_written = 0;
-
+static char ccounter_msg[MAX_CCOUNTER_SENTENCE_LEN];
+static int  ccounter_msg_last_written = 0;
 
 // Once a completed NMEA sentence is received in the ISR,
 // it is appended to this queue
 static QueueHandle_t usart_nmea_queue;
+
+// Once a full line (ending in \r\n) is received on USART2,
+// it is appended to this queue
+static QueueHandle_t usart_ccounter_queue;
 
 void usart_gps_init() {
     usart_nmea_queue = xQueueCreate(15, MAX_NMEA_SENTENCE_LEN);
@@ -48,8 +53,12 @@ void usart_gps_init() {
         while(1); /* fatal error */
     }
 
-    usart_gps_specific_init();
+    usart_ccounter_queue = xQueueCreate(5, MAX_CCOUNTER_SENTENCE_LEN);
+    if (usart_ccounter_queue == 0) {
+        while(1); /* fatal error */
+    }
 
+    usart_gps_specific_init();
 }
 
 void usart_gps_puts(const char* str) {
@@ -117,10 +126,49 @@ void usart_debug_puts_header(const char* hdr, const char* str) {
     xTaskResumeAll();
 }
 
-int usart_get_nmea_sentence(char* nmea) {
+int usart_get_nmea_sentence(char *nmea) {
     return xQueueReceive(usart_nmea_queue, nmea, portMAX_DELAY);
 }
 
+int usart_get_ccounter_msg(char *msg) {
+    return xQueueReceive(usart_ccounter_queue, msg, portMAX_DELAY);
+}
+
+static void usart_clear_ccounter_buffer(void) {
+    for (int i = 0; i < MAX_CCOUNTER_SENTENCE_LEN; i++) {
+        ccounter_msg[i] = '\0';
+    }
+    ccounter_msg_last_written = 0;
+}
+
+void usart_process_char(char c) {
+// Warning: running in interrupt context
+    BaseType_t require_context_switch = pdFALSE;
+
+    if (ccounter_msg_last_written < MAX_CCOUNTER_SENTENCE_LEN) {
+        ccounter_msg[ccounter_msg_last_written] = c;
+        ccounter_msg_last_written++;
+
+        if (c == '\n') {
+            int success = xQueueSendToBackFromISR(
+                    usart_ccounter_queue,
+                    ccounter_msg,
+                    &require_context_switch);
+
+            if (success == pdFALSE) {
+                trigger_fault(FAULT_SOURCE_USART);
+            }
+
+            usart_clear_ccounter_buffer();
+        }
+    }
+    else {
+        // Buffer overrun without a meaningful message.
+        usart_clear_ccounter_buffer();
+    }
+
+    portYIELD_FROM_ISR(require_context_switch);
+}
 
 static void usart_clear_nmea_buffer(void) {
     for (int i = 0; i < MAX_NMEA_SENTENCE_LEN; i++) {
@@ -129,13 +177,9 @@ static void usart_clear_nmea_buffer(void) {
     nmea_sentence_last_written = 0;
 }
 
-void usart_process_char(char c) {
-// Warning: running in interrupt context
-    usart_debug("Unknown command %c\r\n", c);
-}
-
 void usart_gps_process_char(char c)
 {
+// Warning: running in interrupt context
     BaseType_t require_context_switch = pdFALSE;
 
     if (nmea_sentence_last_written == 0) {
