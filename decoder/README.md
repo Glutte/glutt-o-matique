@@ -25,3 +25,5 @@ References
 https://sdradventure.wordpress.com/2011/10/15/gnuradio-psk31-decoder-part-1/
 
 https://sdradventure.wordpress.com/2011/10/15/gnuradio-psk31-decoder-part-2/
+
+For GnuRadio 3.8, maybe consider https://github.com/dl1ksv/gr-radioteletype
