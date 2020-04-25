@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2019 Matthias P. Braendli, Maximilien Cuony
+ * Copyright (c) 2020 Matthias P. Braendli, Maximilien Cuony
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,7 +25,7 @@
 #pragma once
 #include <stdint.h>
 
-void stats_voltage_at_full_hour(int hour, float u_bat);
+void stats_battery_at_full_hour(int hour, float u_bat, uint32_t capacity_mAh);
 void stats_voltage(float u_bat);
 
 void stats_temp(float temp);

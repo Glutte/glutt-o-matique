@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2019 Matthias P. Braendli, Maximilien Cuony
+ * Copyright (c) 2020 Matthias P. Braendli, Maximilien Cuony
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -38,9 +38,10 @@ static int num_antibavard = 0;
 static int num_sv_used = 0;
 static int num_qro = 0;
 static int num_qrp = 0;
-static float battery_min = -1.0f;
-static float battery_max = -1.0f;
-static float battery_per_hour[24];
+static float battery_volt_min = -1.0f;
+static float battery_volt_max = -1.0f;
+static float battery_volt_hourly[24];
+static uint32_t battery_charge_hourly[24];
 #define TEMP_INVALID -128.0f
 static float temp_min = TEMP_INVALID;
 static float temp_max = TEMP_INVALID;
@@ -51,19 +52,7 @@ static uint64_t max_qso_duration = 0;
 
 /* Ideas
  *
- * Version
- * Uptime
- * Number of beacons
- * Ubat min/max/avg
- * Temperature min/max/avg
- * QRP/QRO time ratio in %
- * Number of K, G, D, U, S, R sent
- * Number of TX On/Off
- * How many times anti-bavard got triggered
  * Max SWR ratio
- * Number of wind generator movements
- * Longest QSO duration
- * Number of GNSS SVs tracked
  */
 
 #define STATS_LEN 1024 // also check MAX_MESSAGE_LEN in cw.c
@@ -76,8 +65,8 @@ static void clear_stats()
     num_wind_generator_movements = 0;
     num_tx_switch = 0;
     num_antibavard = 0;
-    battery_min = -1.0f;
-    battery_max = -1.0f;
+    battery_volt_min = -1.0f;
+    battery_volt_max = -1.0f;
     temp_min = TEMP_INVALID;
     temp_max = TEMP_INVALID;
     num_qro = 0;
@@ -85,19 +74,23 @@ static void clear_stats()
     last_tx_on_valid = 0;
     max_qso_duration = 0;
     for (int i = 0; i < 24; i++) {
-        battery_per_hour[i] = -1.0f;
+        battery_volt_hourly[i] = -1.0f;
+    }
+    for (int i = 0; i < 24; i++) {
+        battery_charge_hourly[i] = 0;
     }
     values_valid = 1;
 }
 
-void stats_voltage_at_full_hour(int hour, float u_bat)
+void stats_battery_at_full_hour(int hour, float u_bat, uint32_t capacity_mAh)
 {
     if (values_valid == 0) {
         clear_stats();
     }
 
-    if (hour > 0 && hour < 24) {
-        battery_per_hour[hour] = u_bat;
+    if (hour >= 0 && hour < 24) {
+        battery_volt_hourly[hour] = u_bat;
+        battery_charge_hourly[hour] = capacity_mAh;
     }
 }
 
@@ -107,14 +100,15 @@ void stats_voltage(float u_bat)
         clear_stats();
     }
 
-    if (u_bat < battery_min || battery_min == -1.0f) {
-        battery_min = u_bat;
+    if (u_bat < battery_volt_min || battery_volt_min == -1.0f) {
+        battery_volt_min = u_bat;
     }
 
-    if (u_bat > battery_max || battery_max == -1.0f) {
-        battery_max = u_bat;
+    if (u_bat > battery_volt_max || battery_volt_max == -1.0f) {
+        battery_volt_max = u_bat;
     }
 }
+
 
 void stats_temp(float temp)
 {
@@ -236,8 +230,8 @@ const char* stats_build_text(void)
         return stats_text;
     }
 
-    const int battery_min_decivolt = 10.0f * battery_min;
-    const int battery_max_decivolt = 10.0f * battery_max;
+    const int battery_min_decivolt = 10.0f * battery_volt_min;
+    const int battery_max_decivolt = 10.0f * battery_volt_max;
 
     stats_end_ix += snprintf(stats_text + stats_end_ix, STATS_LEN - 1 - stats_end_ix,
             "U min,max= %dV%01d,%dV%01d\n"
@@ -250,15 +244,30 @@ const char* stats_build_text(void)
             "U heures pleines= ");
 
     for (int h = 0; h < 24; h++) {
-        if (battery_per_hour[h] == -1.0f) {
-            stats_end_ix += snprintf(stats_text + stats_end_ix, STATS_LEN - 1 - stats_end_ix,
-                    " ?");
+        if (battery_volt_hourly[h] == -1.0f) {
+            stats_end_ix += snprintf(stats_text + stats_end_ix,
+                    STATS_LEN - 1 - stats_end_ix, " ?");
         }
         else {
-            const int battery_decivolts = 10.0f * battery_per_hour[h];
-            stats_end_ix += snprintf(stats_text + stats_end_ix, STATS_LEN - 1 - stats_end_ix,
-                    " %dV%01d",
+            const int battery_decivolts = 10.0f * battery_volt_hourly[h];
+            stats_end_ix += snprintf(
+                    stats_text + stats_end_ix, STATS_LEN - 1 - stats_end_ix, " %dV%01d",
                     battery_decivolts / 10, battery_decivolts % 10);
+        }
+    }
+
+    stats_end_ix += snprintf(stats_text + stats_end_ix, STATS_LEN - 1 - stats_end_ix,
+            "\nCapa heures pleines= ");
+
+    for (int h = 0; h < 24; h++) {
+        if (battery_charge_hourly[h] == 0) {
+            stats_end_ix += snprintf(stats_text + stats_end_ix,
+                    STATS_LEN - 1 - stats_end_ix, " ?");
+        }
+        else {
+            stats_end_ix += snprintf(
+                    stats_text + stats_end_ix, STATS_LEN - 1 - stats_end_ix, " %ld",
+                    battery_charge_hourly[h]);
         }
     }
 

@@ -46,6 +46,7 @@
 #include "Core/stats.h"
 #include "Core/common.h"
 #include "GPIO/usart.h"
+#include "GPIO/batterycharge.h"
 #include "Core/delay.h"
 #include "GPIO/temperature.h"
 #include "GPIO/leds.h"
@@ -150,6 +151,9 @@ static void launcher_task(void __attribute__ ((unused))*pvParameters)
 
     usart_debug_puts("Analog init\r\n");
     analog_init();
+
+    usart_debug_puts("Batterycharge init\r\n");
+    batterycharge_init();
 
     usart_debug_puts("I2C init\r\n");
     i2c_init();
@@ -472,11 +476,13 @@ static void gps_monit_task(void __attribute__ ((unused))*pvParameters) {
 
         if (last_volt_and_temp_timestamp + 20000 < now) {
             const float u_bat = analog_measure_12v();
+            const uint32_t capacity_bat = batterycharge_retrieve_last_capacity();
+
             usart_debug("ALIM %d mV\r\n", (int)roundf(1000.0f * u_bat));
 
             stats_voltage(u_bat);
             if (time_valid && time.tm_min == 0) {
-                stats_voltage_at_full_hour(time.tm_hour, u_bat);
+                stats_battery_at_full_hour(time.tm_hour, u_bat, capacity_bat);
             }
 
             if (temperature_valid()) {
@@ -718,20 +724,18 @@ static char ccounter_msg[MAX_CCOUNTER_SENTENCE_LEN];
 static void read_in_coulomb_counter(void __attribute__ ((unused))*pvParameters)
 {
     while (1) {
-        int ok = usart_get_ccounter_msg(ccounter_msg);
+        int ok = usart_get_ccounter_msg(ccounter_msg); // times out after 2s
         if (ok) {
             size_t len = strlen(ccounter_msg);
             /* Ignore if \n follows \r or not, as that should never happen, and in any case
-             * we don't want to send the \r or whatever could come after
+             * we don't want to send the \r or whatever could come after.
              */
             if (len > 2 && ccounter_msg[len-2] == '\r') {
                 ccounter_msg[len-2] = '\0';
             }
+
+            batterycharge_push_message(ccounter_msg);
             usart_debug_puts_header("CC:", ccounter_msg);
-        }
-        else {
-            usart_debug_puts("WARNING: Read from ccounter queue failed\r\n");
-            vTaskDelay(5000 / portTICK_PERIOD_MS);
         }
     }
 }

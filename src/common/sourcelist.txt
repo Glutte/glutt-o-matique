@@ -1,6 +1,7 @@
 GPIO/analog.c
 GPIO/usart.c
 GPIO/temperature.c
+GPIO/batterycharge.c
 GPS/gps.c
 GPS/minmea.c
 Core/common.c

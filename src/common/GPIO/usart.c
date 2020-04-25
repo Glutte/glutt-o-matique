@@ -131,7 +131,7 @@ int usart_get_nmea_sentence(char *nmea) {
 }
 
 int usart_get_ccounter_msg(char *msg) {
-    return xQueueReceive(usart_ccounter_queue, msg, portMAX_DELAY);
+    return xQueueReceive(usart_ccounter_queue, msg, pdMS_TO_TICKS(2000));
 }
 
 static void usart_clear_ccounter_buffer(void) {
