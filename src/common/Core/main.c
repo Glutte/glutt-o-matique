@@ -735,7 +735,7 @@ static void read_in_coulomb_counter(void __attribute__ ((unused))*pvParameters)
             }
 
             batterycharge_push_message(ccounter_msg);
-            usart_debug_puts_header("CC:", ccounter_msg);
+            usart_debug_puts_header("CC: ", ccounter_msg);
         }
     }
 }
