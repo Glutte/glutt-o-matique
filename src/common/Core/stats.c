@@ -267,7 +267,7 @@ const char* stats_build_text(void)
         else {
             stats_end_ix += snprintf(
                     stats_text + stats_end_ix, STATS_LEN - 1 - stats_end_ix, " %ld",
-                    battery_charge_hourly[h]);
+                    battery_charge_hourly[h] / 1000);
         }
     }
 
