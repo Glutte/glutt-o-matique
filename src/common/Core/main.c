@@ -296,6 +296,7 @@ static void launcher_task(void __attribute__ ((unused))*pvParameters)
                         usart_debug("Set SWR error\r\n");
                     }
                     swr_error_flag = 1;
+                    pio_set_qrp(1);
                 }
             }
         }
