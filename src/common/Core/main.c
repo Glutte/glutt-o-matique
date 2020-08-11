@@ -301,15 +301,30 @@ static void launcher_task(void __attribute__ ((unused))*pvParameters)
             }
         }
         else {
-            const int qrp_from_supply = analog_supply_too_low();
             if (swr_error_flag) {
                 pio_set_qrp(1);
             }
-            else if (qrp_from_supply != last_qrp_from_supply) {
-                usart_debug("QRP = %d\r\n", qrp_from_supply);
-                last_qrp_from_supply = qrp_from_supply;
+            else {
+                const uint32_t charge_qrp = batterycharge_too_low();
 
-                pio_set_qrp(qrp_from_supply);
+                if (charge_qrp != -1) {
+                    if (charge_qrp != last_qrp_from_supply) {
+                        usart_debug("QRP CC = %d\r\n", charge_qrp);
+                        last_qrp_from_supply = charge_qrp;
+
+                        pio_set_qrp(charge_qrp);
+                    }
+                }
+                else {
+                    /* Read the voltage when battery capacity is not available */
+                    const int qrp_from_supply = analog_supply_too_low();
+                    if (qrp_from_supply != last_qrp_from_supply) {
+                        usart_debug("QRP U = %d\r\n", qrp_from_supply);
+                        last_qrp_from_supply = qrp_from_supply;
+
+                        pio_set_qrp(qrp_from_supply);
+                    }
+                }
             }
         }
 

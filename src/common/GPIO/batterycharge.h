@@ -33,3 +33,6 @@ void batterycharge_push_message(const char *ccounter_msg);
 
 // Get the last received battery capacity in mAh, or 0 if not valid
 uint32_t batterycharge_retrieve_last_capacity(void);
+
+// Return 1 if battery charge is too low, -1 if unknown
+int batterycharge_too_low(void);

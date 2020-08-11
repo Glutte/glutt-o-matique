@@ -29,8 +29,13 @@
 #include <stdlib.h>
 #include <errno.h>
 
+// Hysteresis:
+#define CHARGE_QRP 1300000
+#define CHARGE_QRO 1350000
+
 static int charge_valid;
 static uint32_t last_charge;
+static int charge_qrp;
 
 void batterycharge_init()
 {
@@ -39,6 +44,7 @@ void batterycharge_init()
      */
     charge_valid = 0;
     last_charge = 0;
+    charge_qrp = 0;
 }
 
 void batterycharge_push_message(const char *ccounter_msg)
@@ -84,4 +90,25 @@ uint32_t batterycharge_retrieve_last_capacity()
     }
     taskENABLE_INTERRUPTS();
     return ret;
+}
+
+int batterycharge_too_low()
+{
+    taskDISABLE_INTERRUPTS();
+    uint32_t c = 0;
+    if (charge_valid) {
+        c = last_charge;
+    }
+    taskENABLE_INTERRUPTS();
+
+    if (c == 0) {
+        return -1;
+    }
+    else if (charge_qrp == 0 && c < CHARGE_QRP) {
+        charge_qrp = 1;
+    }
+    else if (charge_qrp == 1 && c >= CHARGE_QRO) {
+        charge_qrp = 0;
+    }
+    return charge_qrp;
 }
