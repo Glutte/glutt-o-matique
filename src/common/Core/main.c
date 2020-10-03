@@ -502,9 +502,16 @@ static void gps_monit_task(void __attribute__ ((unused))*pvParameters) {
             }
 
             if (temperature_valid()) {
-                const float temp = temperature_get();
+                float temp = temperature_get();
                 stats_temp(temp);
-                usart_debug("TEMP %d.%02d\r\n", (int)temp, (int)(temp * 100.0f - (int)(temp) * 100.0f));
+
+                const char *sign = "";
+                if (temp < 0) {
+                    sign = "-";
+                    temp = -temp;
+                }
+
+                usart_debug("TEMP %s%d.%02d\r\n", sign, (int)temp, (int)(temp * 100.0f - (int)(temp) * 100.0f));
             }
             else {
                 usart_debug("TEMP invalid\r\n");
