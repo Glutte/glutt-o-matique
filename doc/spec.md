@@ -42,7 +42,19 @@ Avec hysterèse:
 
 ##Toutes les heures paires :
 
-Le relais, seulement s'il n'y a pas de QSO en cours, (sinon il attend la fin du QSO), dès qu’il a la possibilité, il prend la main sur toutes autres activités possible, (modulation off, et 1750Hz) puis il TX :
+Le relais, seulement s'il n'y a pas de QSO en cours, (sinon il attend la fin du QSO), dès qu’il a la possibilité, il prend la main sur toutes autres activités possible, (modulation off, et 1750Hz) puis il TX une balise.
+
+A partir d'octobre 2020:
+
+*HB9G JN36BK U 13V5  1650 AH + T 12  73*
+
+Tendance: + - ou = selon l'évolution de la capacité en Ah. T par pas de 1 degré C. *73* si éolienne dans le vent, *SK*
+si repliée.
+
+En QRP, *HB9G U 12V5  1010 AH 73*
+
+
+Jusqu'en octobre 2020:
 
 *HB9G JN36BK 1628 M U 13V5* (un pas de 0,5V est suffisant) puis la tendance à la charge ou décharge ou égale (representés par +/-/=), *T* (température) par pas de 2 degrés, puis *73* si la queue de l’éolienne est dans le vent, ou *SK* si elle est repliée.
 

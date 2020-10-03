@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2019 Matthias P. Braendli, Maximilien Cuony
+ * Copyright (c) 2020 Matthias P. Braendli, Maximilien Cuony
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,6 +30,7 @@
 #include "Core/stats.h"
 #include "GPIO/usart.h"
 #include "GPIO/temperature.h"
+#include "GPIO/batterycharge.h"
 #include "GPIO/analog.h"
 
 static struct fsm_input_signals_t fsm_in;
@@ -43,9 +44,9 @@ static sstv_fsm_state_t sstv_state;
 // in ms using the timestamp_now() function
 static uint64_t timestamp_state[_NUM_FSM_STATES];
 
-static int last_supply_voltage_decivolts = 0;
+static int last_battery_capacity_ah = 0;
 
-#define BALISE_MESSAGE_LEN 64
+#define BALISE_MESSAGE_LEN 75
 static char balise_message[BALISE_MESSAGE_LEN];
 
 static int balise_message_empty(void)
@@ -486,40 +487,49 @@ void fsm_update() {
                     // The backslash is the SK digraph
                 }
 
-                char supply_trend = '=';
-                // = means same voltage as previous
-                // + means higher
-                // - means lower
-                if (last_supply_voltage_decivolts < supply_decivolts) {
-                    supply_trend = '+';
-                }
-                else if (last_supply_voltage_decivolts > supply_decivolts) {
-                    supply_trend = '-';
-                }
-
                 if (balise_message_empty()) {
+                    const uint32_t capacity_bat_mah = batterycharge_retrieve_last_capacity();
+                    const int capacity_bat_ah = capacity_bat_mah / 1000;
+
+                    char supply_trend = '=';
+                    if (capacity_bat_ah) {
+                        // = means same battery capacity as previous
+                        // + means higher
+                        // - means lower
+                        if (last_battery_capacity_ah < capacity_bat_ah) {
+                            supply_trend = '+';
+                        }
+                        else if (last_battery_capacity_ah > capacity_bat_ah) {
+                            supply_trend = '-';
+                        }
+
+                        last_battery_capacity_ah = capacity_bat_ah;
+                    }
+
+                    size_t len = 0;
+
+                    len += snprintf(balise_message + len, BALISE_MESSAGE_LEN-len-1,
+                            CW_PREDELAY "HB9G JN36BK  U %dV%01d ",
+                                supply_decivolts / 10,
+                                supply_decivolts % 10);
+
+                    if (capacity_bat_ah != 0) {
+                        len += snprintf(balise_message + len, BALISE_MESSAGE_LEN-len-1,
+                                " %d AH %c ", capacity_bat_ah, supply_trend);
+                    }
+
                     if (temperature_valid()) {
-                        snprintf(balise_message, BALISE_MESSAGE_LEN-1,
-                                CW_PREDELAY "HB9G JN36BK  1628M U %dV%01d %c  T %d  %s" CW_POSTDELAY,
-                                supply_decivolts / 10,
-                                supply_decivolts % 10,
-                                supply_trend,
-                                (int)(round_float_to_half_steps(temperature_get())),
-                                eol_info);
+                        len += snprintf(balise_message + len, BALISE_MESSAGE_LEN-len-1,
+                                " T %d ",
+                                (int)(round_float_to_half_steps(temperature_get())));
                     }
-                    else {
-                        snprintf(balise_message, BALISE_MESSAGE_LEN-1,
-                                CW_PREDELAY "HB9G JN36BK  1628M U %dV%01d %c  %s" CW_POSTDELAY,
-                                supply_decivolts / 10,
-                                supply_decivolts % 10,
-                                supply_trend,
-                                eol_info);
-                    }
+
+                    snprintf(balise_message + len, BALISE_MESSAGE_LEN-len-1,
+                            "%s" CW_POSTDELAY,
+                            eol_info);
                 }
 
                 fsm_out.msg = balise_message;
-
-                last_supply_voltage_decivolts = supply_decivolts;
 
                 fsm_out.cw_psk_trigger = 1;
             }
@@ -611,10 +621,21 @@ void fsm_update() {
                     // The backslash is the SK digraph
                 }
 
-                snprintf(balise_message, BALISE_MESSAGE_LEN-1,
-                        CW_PREDELAY "HB9G U %dV%01d %s" CW_POSTDELAY,
+                size_t len = 0;
+                len += snprintf(balise_message+len, BALISE_MESSAGE_LEN-len-1,
+                        CW_PREDELAY "HB9G U %dV%01d ",
                         supply_decivolts / 10,
-                        supply_decivolts % 10,
+                        supply_decivolts % 10);
+
+                const uint32_t capacity_bat_mah = batterycharge_retrieve_last_capacity();
+                const int capacity_bat_ah = capacity_bat_mah / 1000;
+                if (capacity_bat_ah != 0) {
+                    len += snprintf(balise_message + len, BALISE_MESSAGE_LEN-len-1,
+                            " %d AH ", capacity_bat_ah);
+                }
+
+                len += snprintf(balise_message+len, BALISE_MESSAGE_LEN-len-1,
+                        "%s" CW_POSTDELAY,
                         eol_info);
 
                 fsm_out.msg = balise_message;

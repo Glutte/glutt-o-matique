@@ -38,6 +38,7 @@
 #include <limits.h>
 
 #include "gui.h"
+#include "Core/common.h"
 
 #define NK_INCLUDE_FIXED_TYPES
 #define NK_INCLUDE_STANDARD_IO
@@ -176,9 +177,11 @@ int gui_last_fsm_states_timestamps[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 
 /**
- * Voltage
+ * Voltage and battery cap
  **/
 float gui_measured_voltage = 14.0f;
+int gui_measured_capacity = 1630; // Ah
+int gui_measured_capacity_last = 1630; // Ah
 
 
 /**
@@ -799,6 +802,18 @@ void main_gui() {
                 nk_label_colored(ctx, "Voltage", NK_TEXT_LEFT, c);
                 nk_property_float(ctx, "V", 0.0f, &gui_measured_voltage, 24.0f, 0.5f, 0.5f);
 
+                nk_layout_row_dynamic(ctx, 25, 2);
+                nk_label_colored(ctx, "Capacity", NK_TEXT_LEFT, c);
+                nk_property_int(ctx, "Ah", 0, &gui_measured_capacity, 1650, 10, 0.1f);
+
+                if (gui_measured_capacity != gui_measured_capacity_last) {
+                    uart_send_txt_len = snprintf(uart_send_txt, sizeof(uart_send_txt), "CAPA,%ld,%d", timestamp_now()/1000, gui_measured_capacity * 1000);
+
+                    uart_send_txt[uart_send_txt_len] = '\0';
+                    gui_usart_send(uart_send_txt);
+
+                    gui_measured_capacity_last = gui_measured_capacity;
+                }
 
                 if (gui_in_tone_1750) {
                     c = color_on;
