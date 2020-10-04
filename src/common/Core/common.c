@@ -123,7 +123,7 @@ static int is_dst(const struct tm *time) {
 }
 
 int local_time(struct tm *time) {
-    const int local_time_offset=1; // hours
+    const int local_time_offset = 1; // hours
 
     int num_sv_used = 0;
     int valid = gps_utctime(time, &num_sv_used);

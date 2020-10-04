@@ -56,6 +56,7 @@ int gps_utctime(struct tm *timeutc, int *num_sv_used)
         timeutc->tm_hour  = gps_timeutc.tm_hour;
         timeutc->tm_min   = gps_timeutc.tm_min;
         timeutc->tm_sec   = gps_timeutc.tm_sec;
+        timeutc->tm_isdst = 0;
         *num_sv_used      = gps_num_sv_used;
         valid             = gps_timeutc_valid;
     }
@@ -94,6 +95,7 @@ static void gps_task(void __attribute__ ((unused))*pvParameters) {
                             gps_timeutc.tm_hour  = frame.time.hours;
                             gps_timeutc.tm_min   = frame.time.minutes;
                             gps_timeutc.tm_sec   = frame.time.seconds;
+                            gps_timeutc.tm_isdst = 0;
                             gps_timeutc_valid    = frame.valid;
                             gps_timeutc_last_updated = xTaskGetTickCount();
                             xSemaphoreGive(timeutc_semaphore);
