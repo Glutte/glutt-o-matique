@@ -482,9 +482,11 @@ void fsm_update() {
                 if (current_state == FSM_BALISE_STATS1) {
                     eol_info = "PSK125";
                 }
+                else if (batterycharge_wind_disconnected()) {
+                    eol_info = "EOL \\"; // backslash is <SK>
+                }
                 else if (!fsm_in.wind_generator_ok) {
-                    eol_info = "\\";
-                    // The backslash is the SK digraph
+                    eol_info = "\\"; // backslash is <SK>
                 }
 
                 if (balise_message_empty()) {
@@ -583,9 +585,11 @@ void fsm_update() {
 
             if (balise_message_empty()) {
                 const char *eol_info = "73";
-                if (!fsm_in.wind_generator_ok) {
-                    eol_info = "\\";
-                    // The backslash is the SK digraph
+                if (batterycharge_wind_disconnected()) {
+                    eol_info = "EOL \\"; // backslash is <SK>
+                }
+                else if (!fsm_in.wind_generator_ok) {
+                    eol_info = "\\"; // backslash is <SK>
                 }
                 snprintf(balise_message, BALISE_MESSAGE_LEN-1,
                         CW_PREDELAY "%s" CW_POSTDELAY,
@@ -616,9 +620,11 @@ void fsm_update() {
                 if (current_state == FSM_BALISE_SPECIALE_STATS1) {
                     eol_info = "PSK125";
                 }
+                else if (batterycharge_wind_disconnected()) {
+                    eol_info = "EOL \\"; // backslash is <SK>
+                }
                 else if (!fsm_in.wind_generator_ok) {
-                    eol_info = "\\";
-                    // The backslash is the SK digraph
+                    eol_info = "\\"; // backslash is <SK>
                 }
 
                 size_t len = 0;

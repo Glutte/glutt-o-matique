@@ -183,6 +183,11 @@ float gui_measured_voltage = 14.0f;
 int gui_measured_capacity = 1630; // Ah
 int gui_measured_capacity_last = 1630; // Ah
 
+static const char *breaker_status[] = {"Closed", "Open"};
+static const char *breaker_message[] = {"On", "Off"};
+int gui_breaker_status = 0;
+int gui_breaker_status_last = 0;
+
 
 /**
  * SWR
@@ -801,6 +806,19 @@ void main_gui() {
 
                 nk_label_colored(ctx, "Voltage", NK_TEXT_LEFT, c);
                 nk_property_float(ctx, "V", 0.0f, &gui_measured_voltage, 24.0f, 0.5f, 0.5f);
+
+                nk_layout_row_dynamic(ctx, 25, 2);
+                nk_label_colored(ctx, "Eolienne breaker", NK_TEXT_LEFT, c);
+                gui_breaker_status = nk_combo(ctx, breaker_status, LEN(breaker_status), gui_breaker_status, 30);
+
+                if (gui_breaker_status != gui_breaker_status_last) {
+                    uart_send_txt_len = snprintf(uart_send_txt, sizeof(uart_send_txt), "DISJEOL,%ld,%s", timestamp_now()/1000, breaker_message[gui_breaker_status]);
+
+                    uart_send_txt[uart_send_txt_len] = '\0';
+                    gui_usart_send(uart_send_txt);
+
+                    gui_breaker_status_last = gui_breaker_status;
+                }
 
                 nk_layout_row_dynamic(ctx, 25, 2);
                 nk_label_colored(ctx, "Capacity", NK_TEXT_LEFT, c);

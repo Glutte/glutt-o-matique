@@ -178,3 +178,6 @@ ifeq ($(wildcard /opt/openocd/bin/openocd),)
 else
 	/opt/openocd/bin/openocd -f stm32f4discovery-with-stlinkv2.1.cfg -c "program bin/"$(BINELF)" verify reset" -c "init" -c "reset" -c "exit"
 endif
+
+help:
+	@echo "targets: all clean deploy (with stm32f4discovery.cfg) deploy21 (with stm32f4discovery-with-stlinkv2.1.cfg)"

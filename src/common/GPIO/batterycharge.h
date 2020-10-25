@@ -36,3 +36,6 @@ uint32_t batterycharge_retrieve_last_capacity(void);
 
 // Return 1 if battery charge is too low, -1 if unknown
 int batterycharge_too_low(void);
+
+// Return 0 if the wind generator is connected, 1 if the breaker is open, -1 if unknown
+int batterycharge_wind_disconnected(void);
