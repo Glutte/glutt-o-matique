@@ -559,7 +559,7 @@ void fsm_update() {
 
             // All predecessor states must NULL the fsm_out.msg field!
             if (fsm_out.msg == NULL) {
-                fsm_out.msg = stats_build_text();
+                fsm_out.msg = stats_build_text(batterycharge_wind_disconnected());
             }
             fsm_out.cw_psk_trigger = 1;
 

@@ -195,7 +195,7 @@ void stats_num_gnss_sv(int num_sv)
     num_sv_used = num_sv;
 }
 
-const char* stats_build_text(void)
+const char* stats_build_text(int wind_disconnected)
 {
     struct tm time = {0};
     int time_valid = local_time(&time);
@@ -309,6 +309,10 @@ const char* stats_build_text(void)
             qso_duration_h, qso_duration_m, qso_duration_s,
             num_sv_used
             );
+
+    stats_end_ix += snprintf(stats_text + stats_end_ix, STATS_LEN - 1 - stats_end_ix,
+            "Disjoncteur eolienne= %s\n",
+            wind_disconnected ? "Off" : "On");
 
     values_valid = 0;
 

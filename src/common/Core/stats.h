@@ -38,4 +38,4 @@ void stats_num_gnss_sv(int num_sv);
 // Must be called in regular intervals
 void stats_qrp(int is_qrp);
 
-const char* stats_build_text(void);
+const char* stats_build_text(int wind_disconnected);
