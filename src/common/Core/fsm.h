@@ -81,8 +81,8 @@ struct fsm_input_signals_t {
     int qrp;               // The relay is currently running with low power
     int hour_is_even;      // 1 if hour is even
     int send_stats;        // 1 if the balise should contain stats
+    int bonne_annee;       // 1 if BONNE ANNEE should be sent in short beacons
     float temp;            // temperature in degrees C
-    float humidity;        // relative humidity, range [0-100] %
     int wind_generator_ok; // false if the generator is folded out of the wind
     int discrim_d;         // FM discriminator says RX is too low in frequency
     int button_1750;       // Front panel button 1750Hz

@@ -673,7 +673,10 @@ void fsm_update() {
             fsm_out.msg_frequency   = 696;
             fsm_out.cw_dit_duration = 70;
 
-            {
+            if (fsm_in.bonne_annee) {
+                fsm_out.msg = CW_PREDELAY "HB9G  BONNE ANNEE" CW_POSTDELAY;
+            }
+            else {
                 int rand = random_bool() * 2 + random_bool();
 
                 if (rand == 0) {

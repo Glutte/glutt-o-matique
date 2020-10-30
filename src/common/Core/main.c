@@ -600,11 +600,12 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
 
     uint64_t last_qrp_stats_updated = timestamp_now();
 
-    fsm_input.humidity = 0;
     fsm_input.temp = 15;
     fsm_input.swr_high = 0;
     fsm_input.fax_mode = 0;
     fsm_input.wind_generator_ok = 1;
+    fsm_input.send_stats = 0;
+    fsm_input.bonne_annee = 0;
 
     while (1) {
         vTaskDelay(pdMS_TO_TICKS(10));
@@ -681,8 +682,14 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
         if (!time_valid) {
             time_valid = local_derived_time(&time);
         }
+
         if (time_valid) {
             fsm_input.send_stats = (time.tm_hour == 22) ? 1 : 0;
+            fsm_input.bonne_annee = (gps_time.tm_mon == 0 && gps_time.tm_mday <= 5);
+        }
+        else {
+            fsm_input.send_stats = 0;
+            fsm_input.bonne_annee = 0;
         }
 
         fsm_update_inputs(&fsm_input);
