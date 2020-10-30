@@ -104,7 +104,7 @@ if start_ix == -1:
 
 output_str = output_str[start_ix:]
 
-end_ix = output_str.rfind("Sat GPS=")
+end_ix = output_str.rfind("Disjoncteur eolienne")
 if end_ix != -1:
     while end_ix < len(output_str) and output_str[end_ix] != '\n':
         end_ix += 1
