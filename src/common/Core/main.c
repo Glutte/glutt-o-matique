@@ -305,7 +305,7 @@ static void launcher_task(void __attribute__ ((unused))*pvParameters)
                 pio_set_qrp(1);
             }
             else {
-                const uint32_t charge_qrp = batterycharge_too_low();
+                const int charge_qrp = batterycharge_too_low();
 
                 if (charge_qrp != -1) {
                     if (charge_qrp != last_qrp_from_supply) {
