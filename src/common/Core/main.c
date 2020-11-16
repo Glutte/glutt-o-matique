@@ -148,7 +148,7 @@ static void launcher_task(void __attribute__ ((unused))*pvParameters)
     cw_psk_init(16000);
 
     usart_debug_puts("SSTV init\r\n");
-    sstv_init(48000);
+    sstv_init(16000);
 
     usart_debug_puts("PIO init\r\n");
     pio_init();

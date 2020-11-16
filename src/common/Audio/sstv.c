@@ -157,22 +157,24 @@ void sstv_test() {
 
     for (int i = 0; i < 256; i++) {
 
-        sstv_send(1200, 4.862);
+        sstv_send(1200, 4.862f);
 
-        sstv_send(1500, 0.572);
+        sstv_send(1500, 0.572f);
         for (int j = 0; j < 320; j++) {
-            sstv_send(1500.0 + 800.0 * j / 320.0, 0.4576f);
+            sstv_send(1500.0 + 800.0 * (j % 2), 0.4576f);
         }
 
-        sstv_send(1500, 0.572);
+        sstv_send(1500, 0.572f);
         for (int j = 0; j < 320; j++) {
-            sstv_send(1500.0 + 800 * abs(320-(j)*2) / 320, 0.4576f);
+            sstv_send(1500.0 + 800.0 * (j % 2), 0.4576f);
+            /* sstv_send(1500.0 + 800 * abs(320-(j)*2) / 320, 0.4576f); */
         }
-        sstv_send(1500, 0.572);
+        sstv_send(1500, 0.572f);
         for (int j = 0; j < 320; j++) {
-            sstv_send(1500.0 + 800.0 * i / 256.0, 0.4576f);
+            sstv_send(1500.0 + 800.0 * (j % 2), 0.4576f);
+            /* sstv_send(1500.0 + 800.0 * i / 256.0, 0.4576f); */
         }
-        sstv_send(1500, 0.572);
+        sstv_send(1500, 0.572f);
 
     }
 
@@ -276,6 +278,19 @@ static void sstv_task(void __attribute__ ((unused))*pvParameters)
 
             }
 
+
+            // Flush remaining audio buffer
+            if (buf_pos < AUDIO_BUF_LEN) {
+                while (buf_pos < AUDIO_BUF_LEN) {
+                    sstv_audio_buf[buf_pos++] = 0;
+                }
+
+                const TickType_t reasonable_delay = pdMS_TO_TICKS(4000 * AUDIO_BUF_LEN / sstv_samplerate);
+                if (xQueueSendToBack(cw_audio_queue, &sstv_audio_buf, reasonable_delay) != pdTRUE) {
+                    trigger_fault(FAULT_SOURCE_CW_AUDIO_QUEUE);
+                }
+            }
+            buf_pos = 0;
 
 
             // We have completed this message
