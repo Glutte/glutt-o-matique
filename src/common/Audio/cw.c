@@ -119,7 +119,6 @@ const uint8_t cw_mapping[60] = { // {{{
     0b1010111, // SK , ASCII '\'
 }; //}}}
 
-#if ENABLE_PSK
 /*
  * PSK Varicode
  * http://aintel.bi.ehu.es/psk31.html
@@ -254,7 +253,6 @@ const char *psk_varicode[] = { // {{{
     "1011010111",
     "1110110101",
 }; //}}}
-#endif
 
 // Function to display message in GUI
 void cw_message_sent(const char* str);
@@ -404,7 +402,6 @@ static size_t cw_text_to_on_buffer(const char *msg, uint8_t *on_buffer, size_t o
 }
 
 
-#if ENABLE_PSK
 /*
  * Turn a null terminated ASCII string into a uint8_t buffer
  * of 0 and 1 representing the PSK varicode for the input.
@@ -443,7 +440,6 @@ static size_t psk_text_to_phase_buffer(const char* instr, uint8_t* outbits)
 
     return i;
 }
-#endif
 
 
 size_t cw_psk_fill_buffer(int16_t *buf, size_t bufsize)
@@ -488,7 +484,6 @@ static int16_t cw_generate_audio(float omega, int i, int __attribute__ ((unused)
     return s;
 }
 
-#if ENABLE_PSK
 static float psk_generate_audio_nco = 0.0f;
 static int   psk_current_psk_phase = 1;
 static int16_t psk_generate_audio(float omega, int i, int t, int samples_per_symbol)
@@ -516,7 +511,6 @@ static int16_t psk_generate_audio(float omega, int i, int t, int samples_per_sym
 
     return s;
 }
-#endif
 
 static void cw_psk_task(void __attribute__ ((unused))*pvParameters)
 {
@@ -541,13 +535,11 @@ static void cw_psk_task(void __attribute__ ((unused))*pvParameters)
                         MAX_ON_BUFFER_LEN);
 
             }
-#if ENABLE_PSK
             else {
                 cw_psk_buffer_len = psk_text_to_phase_buffer(
                         cw_fill_msg_current.message,
                         cw_psk_buffer);
             }
-#endif
 
             // Angular frequency of NCO
             const float omega = 2.0f * FLOAT_PI * cw_fill_msg_current.freq /
@@ -565,19 +557,13 @@ static void cw_psk_task(void __attribute__ ((unused))*pvParameters)
                 /* CW directly depends on dit_duration, which is in ms */
                 (cw_psk_samplerate * cw_fill_msg_current.dit_duration) / 1000;
 
-#if ENABLE_PSK
             psk_current_psk_phase = 1;
-#endif
 
             for (int i = 0; i < cw_psk_buffer_len; i++) {
                 for (int t = 0; t < samples_per_symbol; t++) {
-#if ENABLE_PSK
                     int16_t s = (cw_fill_msg_current.dit_duration > 0) ?
                         cw_generate_audio(omega, i, t) :
                         psk_generate_audio(omega, i, t, samples_per_symbol);
-#else
-                    int16_t s = cw_generate_audio(omega, i, t);
-#endif
 
                     // Stereo
                     for (int channel = 0; channel < 2; channel++) {
@@ -595,12 +581,23 @@ static void cw_psk_task(void __attribute__ ((unused))*pvParameters)
 
                 }
 
-#if ENABLE_PSK
                 if (cw_psk_buffer[i] == 0) {
                     psk_current_psk_phase *= -1;
                 }
-#endif
             }
+
+            // Flush remaining audio buffer
+            if (buf_pos < AUDIO_BUF_LEN) {
+                while (buf_pos < AUDIO_BUF_LEN) {
+                    cw_audio_buf[buf_pos++] = 0;
+                }
+
+                const TickType_t reasonable_delay = pdMS_TO_TICKS(4000 * AUDIO_BUF_LEN / cw_psk_samplerate);
+                if (xQueueSendToBack(cw_audio_queue, &cw_audio_buf, reasonable_delay) != pdTRUE) {
+                    trigger_fault(FAULT_SOURCE_CW_AUDIO_QUEUE);
+                }
+            }
+            buf_pos = 0;
 
             // We have completed this message
             cw_transmit_ongoing = 0;

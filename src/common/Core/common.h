@@ -31,9 +31,6 @@
 #include <stdint.h>
 #include <time.h>
 
-/* Feature defines */
-#define ENABLE_PSK 1
-
 #define FLOAT_PI 3.1415926535897932384f
 
 void common_init(void);
