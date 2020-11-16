@@ -51,7 +51,7 @@ A partir d'octobre 2020:
 Tendance: + - ou = selon l'évolution de la capacité en Ah. T par pas de 1 degré C. *73* si éolienne dans le vent, *SK*
 si repliée.
 
-En QRP, *HB9G U 12V5  1010 AH 73*
+En QRP, *HB9G U 12V5  1010 AH  T 12  73*
 
 
 Jusqu'en octobre 2020:

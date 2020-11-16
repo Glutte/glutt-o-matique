@@ -639,6 +639,12 @@ void fsm_update() {
                             " %d AH ", capacity_bat_ah);
                 }
 
+                if (temperature_valid()) {
+                    len += snprintf(balise_message + len, BALISE_MESSAGE_LEN-len-1,
+                            " T %d ",
+                            (int)(round_float_to_half_steps(temperature_get())));
+                }
+
                 len += snprintf(balise_message+len, BALISE_MESSAGE_LEN-len-1,
                         "%s" CW_POSTDELAY,
                         eol_info);
