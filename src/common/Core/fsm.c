@@ -529,11 +529,10 @@ void fsm_update() {
                     snprintf(balise_message + len, BALISE_MESSAGE_LEN-len-1,
                             "%s" CW_POSTDELAY,
                             eol_info);
+
+                    fsm_out.msg = balise_message;
+                    fsm_out.cw_psk_trigger = 1;
                 }
-
-                fsm_out.msg = balise_message;
-
-                fsm_out.cw_psk_trigger = 1;
             }
 
             if (fsm_in.cw_psk_done) {
