@@ -328,10 +328,11 @@ static void launcher_task(void __attribute__ ((unused))*pvParameters)
             }
         }
 
-        if (timestamp_now() - timestamp_last_audio_callback > 1000) {
+        const int64_t delta = timestamp_now() - timestamp_last_audio_callback;
+        if (delta > 1000) {
             if (send_audio_callback_warning == 0) {
                 send_audio_callback_warning = 1;
-                usart_debug("[HOHO] timestamp_last_audio_callback > 1000\r\n");
+                usart_debug("[HOHO] timestamp_last_audio_callback > 1000 : %d\r\n", delta);
             }
         }
         else {
