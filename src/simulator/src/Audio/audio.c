@@ -48,17 +48,19 @@ void audio_initialize_platform(int __attribute__ ((unused))plln, int __attribute
 
     ss.rate = rate;
 
+    fprintf(stderr, "Pulseaudio out init\n");
     s = pa_simple_new(NULL, "Glutte", PA_STREAM_PLAYBACK, NULL, "playback", &ss, NULL, NULL, &error);
+    fprintf(stderr, "Pulseaudio %p\n", s);
 
-    if (s) {
-
-    } else {
-        printf("Pulseaudio playback init error\n");
+    if (!s) {
+        fprintf(stderr, "Pulseaudio playback init error\n");
         while(1);
     }
 
 
+
     TaskHandle_t task_handle;
+    fprintf(stderr, "Pulseaudio task\n");
     xTaskCreate(
             audio_buffer_sender,
             "Audio buffer sender",
@@ -66,7 +68,7 @@ void audio_initialize_platform(int __attribute__ ((unused))plln, int __attribute
             (void*) NULL,
             tskIDLE_PRIORITY + 2UL,
             &task_handle);
-
+    fprintf(stderr, "Pulseaudio buffer sender created\n");
 }
 
 static void audio_buffer_sender(void __attribute__ ((unused)) *args) {
@@ -140,4 +142,3 @@ void audio_start_dma_and_request_buffers() {
 void audio_stop_dma() {
     dma_running = false;
 }
-

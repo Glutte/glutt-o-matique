@@ -87,4 +87,6 @@ void gui_usart_send(char * string) {
         string++;
     }
 
+    usart_process_char('\r');
+    usart_process_char('\n');
 }

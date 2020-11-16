@@ -54,24 +54,24 @@ extern int gui_gps_lon_len;
 extern int gui_gps_lon_hem;
 extern int gui_gps_send_current_time;
 
-int gui_gps_custom_hour_on;
-int gui_gps_custom_min_on;
-int gui_gps_custom_sec_on;
-int gui_gps_custom_day_on;
-int gui_gps_custom_month_on;
-int gui_gps_custom_year_on;
-char gui_gps_custom_hour[4];
-int gui_gps_custom_hour_len;
-char gui_gps_custom_min[4];
-int gui_gps_custom_min_len;
-char gui_gps_custom_sec[4];
-int gui_gps_custom_sec_len;
-char gui_gps_custom_day[4];
-int gui_gps_custom_day_len;
-char gui_gps_custom_month[4];
-int gui_gps_custom_month_len;
-char gui_gps_custom_year[4];
-int gui_gps_custom_year_len;
+extern int gui_gps_custom_hour_on;
+extern int gui_gps_custom_min_on;
+extern int gui_gps_custom_sec_on;
+extern int gui_gps_custom_day_on;
+extern int gui_gps_custom_month_on;
+extern int gui_gps_custom_year_on;
+extern char gui_gps_custom_hour[4];
+extern int gui_gps_custom_hour_len;
+extern char gui_gps_custom_min[4];
+extern int gui_gps_custom_min_len;
+extern char gui_gps_custom_sec[4];
+extern int gui_gps_custom_sec_len;
+extern char gui_gps_custom_day[4];
+extern int gui_gps_custom_day_len;
+extern char gui_gps_custom_month[4];
+extern int gui_gps_custom_month_len;
+extern char gui_gps_custom_year[4];
+extern int gui_gps_custom_year_len;
 
 static void thread_gui_gps(void __attribute__ ((unused))*arg) {
 

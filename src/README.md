@@ -30,6 +30,23 @@ faut openocd pour FLASHer le STM32F4-DISCOVERY.
     make
     make deploy
 
+Debug avec OpenOCD et GDB
+=========================
+
+    openocd -f /usr/share/openocd/scripts/board/stm32f4discovery.cfg  -c init -c reset
+
+    arm-none-eabi-gdb bin/outp.elf
+    target extended-remote localhost:3333
+    monitor reset halt
+    load
+    continue
+
+Debug simulateur avec GDB
+=========================
+
+    handle SIGUSR1 nostop noignore noprint
+    handle SIG34 nostop noignore noprint
+
 Analyse statique avec clang
 ===========================
 

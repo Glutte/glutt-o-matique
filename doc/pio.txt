@@ -1,29 +1,37 @@
 Allocation of PIOs to functions
 ===============================
 
+Ref: Datasheet Table 7 on p. 45 and Table 9 on p. 60
+
 Connexions Relais
 -----------------
 -       in   QRP_n              PC1
 -       out  TX_ON              PC2
 -       N/A  microphone         PC3
--       in   1750_n             PC4
+-       in   1750_n bouton      PC4
 -       out  MOD_OFF            PC5
 -       in   SQ_n               PC6
 -       in   U                  PC8
 -       out  QRP                PC9
 -       in   D                  PC11
 -       in   REPLIE             PC13
--       in   FAX_n              PC14
+-       out  FAX                PC14
 -       out  GPS EPPS           PC15
+-       out  SQ2                PC0 (ATTN: is also enabling 5V USB OTG, turns on LD7)
+-       out  DET 1750           PA8
 
 -       i/o  Dallas 1-wire      PA1
 
 Analog signals
 --------------
--       in   f_0 deviation      unused
+
+on ADC1, configured in single-shot mode, software trigger:
 -       in   Vcc 12V            PA5 (ADC12 IN5)
 -       in   SWR forward        PA6 (ADC12 IN6)
 -       in   SWR reflected      PA7 (ADC12 IN7)
+
+on ADC2, configured in single-shot mode, triggered by a timer:
+-       in   NF (demod audio)   PB1 (ADC12 IN9)
 
 u-blox NEO-M8N GPS module connection
 ------------------------------------
@@ -46,12 +54,26 @@ I2C to Audio Codec
 -       i/o  I2C1 SDA           PB9
 -       i/o  I2C1 SCL           PB6
 
+audio codec is at I2C address 0x4A
+
+I2C to Bosch BMP085 uses same I2C, and uses 0x77.
+
 STM32DISCOVERY onboard things
 -----------------------------
--       out   Green LED         PD12
--       out   Orange LED        PD13
--       out   Red LED           PD14
--       out   Blue LED          PD15
--       in    Blue Push Button  PA0
+-       out  Green LED (launcher) PD12
+-       out  Orange LED (fsm)     PD13
+-       out  Red LED (audio)      PD14
+-       out  Blue LED (audio in)  PD15
+-       in   Blue Push Button     PA0
 
+
+Analog audio input for 1750 tone detector
+-----------------------------------------
+
+1. Timer 6 set to 8kHz triggers ADC2 sample.
+1. Timer 6 ISR accumulates N samples into a buffer.
+1. When buffer full, copy it into queue.
+1. `nf_analyse` task retrieves audio from queue, and gives it to tone detector.
+1. Tone detector returns one of [yes, no, more samples needed].
+1. `nf_analyse` task updates FSM input accordingly.
 

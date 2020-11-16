@@ -38,6 +38,7 @@
 #include <limits.h>
 
 #include "gui.h"
+#include "Core/common.h"
 
 #define NK_INCLUDE_FIXED_TYPES
 #define NK_INCLUDE_STANDARD_IO
@@ -58,7 +59,7 @@
 
 #include "nuklear_xlib_gl3.h"
 
-#define WINDOW_WIDTH 1200
+#define WINDOW_WIDTH 1300
 #define WINDOW_HEIGHT 800
 
 #define MAX_VERTEX_BUFFER 512 * 1024
@@ -86,6 +87,9 @@ char led_green = 0;
 char led_orange = 0;
 char led_red = 0;
 char led_gps = 0;
+char led_fax = 0;
+char led_det_1750 = 0;
+char led_sq2 = 0;
 
 /**
  * GPS
@@ -152,6 +156,7 @@ int gui_in_sq_n = 1;
 int gui_in_u = 0;
 int gui_in_d = 0;
 int gui_in_replie = 0;
+int gui_in_tone_1750 = 0;
 static const char *replie_status[] = {"In vent", "Replié"};
 int gui_in_fax_n = 1;
 
@@ -172,9 +177,16 @@ int gui_last_fsm_states_timestamps[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 
 /**
- * Voltage
+ * Voltage and battery cap
  **/
-float gui_measured_voltage = 12.0f;
+float gui_measured_voltage = 14.0f;
+int gui_measured_capacity = 1630; // Ah
+int gui_measured_capacity_last = 1630; // Ah
+
+static const char *breaker_status[] = {"Closed", "Open"};
+static const char *breaker_message[] = {"On", "Off"};
+int gui_breaker_status = 0;
+int gui_breaker_status_last = 0;
 
 
 /**
@@ -457,16 +469,12 @@ void main_gui() {
             nk_end(ctx);
 
 
-            if (nk_begin(ctx, &layout, "LEDs", nk_rect(50, 390, 150, 155), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
+            if (nk_begin(ctx, &layout, "LEDs", nk_rect(50, 390, 150, 155), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_SCALABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
 
                 nk_layout_row_static(ctx, 20, 20, 5);
-
                 struct nk_color color;
 
-                nk_text(ctx, "", 0, NK_TEXT_LEFT);
-
                 color.r = 255; color.g = 165; color.b = 0;
-
                 if (led_orange == 1) {
                     color.a = 255;
                 } else {
@@ -474,15 +482,7 @@ void main_gui() {
                 }
                 nk_button_color(ctx, color, NK_BUTTON_DEFAULT);
 
-
-                nk_text(ctx, "", 0, NK_TEXT_LEFT);
-                nk_text(ctx, "", 0, NK_TEXT_LEFT);
-                nk_text(ctx, "", 0, NK_TEXT_LEFT);
-
-                /**/
-
                 color.r = 0; color.g = 255; color.b = 0;
-
                 if (led_green == 1) {
                     color.a = 255;
                 } else {
@@ -490,10 +490,7 @@ void main_gui() {
                 }
                 nk_button_color(ctx, color, NK_BUTTON_DEFAULT);
 
-                nk_text(ctx, "", 0, NK_TEXT_LEFT);
-
                 color.r = 255; color.g = 0; color.b = 0;
-
                 if (led_red == 1) {
                     color.a = 255;
                 } else {
@@ -501,23 +498,7 @@ void main_gui() {
                 }
                 nk_button_color(ctx, color, NK_BUTTON_DEFAULT);
 
-                nk_text(ctx, "", 0, NK_TEXT_LEFT);
-
-                color.r = 0; color.g = 255; color.b = 255;
-
-                if (led_gps == 1) {
-                    color.a = 255;
-                } else {
-                    color.a = 30;
-                }
-                nk_button_color(ctx, color, NK_BUTTON_DEFAULT);
-
-                /**/
-
-                nk_text(ctx, "", 0, NK_TEXT_LEFT);
-
                 color.r = 0; color.g = 0; color.b = 255;
-
                 if (led_blue == 1) {
                     color.a = 255;
                 } else {
@@ -525,9 +506,17 @@ void main_gui() {
                 }
                 nk_button_color(ctx, color, NK_BUTTON_DEFAULT);
 
-                nk_text(ctx, "", 0, NK_TEXT_LEFT);
-                nk_text(ctx, "", 0, NK_TEXT_LEFT);
-                nk_text(ctx, "", 0, NK_TEXT_LEFT);
+#define SW_LED(var, name) \
+                nk_layout_row_static(ctx, 20, 20, 5); \
+                color.r = 0; color.g = 255; color.b = 255; \
+                if (var == 1) { color.a = 255; } else { color.a = 30; } \
+                nk_button_color(ctx, color, NK_BUTTON_DEFAULT); \
+                nk_label(ctx, name, NK_TEXT_LEFT);
+
+                SW_LED(led_gps, "GPS")
+                SW_LED(led_fax, "FAX")
+                SW_LED(led_det_1750, "TONE")
+                SW_LED(led_sq2, "SQ2")
 
             }
             nk_end(ctx);
@@ -649,7 +638,7 @@ void main_gui() {
             nk_end(ctx);
 
 
-            if (nk_begin(ctx, &layout, "Output", nk_rect(720, 380, 200, 170), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
+            if (nk_begin(ctx, &layout, "Output", nk_rect(720, 510, 200, 170), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
 
                 nk_layout_row_dynamic(ctx, 25, 2);
 
@@ -691,7 +680,7 @@ void main_gui() {
             }
             nk_end(ctx);
 
-            if (nk_begin(ctx, &layout, "Input", nk_rect(720, 50, 200, 330), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
+            if (nk_begin(ctx, &layout, "Input", nk_rect(720, 50, 200, 460), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
 
                 nk_layout_row_dynamic(ctx, 25, 3);
 
@@ -736,7 +725,7 @@ void main_gui() {
                     c = color_off;
                 }
 
-                nk_label_colored(ctx, "1750_n", NK_TEXT_LEFT, c);
+                nk_label_colored(ctx, "1750 btn", NK_TEXT_LEFT, c);
                 nk_checkbox_label(ctx, "", &in_1750_n);
 
                 if (nk_button_label(ctx, "", NK_BUTTON_REPEATER)) {
@@ -818,6 +807,40 @@ void main_gui() {
                 nk_label_colored(ctx, "Voltage", NK_TEXT_LEFT, c);
                 nk_property_float(ctx, "V", 0.0f, &gui_measured_voltage, 24.0f, 0.5f, 0.5f);
 
+                nk_layout_row_dynamic(ctx, 25, 2);
+                nk_label_colored(ctx, "Eolienne breaker", NK_TEXT_LEFT, c);
+                gui_breaker_status = nk_combo(ctx, breaker_status, LEN(breaker_status), gui_breaker_status, 30);
+
+                if (gui_breaker_status != gui_breaker_status_last) {
+                    uart_send_txt_len = snprintf(uart_send_txt, sizeof(uart_send_txt), "DISJEOL,%ld,%s", timestamp_now()/1000, breaker_message[gui_breaker_status]);
+
+                    uart_send_txt[uart_send_txt_len] = '\0';
+                    gui_usart_send(uart_send_txt);
+
+                    gui_breaker_status_last = gui_breaker_status;
+                }
+
+                nk_layout_row_dynamic(ctx, 25, 2);
+                nk_label_colored(ctx, "Capacity", NK_TEXT_LEFT, c);
+                nk_property_int(ctx, "Ah", 0, &gui_measured_capacity, 1650, 10, 0.1f);
+
+                if (gui_measured_capacity != gui_measured_capacity_last) {
+                    uart_send_txt_len = snprintf(uart_send_txt, sizeof(uart_send_txt), "CAPA,%ld,%d", timestamp_now()/1000, gui_measured_capacity * 1000);
+
+                    uart_send_txt[uart_send_txt_len] = '\0';
+                    gui_usart_send(uart_send_txt);
+
+                    gui_measured_capacity_last = gui_measured_capacity;
+                }
+
+                if (gui_in_tone_1750) {
+                    c = color_on;
+                } else {
+                    c = color_off;
+                }
+
+                nk_label_colored(ctx, "TONE_1750", NK_TEXT_LEFT, c);
+
 
             }
             nk_end(ctx);
@@ -839,7 +862,7 @@ void main_gui() {
             }
             nk_end(ctx);
 
-            if (nk_begin(ctx, &layout, "FSM", nk_rect(930, 200, 200, 350), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_SCALABLE|NK_WINDOW_TITLE)) {
+            if (nk_begin(ctx, &layout, "FSM", nk_rect(930, 200, 300, 350), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_SCALABLE|NK_WINDOW_TITLE)) {
 
                 nk_layout_row_dynamic(ctx, 25, 2);
 
