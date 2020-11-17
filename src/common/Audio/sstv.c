@@ -37,6 +37,7 @@
 #include <string.h>
 
 #ifdef SIMULATOR
+#include <stdio.h>
 #include <math.h>
 #define arm_cos_f32 cosf
 #define arm_sin_f32 sinf
@@ -52,7 +53,7 @@
 
 struct sstv_tick_s {
     int           freq;
-    float         duration;
+    uint64_t      duration_ns;
 };
 
 struct sstv_reader_action {
@@ -74,7 +75,7 @@ static int    sstv_transmit_ongoing;
 static void sstv_task(void *pvParameters);
 
 
-#define SSTV_BUFFER_MS 100
+#define SSTV_BUFFER_NS 100000000uL
 #define SSTV_BUFFER_OUT_SIZE (222 * 4)  // At 16000, ~22 max element per message if we sent it every 10ms. At 66 we have [22 elements written, 22 elements in queue, 22 elements read] at most
 
 
@@ -82,7 +83,7 @@ static struct sstv_tick_s sstv_out_circular_buffer[SSTV_BUFFER_OUT_SIZE];
 static int sstv_circular_buffer_out = 0;
 static int sstv_circular_buffer_last_out = 0;
 static int sstv_circular_buffer_out_size = 0;
-static float sstv_circular_buffer_last_duration = 0.0;
+static uint64_t sstv_circular_buffer_last_duration_ns = 0;
 
 
 void sstv_init(unsigned int samplerate) {
@@ -104,82 +105,114 @@ void sstv_init(unsigned int samplerate) {
             NULL);
 }
 
-void sstv_send(int f, float d) {
-
+static void sstv_send(int f, uint64_t duration_ns) {
     sstv_out_circular_buffer[sstv_circular_buffer_out].freq = f;
-    sstv_out_circular_buffer[sstv_circular_buffer_out].duration = d;
+    sstv_out_circular_buffer[sstv_circular_buffer_out].duration_ns = duration_ns;
 
     sstv_circular_buffer_out++;
     sstv_circular_buffer_out_size++;
-    sstv_circular_buffer_last_duration += d;
+    sstv_circular_buffer_last_duration_ns += duration_ns;
 
     if (sstv_circular_buffer_out == SSTV_BUFFER_OUT_SIZE) {
         sstv_circular_buffer_out = 0;
     }
 
-    if (sstv_circular_buffer_last_duration > SSTV_BUFFER_MS) {
-
+    if (sstv_circular_buffer_last_duration_ns > SSTV_BUFFER_NS) {
         struct sstv_reader_action msg;
         msg.pos = sstv_circular_buffer_last_out;
         msg.length = sstv_circular_buffer_out_size;
 
         sstv_circular_buffer_last_out = (sstv_circular_buffer_last_out + sstv_circular_buffer_out_size) % SSTV_BUFFER_OUT_SIZE;
         sstv_circular_buffer_out_size = 0;
-        sstv_circular_buffer_last_duration = 0;
+        sstv_circular_buffer_last_duration_ns = 0;
 
-        printf("SEND %i Pos=%i Length=%i\n", xQueueSendToBack(sstv_msg_queue, &msg, portMAX_DELAY), msg.pos, msg.length); /* Send Message */
+        printf("SEND %li Pos=%i Length=%i\n", xQueueSendToBack(sstv_msg_queue, &msg, portMAX_DELAY), msg.pos, msg.length); /* Send Message */
     } else {
 
-        /* printf("Not send, at %f (Pos=%i, OutSize=%i)\n", sstv_circular_buffer_last_duration, sstv_circular_buffer_out, sstv_circular_buffer_out_size); */
+        /* printf("Not send, at %ld (Pos=%i, OutSize=%i)\n", sstv_circular_buffer_last_duration_ns, sstv_circular_buffer_out, sstv_circular_buffer_out_size); */
     }
 
 }
 
-void sstv_test() {
+static void sstv_send_ms(int f, uint64_t duration_ms) {
+    return sstv_send(f, duration_ms * 1000000);
+}
 
-    sstv_send(1500, 1000);
+static float luminance(int line, int row) {
+    float l = 1500;
 
-    sstv_send(1900, 300);
-    sstv_send(1200, 30);
-    sstv_send(1900, 300);
+    if (line < 64) {
+        const int line_reduced = line / 4;
+        const int row_reduced = row / 4;
 
-    sstv_send(1200, 30); // Start
-    sstv_send(1300, 30); // 0
-    sstv_send(1300, 30); // 1
-    sstv_send(1100, 30); // 2
-    sstv_send(1100, 30); // 3
-    sstv_send(1300, 30); // 4
-    sstv_send(1100, 30); // 5
-    sstv_send(1300, 30); // 6
-    sstv_send(1100, 30); // P
-    sstv_send(1200, 30); // Stop
+        l = ((line_reduced % 2) ^ (row_reduced % 2)) ? 1500 : 2300;
+    }
+    else if (line < 128) {
+        // Map line 128 to 0, line 192 to (2300 - 1500) = 800
+        float offs = (line - 64) * (800.0f / 64.0f);
+        l = ((row % 8) >= 4) ? 1500 + offs : 2300 - offs;
+    }
+    else if (line < 192) {
+        l = ((row % 8) < 4) ? 1500 : 2400;
+    }
+    else {
+        l = ((row % 4) >= 2) ? 1600 : 2300;
+    }
 
+    return l;
+}
 
-    for (int i = 0; i < 256; i++) {
+void sstv_test(void) {
 
-        sstv_send(1200, 4.862f);
+    sstv_send_ms(1500, 1000);
 
-        sstv_send(1500, 0.572f);
-        for (int j = 0; j < 320; j++) {
-            sstv_send(1500.0 + 800.0 * (j % 2), 0.4576f);
+    sstv_send_ms(1900, 300);
+    sstv_send_ms(1200, 30);
+    sstv_send_ms(1900, 300);
+
+    sstv_send_ms(1200, 30); // Start
+    sstv_send_ms(1300, 30); // 0
+    sstv_send_ms(1300, 30); // 1
+    sstv_send_ms(1100, 30); // 2
+    sstv_send_ms(1100, 30); // 3
+    sstv_send_ms(1300, 30); // 4
+    sstv_send_ms(1100, 30); // 5
+    sstv_send_ms(1300, 30); // 6
+    sstv_send_ms(1100, 30); // P
+    sstv_send_ms(1200, 30); // Stop
+
+    const uint64_t SYNC_PULSE = 4862000;
+    const uint64_t SYNC_PORCH = 572000;
+    const uint32_t PIXELS_PER_LINE = 320;
+    const uint64_t PIXEL = 457600;
+
+    // Luminance: 1500 Hz to 2300 Hz
+
+    for (int line = 0; line < 256; line++) {
+        // Sync pulse + porch
+        sstv_send(1200, SYNC_PULSE);
+        sstv_send(1500, SYNC_PORCH);
+
+        // Green scan + separator pulse
+        for (int j = 0; j < PIXELS_PER_LINE; j++) {
+            sstv_send(luminance(line, j), PIXEL);
         }
+        sstv_send(1500, SYNC_PORCH);
 
-        sstv_send(1500, 0.572f);
-        for (int j = 0; j < 320; j++) {
-            sstv_send(1500.0 + 800.0 * (j % 2), 0.4576f);
-            /* sstv_send(1500.0 + 800 * abs(320-(j)*2) / 320, 0.4576f); */
+        // Blue scan + separator pulse
+        for (int j = 0; j < PIXELS_PER_LINE; j++) {
+            sstv_send(luminance(line, j), PIXEL);
         }
-        sstv_send(1500, 0.572f);
-        for (int j = 0; j < 320; j++) {
-            sstv_send(1500.0 + 800.0 * (j % 2), 0.4576f);
-            /* sstv_send(1500.0 + 800.0 * i / 256.0, 0.4576f); */
-        }
-        sstv_send(1500, 0.572f);
+        sstv_send(1500, SYNC_PORCH);
 
+        // Red scan + separator pulse
+        for (int j = 0; j < PIXELS_PER_LINE; j++) {
+            sstv_send(luminance(line, j), PIXEL);
+        }
+        sstv_send(1500, SYNC_PORCH);
     }
 
     sstv_send(0, 0);
-
 }
 
 
@@ -209,8 +242,8 @@ static void sstv_task(void __attribute__ ((unused))*pvParameters)
 
             sstv_transmit_ongoing = 1;
 
-            float current_milli = 0.0f;
-            const float milli_per_sample = 1000.0f / (float)sstv_samplerate;
+            uint64_t current_nano = 0;
+            const uint64_t nano_per_sample = 1000000000uL / (uint64_t)sstv_samplerate;
 
             bool stop = 0;
 
@@ -219,9 +252,9 @@ static void sstv_task(void __attribute__ ((unused))*pvParameters)
 
             float omega = 2.0f * FLOAT_PI * (float)(sstv_out_circular_buffer[current_position].freq) / (float)sstv_samplerate;
 
-            int g =  0;
+            int g = 0;
 
-            printf("Starting (Pos=%i, Remainting=%i, Duration=%f)\n", current_position, remaining, sstv_out_circular_buffer[current_position].duration);
+            printf("Starting (Pos=%i, Remainting=%i, Duration=%ld)\n", current_position, remaining, sstv_out_circular_buffer[current_position].duration_ns);
 
             while(!stop) {
 
@@ -244,14 +277,14 @@ static void sstv_task(void __attribute__ ((unused))*pvParameters)
                     }
                     sstv_audio_buf[buf_pos++] = s;
                 }
-                 g++;
+                g++;
 
-                current_milli += milli_per_sample;
+                current_nano += nano_per_sample;
 
-                if (current_milli >= sstv_out_circular_buffer[current_position].duration) {
-                    /* printf("Message took %f / %f, %i samples pushed %f\n", current_milli, sstv_out_circular_buffer[current_position].duration, g, milli_per_sample); */
+                if (current_nano >= sstv_out_circular_buffer[current_position].duration_ns) {
+                    /* printf("Message took %ld / %ld, %i samples pushed %f\n", current_nano, sstv_out_circular_buffer[current_position].duration_ns, g, nano_per_sample); */
                     g = 0;
-                    current_milli -= sstv_out_circular_buffer[current_position].duration;
+                    current_nano -= sstv_out_circular_buffer[current_position].duration_ns;
 
                     current_position = (current_position + 1) % SSTV_BUFFER_OUT_SIZE;
                     remaining--;
@@ -259,7 +292,7 @@ static void sstv_task(void __attribute__ ((unused))*pvParameters)
                     if (remaining == 0) {
                         /* printf("Remaining = 0, reading \n"); */
 
-                        printf("READ %i \n ", xQueueReceive(sstv_msg_queue, &sstv_fill_msg_current, portMAX_DELAY));
+                        printf("READ %li \n ", xQueueReceive(sstv_msg_queue, &sstv_fill_msg_current, portMAX_DELAY));
 
                         if (sstv_fill_msg_current.length == 0) {
                             stop = 1;

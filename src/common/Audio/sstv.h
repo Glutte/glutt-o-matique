@@ -32,5 +32,5 @@
 // samplerate.
 void sstv_init(unsigned int samplerate);
 
-void sstv_test();
+void sstv_test(void);
 #endif // __SSTV_H_
