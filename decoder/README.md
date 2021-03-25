@@ -3,11 +3,14 @@ Introduction
 
 This folder contains a set of scripts that can be used to automatically decode the PSK125 beacon at 22:00
 
+The `analyse_capture.grc` was designed with GNURadio 3.7, but later the python file was
+manually ported to GNURadio 3.8, because the [MPSK receiver block was deprecated](https://github.com/gnuradio/gnuradio/issues/1083)
+
 Dependencies
 ------------
 
 * Python 3
-* GNURadio 3.7
+* GNURadio 3.8
 * An SDR device and a suitable I/Q capture tool
 
 Principle of operation
@@ -25,5 +28,3 @@ References
 https://sdradventure.wordpress.com/2011/10/15/gnuradio-psk31-decoder-part-1/
 
 https://sdradventure.wordpress.com/2011/10/15/gnuradio-psk31-decoder-part-2/
-
-For GnuRadio 3.8, maybe consider https://github.com/dl1ksv/gr-radioteletype

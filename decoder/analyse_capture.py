@@ -1,12 +1,5 @@
-#!/usr/bin/env python2
-# -*- coding: utf-8 -*-
-##################################################
-# GNU Radio Python Flow Graph
-# Title: Analyse RTLSDR capture
+#!/usr/bin/env python3
 # Author: HB9EGM
-# GNU Radio version: 3.7.13.5
-##################################################
-
 
 from gnuradio import analog
 from gnuradio import blocks
@@ -20,15 +13,9 @@ from gnuradio.filter import firdes
 from optparse import OptionParser
 import pmt
 
-
 class analyse_capture(gr.top_block):
-
     def __init__(self):
         gr.top_block.__init__(self, "Analyse RTLSDR capture")
-
-        ##################################################
-        # Variables
-        ##################################################
         self.samp_rate = samp_rate = 2048000
 
         self.taps = taps = firdes.low_pass(1.0/256, samp_rate, 3e3, 10e2, firdes.WIN_HAMMING, 6.76)
@@ -44,7 +31,25 @@ class analyse_capture(gr.top_block):
         self.freq_xlating_fft_filter_ccc_0 = filter.freq_xlating_fft_filter_ccc(decim, (taps), 145725e3-145700e3, samp_rate)
         self.freq_xlating_fft_filter_ccc_0.set_nthreads(1)
         self.freq_xlating_fft_filter_ccc_0.declare_sample_delay(0)
-        self.digital_mpsk_receiver_cc_0 = digital.mpsk_receiver_cc(2, 0, cmath.pi/100.0, -0.25, 0.25, 0.25, 0.04, 64, 64*64/4, 0.005)
+
+        order = 2
+        theta = 0
+        loop_bw = cmath.pi/100.0
+        fmin = -0.25
+        fmax = 0.25
+        mu = 0.25
+        gain_mu = 0.04
+        omega = 64
+        gain_omega = 64*64/4
+        omega_relative_limit = 0.005
+
+        # GNURadio 3.7. see https://github.com/gnuradio/gnuradio/issues/1083
+        #self.digital_mpsk_receiver_cc_0 = digital.mpsk_receiver_cc(2, 0, cmath.pi/100.0, -0.25, 0.25, 0.25, 0.04, 64, 64*64/4, 0.005)
+
+        self.costas_loop_cc_0 = digital.costas_loop_cc(loop_bw, order)
+        self.clock_recovery_mm_cc_0 = digital.clock_recovery_mm_cc(omega, gain_omega, mu, gain_mu, omega_relative_limit)
+
+
         self.digital_diff_phasor_cc_0 = digital.diff_phasor_cc()
         self.digital_binary_slicer_fb_0 = digital.binary_slicer_fb()
         self.blocks_uchar_to_float_0_0 = blocks.uchar_to_float()
@@ -89,9 +94,10 @@ class analyse_capture(gr.top_block):
         self.connect((self.blocks_uchar_to_float_0_0, 0), (self.blocks_float_to_complex_0, 1))
         self.connect((self.digital_binary_slicer_fb_0, 0), (self.blocks_file_sink_0, 0))
         self.connect((self.digital_diff_phasor_cc_0, 0), (self.blocks_complex_to_float_0, 0))
-        self.connect((self.digital_mpsk_receiver_cc_0, 0), (self.digital_diff_phasor_cc_0, 0))
+        self.connect((self.clock_recovery_mm_cc_0, 0), (self.digital_diff_phasor_cc_0, 0))
         self.connect((self.freq_xlating_fft_filter_ccc_0, 0), (self.analog_nbfm_rx_0, 0))
-        self.connect((self.low_pass_filter_0, 0), (self.digital_mpsk_receiver_cc_0, 0))
+        self.connect((self.low_pass_filter_0, 0), (self.costas_loop_cc_0, 0))
+        self.connect((self.costas_loop_cc_0, 0), (self.clock_recovery_mm_cc_0, 0))
 
     def get_samp_rate(self):
         return self.samp_rate
