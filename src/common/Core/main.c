@@ -502,8 +502,8 @@ static void gps_monit_task(void __attribute__ ((unused))*pvParameters) {
                 stats_battery_at_full_hour(time.tm_hour, u_bat, capacity_bat);
             }
 
-            if (temperature_valid()) {
-                float temp = temperature_get();
+            float temp = 0;
+            if (temperature_get(&temp)) {
                 stats_temp(temp);
 
                 const char *sign = "";

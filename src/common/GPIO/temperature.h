@@ -26,15 +26,16 @@
 #include <stdint.h>
 
 extern float _temperature_last_value;
-extern int _temperature_valid;
+extern int _temperature_valid_since;
 
 // Setup communication and temperature
 void temperature_init(void);
 
-// Return 1 if the temperature is valid
+// Return 1 if the the current temperature is valid
 int temperature_valid(void);
 
-// Get current temperature
-float temperature_get(void);
+// Return 1 if the the current temperature is valid, and write it into temp
+int temperature_get(float *temp);
+
 
 void temperature_task(void *);

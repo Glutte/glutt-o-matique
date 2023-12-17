@@ -12,6 +12,7 @@ void temperature_update() {
     temperature_value = ((ADC_GetConversionValue(ADC1) * TEMP_V_BOARD / 0xFFF) - TEMP_V25) / TEMP_AVG_SLOPE + 25.0;
 }
 
-float temperature_get() {
-    return temperature_value;
+int temperature_get(float *temp) {
+    *temp = temperature_value;
+    return 1;
 }

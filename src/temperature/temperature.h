@@ -5,5 +5,5 @@
 // Conpute the current temperature
 void temperature_update();
 
-// Return the current temperature
-float temperature_get();
+// Return 1 if the the current temperature is valid, and write it into temp
+int temperature_get(float *temp);

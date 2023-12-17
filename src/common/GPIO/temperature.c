@@ -30,7 +30,9 @@
 
 
 float _temperature_last_value;
-int _temperature_valid;
+int _temperature_valid_since;
+
+#define TEMP_VALID_DURATION (60*15) // 15 minutes
 
 
 void temperature_task(void *pvParameters);
@@ -47,16 +49,17 @@ void temperature_init() {
         NULL);
 }
 
-// Return the current temperature
-float temperature_get() {
-    if (_temperature_valid) {
-        return _temperature_last_value;
-    } else {
-        return 0.0f;
-    }
+int temperature_valid() {
+    const uint64_t now = timestamp_now();
+    return _temperature_valid_since > 0 && _temperature_valid_since + TEMP_VALID_DURATION < now;
 }
 
-// Return 1 if the temperature is valid
-int temperature_valid() {
-    return _temperature_valid;
+// Return 1 if the the current temperature is valid, and write it into temp
+int temperature_get(float *temp) {
+    if (temperature_valid()) {
+        *temp = _temperature_last_value;
+        return 1;
+    }
+    return 0;
 }
+

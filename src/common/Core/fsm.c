@@ -520,10 +520,11 @@ void fsm_update() {
                                 " %d AH %c ", capacity_bat_ah, supply_trend);
                     }
 
-                    if (temperature_valid()) {
+                    float temp = 0;
+                    if (temperature_get(&temp)) {
                         len += snprintf(balise_message + len, BALISE_MESSAGE_LEN-len-1,
                                 " T %d ",
-                                (int)(round_float_to_half_steps(temperature_get())));
+                                (int)(round_float_to_half_steps(temp)));
                     }
 
                     snprintf(balise_message + len, BALISE_MESSAGE_LEN-len-1,
@@ -639,10 +640,11 @@ void fsm_update() {
                             " %d AH ", capacity_bat_ah);
                 }
 
-                if (temperature_valid()) {
+                float temp = 0;
+                if (temperature_get(&temp)) {
                     len += snprintf(balise_message + len, BALISE_MESSAGE_LEN-len-1,
                             " T %d ",
-                            (int)(round_float_to_half_steps(temperature_get())));
+                            (int)(round_float_to_half_steps(temp)));
                 }
 
                 len += snprintf(balise_message+len, BALISE_MESSAGE_LEN-len-1,

@@ -22,7 +22,7 @@
  * SOFTWARE.
 */
 
-
+#include "Core/common.h"
 #include "GPIO/temperature.h"
 #include "FreeRTOS.h"
 #include "task.h"
@@ -33,9 +33,8 @@ extern float gui_temperature;
 void temperature_task(void __attribute__ ((unused))*pvParameters) {
 
     while (1) {
-
         _temperature_last_value = gui_temperature;
-        _temperature_valid = gui_temperature_valid;
+        _temperature_valid_since = gui_temperature_valid ? timestamp_now() : 0;
 
         vTaskDelay(pdMS_TO_TICKS(1000));
 

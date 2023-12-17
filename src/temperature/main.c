@@ -97,7 +97,9 @@ static void detect_button_press(void *pvParameters)
 
             char t[32];
             // For debugging purposes only. snprinf has issues with %f
-            snprintf(t, 32, "%d.%02d", (int)temperature_get(), (int)(temperature_get() * 100.0 - (int)(temperature_get()) * 100.0));
+            float temp = 0;
+            int temp_valid = temperature_get(&temp);
+            snprintf(t, 32, "%d.%02d", (int)temp, (int)(temp * 100.0 - (int)temp * 100.0));
             debug_print(t);
 
             int32_t pressure = 0;

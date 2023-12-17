@@ -105,15 +105,12 @@ int ds18b20_gettemp(float *temperature) {
 void temperature_task(void __attribute__ ((unused))*pvParameters) {
 
     while (1) {
-
-        if (!_temperature_valid) {
+        if (!temperature_valid()) {
             ds18b20_init();
         }
 
         if (ds18b20_gettemp(&_temperature_last_value)) {
-            _temperature_valid = 1;
-        } else {
-            _temperature_valid = 0;
+            _temperature_valid_since = timestamp_now();
         }
 
         vTaskDelay(_temperature_delay);
