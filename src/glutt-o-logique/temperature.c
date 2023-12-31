@@ -30,6 +30,7 @@
 
 #include "tm_stm32f4_ds18b20.h"
 #include "tm_stm32f4_onewire.h"
+#include "Core/common.h"
 #include "Core/delay.h"
 
 
