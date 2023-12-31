@@ -65,6 +65,8 @@ static void balise_message_clear(void)
 // Reset the counter if the QSO was 10m too long
 #define SHORT_BEACON_RESET_IF_QSO (60 * 10)
 
+#define CALL "HB9G"
+
 /* At least 1 second predelay for CW, ensures the receivers had enough time
  * time to open their squelch before the first letter gets transmitted
  */
@@ -430,7 +432,7 @@ void fsm_update() {
             fsm_out.msg_frequency   = 696;
             fsm_out.cw_dit_duration = 70;
             // No need for CW_PREDELAY, since we are already transmitting
-            fsm_out.msg = " HB9G" CW_POSTDELAY;
+            fsm_out.msg = " " CALL CW_POSTDELAY;
             fsm_out.cw_psk_trigger = 1;
 
             if (fsm_in.sq) {
@@ -452,10 +454,10 @@ void fsm_update() {
 
             // No need for CW_PREDELAY, since we are already transmitting
             if (random_bool()) {
-                fsm_out.msg = " HB9G 1628M" CW_POSTDELAY;
+                fsm_out.msg = " " CALL " 1628M" CW_POSTDELAY;
             }
             else {
-                fsm_out.msg = " HB9G JN36BK" CW_POSTDELAY;
+                fsm_out.msg = " " CALL " JN36BK" CW_POSTDELAY;
             }
             fsm_out.cw_psk_trigger = 1;
 
@@ -511,7 +513,7 @@ void fsm_update() {
                     size_t len = 0;
 
                     len += snprintf(balise_message + len, BALISE_MESSAGE_LEN-len-1,
-                            CW_PREDELAY "HB9G JN36BK  U %dV%01d ",
+                            CW_PREDELAY CALL " JN36BK  U %dV%01d ",
                                 supply_decivolts / 10,
                                 supply_decivolts % 10);
 
@@ -629,7 +631,7 @@ void fsm_update() {
 
                 size_t len = 0;
                 len += snprintf(balise_message+len, BALISE_MESSAGE_LEN-len-1,
-                        CW_PREDELAY "HB9G U %dV%01d ",
+                        CW_PREDELAY CALL " U %dV%01d ",
                         supply_decivolts / 10,
                         supply_decivolts % 10);
 
@@ -681,22 +683,22 @@ void fsm_update() {
             fsm_out.cw_dit_duration = 70;
 
             if (fsm_in.bonne_annee) {
-                fsm_out.msg = CW_PREDELAY "HB9G  BONNE ANNEE" CW_POSTDELAY;
+                fsm_out.msg = CW_PREDELAY CALL "  BONNE ANNEE" CW_POSTDELAY;
             }
             else {
                 int rand = random_bool() * 2 + random_bool();
 
                 if (rand == 0) {
-                    fsm_out.msg = CW_PREDELAY "HB9G" CW_POSTDELAY;
+                    fsm_out.msg = CW_PREDELAY CALL CW_POSTDELAY;
                 }
                 else if (rand == 1) {
-                    fsm_out.msg = CW_PREDELAY "HB9G JN36BK" CW_POSTDELAY;
+                    fsm_out.msg = CW_PREDELAY CALL " JN36BK" CW_POSTDELAY;
                 }
                 else if (rand == 2) {
-                    fsm_out.msg = CW_PREDELAY "HB9G 1628M" CW_POSTDELAY;
+                    fsm_out.msg = CW_PREDELAY CALL " 1628M" CW_POSTDELAY;
                 }
                 else {
-                    fsm_out.msg = CW_PREDELAY "HB9G JN36BK  1628M" CW_POSTDELAY;
+                    fsm_out.msg = CW_PREDELAY CALL " JN36BK  1628M" CW_POSTDELAY;
                 }
             }
             fsm_out.cw_psk_trigger = 1;
