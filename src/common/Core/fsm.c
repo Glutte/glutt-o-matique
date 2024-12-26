@@ -65,7 +65,7 @@ static void balise_message_clear(void)
 // Reset the counter if the QSO was 10m too long
 #define SHORT_BEACON_RESET_IF_QSO (60 * 10)
 
-#define CALL "HB90G"
+#define CALL "HB9G"
 
 /* At least 1 second predelay for CW, ensures the receivers had enough time
  * time to open their squelch before the first letter gets transmitted
