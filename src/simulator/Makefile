@@ -80,9 +80,11 @@ ifneq ($(shell uname), Darwin)
 CFLAGS += -pthread
 endif
 
-# MAX_NUMBER_OF_TASKS = max pthreads used in the POSIX port. 
+# MAX_NUMBER_OF_TASKS = max pthreads used in the POSIX port.
 # Default value is 64 (_POSIX_THREAD_THREADS_MAX), the minimum number required by POSIX.
-CFLAGS += -DMAX_NUMBER_OF_TASKS=300 -DSIMULATOR -fsanitize=undefined
+# ThreadSanitizer defers signal handlers inside its pthread interceptors, which
+# breaks the POSIX port's synchronous suspend/resume handshake.
+CFLAGS += -DMAX_NUMBER_OF_TASKS=128 -DSIMULATOR -fsanitize=undefined
 
 CFLAGS += $(INCLUDES) $(CWARNS) -O2
 

@@ -258,6 +258,12 @@ void main_gui() {
     struct nk_context *ctx;
     struct nk_color background;
 
+    /* The POSIX port can suspend a task inside a library call.  GL startup
+     * loads drivers while holding the dynamic loader lock; switching to a
+     * task that calls pthread_create() would then deadlock on that lock.
+     * Protect initialization just like the rendering loop below. */
+    vTaskSuspendAll();
+
     memset(&win, 0, sizeof(win));
     win.dpy = XOpenDisplay(NULL);
 
@@ -390,6 +396,7 @@ void main_gui() {
 
 
     background = nk_rgb(28,48,62);
+    xTaskResumeAll();
 
     while (running)
     {
@@ -922,6 +929,7 @@ void main_gui() {
         xTaskResumeAll();
     }
 
+    vTaskSuspendAll();
     nk_x11_shutdown();
     glXMakeCurrent(win.dpy, 0, 0);
     glXDestroyContext(win.dpy, glContext);
@@ -929,5 +937,6 @@ void main_gui() {
     XFreeColormap(win.dpy, win.cmap);
     XDestroyWindow(win.dpy, win.win);
     XCloseDisplay(win.dpy);
+    xTaskResumeAll();
 
 }

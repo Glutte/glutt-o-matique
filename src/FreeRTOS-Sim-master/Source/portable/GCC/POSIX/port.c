@@ -505,7 +505,6 @@ void *prvWaitForStart( void * pvParams )
 xParams * pxParams = ( xParams * )pvParams;
 pdTASK_CODE pvCode = pxParams->pxCode;
 void * pParams = pxParams->pvParams;
-	vPortFree( pvParams );
 
 	pthread_cleanup_push( prvDeleteThread, (void *)pthread_self() );
 
@@ -513,6 +512,10 @@ void * pParams = pxParams->pvParams;
 	{
 		prvSuspendThread( pthread_self() );
 	}
+
+	/* heap_3's vPortFree() uses the scheduler.  Do not call it until this
+	 * pthread has been registered as a task and selected to run. */
+	vPortFree( pvParams );
 
 	pvCode( pParams );
 
