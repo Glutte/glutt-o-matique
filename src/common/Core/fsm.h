@@ -90,7 +90,7 @@ struct fsm_input_signals_t {
     /* Signals coming from FAX and 1750 detector */
     int fax_mode;          // 1750Hz filter disabled for machine-generated modes
     int det_1750;          // 1750Hz detected
-    int long_1750;         // 1750Hz detected for more than 5s
+    int long_dtmf_1;       // DTMF 1 detected for more than 5s
 
     /* Signals coming from CW and PSK generator */
     int cw_psk_done;       // The CW and PSK generator has finished transmitting the message

@@ -84,11 +84,13 @@ static QueueHandle_t m_squared_queue;
 static int32_t normalised_results[NUM_DETECTORS];
 
 static int num_tone_1750_detected = 0;
-static uint64_t tone_1750_detected_since = 0;
 static int detectors_enabled = 0;
 
 static enum dtmf_code dtmf_last_seen = 0;
 static uint64_t dtmf_last_seen_at = 0;
+
+static int num_dtmf_1_detected = 0;
+const int num_dtmf_1_required = 3;
 
 // Store the sequence of dtmf codes in this FIFO. If no DTMF code gets
 // decoded in the interval, a NONE gets inserted into the sequence
@@ -171,6 +173,18 @@ static void analyse_dtmf()
         dtmf_last_seen = DTMF_NONE;
         dtmf_last_seen_at = timestamp_now();
     }
+
+    // Long DTMF1 tone detector
+    const int dtmf_1_detected =
+          normalised_results[DET_COL_1] > thresh_dtmf &&
+          normalised_results[DET_ROW_7] > thresh_dtmf;
+
+    if (num_dtmf_1_detected < num_1750_required && dtmf_1_detected) {
+        num_dtmf_1_detected++;
+    }
+    else if (num_dtmf_1_detected > 0 && !dtmf_1_detected) {
+        num_dtmf_1_detected--;
+    }
 }
 
 
@@ -179,10 +193,9 @@ int tone_1750_status()
     return num_tone_1750_detected >= num_1750_required;
 }
 
-int tone_1750_for_5_seconds()
+int tone_dtmf_1_for_5_seconds()
 {
-    return (num_tone_1750_detected >= num_1750_required) &&
-        tone_1750_detected_since + 5000 < timestamp_now();
+    return num_dtmf_1_detected >= num_dtmf_1_required;
 }
 
 int tone_fax_status()
@@ -315,10 +328,6 @@ void tone_do_analysis()
     if (num_tone_1750_detected < num_1750_required &&
             normalised_results[DET_1750] > thresh_1750) {
         num_tone_1750_detected++;
-
-        if (num_tone_1750_detected == num_1750_required) {
-            tone_1750_detected_since = timestamp_now();
-        }
     }
     else if (num_tone_1750_detected > 0 &&
             normalised_results[DET_1750] <= thresh_1750) {
@@ -330,14 +339,12 @@ void tone_do_analysis()
 #if PRINT_TONES_STATS
     static int printcounter = 0;
     if (++printcounter == 5) {
-        usart_debug("Tones: % 3d % 3d % 3d % 3d % 3d since %d\r\n",
+        usart_debug("Tones: % 3d % 3d % 3d % 3d % 3d\r\n",
                 normalised_results[0],
                 normalised_results[1],
                 normalised_results[2],
                 normalised_results[3],
-                normalised_results[4],
-                (int)(timestamp_now() - tone_1750_detected_since)
-                );
+                normalised_results[4]);
 
         printcounter = 0;
     }

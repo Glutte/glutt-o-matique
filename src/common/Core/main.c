@@ -669,7 +669,7 @@ static void exercise_fsm(void __attribute__ ((unused))*pvParameters)
         fsm_input.det_1750 = current_tone_1750_status;
         pio_set_det_1750(current_tone_1750_status);
 
-        fsm_input.long_1750 = tone_1750_for_5_seconds();
+        fsm_input.long_dtmf_1 = tone_dtmf_1_for_5_seconds();
 
         // TODO implement a DTMF controlled state machine for setting SQ2
         pio_set_sq2(0);

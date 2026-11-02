@@ -811,7 +811,7 @@ int fsm_sstv_update() {
             if (current_state == FSM_BALISE_LONGUE ||
                 current_state == FSM_ANTI_BAVARD ||
                 current_state == FSM_BALISE_SPECIALE ||
-                fsm_in.long_1750
+                fsm_in.long_dtmf_1
             ) {
                 next_state = SSTV_FSM_OFF;
             }
