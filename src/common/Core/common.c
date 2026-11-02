@@ -64,7 +64,7 @@ int find_last_sunday(const struct tm* time) {
         }
 
         const int sunday = 0;
-        if (t.tm_wday == sunday) {
+        if (t.tm_mon == time->tm_mon && t.tm_wday == sunday) {
             last_sunday = t.tm_mday;
         }
     }
