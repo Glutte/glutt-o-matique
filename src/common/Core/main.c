@@ -282,8 +282,9 @@ static void launcher_task(void __attribute__ ((unused))*pvParameters)
         if (fsm_out.tx_on) {
             int swr_fwd_mv, swr_refl_mv;
             if (analog_measure_swr(&swr_fwd_mv, &swr_refl_mv)) {
+                usart_debug("SWR fwd %d mV, refl %d mv\r\n", swr_fwd_mv, swr_refl_mv);
+
                 if (swr_refl_mv > swr_refl_threshold) {
-                    usart_debug("SWR meas %d mV\r\n", swr_refl_mv);
                     swr_error_counter++;
                 }
                 else {
